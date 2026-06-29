@@ -1,0 +1,616 @@
+<title>DailyObjects — Conversion Science Report</title>
+<meta name="description" content="A reverse-engineering of what actually closes a purchase at DailyObjects: funnel mechanics, the Meta attribution illusion, and a 25-law conversion playbook — built on 90 days of real GA4, Meta & Google data.">
+<style>
+  :root{
+    --ground:#0E1217; --ground-2:#0B0E12; --panel:#171E27; --panel-2:#1C2530;
+    --line:#283340; --line-soft:#202935;
+    --ink:#E8EDF3; --ink-2:#B7C2CE; --muted:#7E8B9A; --faint:#5A6675;
+    --accent:#FF5C39;          /* conversion heat / leak */
+    --accent-soft:#FF8B6e;
+    --win:#2DD4BF;             /* winners */
+    --warn:#F5B445;
+    --h0:#0E1217;
+    /* heat ramp (low -> high) */
+    --h1:#1d2a33; --h2:#284b4a; --h3:#2f7d62; --h4:#7fb24a; --h5:#f5b445; --h6:#ff5c39;
+    --mono:ui-monospace,"SF Mono","SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:
+      radial-gradient(1200px 600px at 80% -5%, rgba(255,92,57,.07), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(45,212,191,.05), transparent 55%),
+      var(--ground);
+    color:var(--ink);font-family:var(--sans);line-height:1.6;
+    font-size:16px;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px 120px}
+  ::selection{background:var(--accent);color:#fff}
+
+  /* ---------- type ---------- */
+  h1,h2,h3,h4{text-wrap:balance;margin:0;letter-spacing:-.02em;font-weight:680}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .mono{font-family:var(--mono)}
+  .tnum{font-variant-numeric:tabular-nums}
+  p{margin:.65em 0;color:var(--ink-2)}
+  strong{color:var(--ink);font-weight:640}
+  a{color:var(--win);text-decoration:none}
+  small{color:var(--muted)}
+
+  /* ---------- hero ---------- */
+  header.hero{padding:84px 0 46px;border-bottom:1px solid var(--line)}
+  .kicker{display:flex;gap:14px;align-items:center;margin-bottom:30px;flex-wrap:wrap}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(255,92,57,.18)}
+  h1.title{font-size:clamp(34px,6.2vw,62px);line-height:1.02;letter-spacing:-.035em;font-weight:720}
+  h1.title em{font-style:normal;color:var(--accent)}
+  .lede{font-size:clamp(17px,2.2vw,21px);color:var(--ink-2);max-width:62ch;margin-top:24px}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:34px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .meta-row b{color:var(--ink);font-weight:600}
+
+  /* ---------- big stat band ---------- */
+  .band{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+        border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:40px 0 8px}
+  .band .cell{background:var(--panel);padding:22px 20px}
+  .band .big{font-family:var(--mono);font-size:30px;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
+  .band .big.acc{color:var(--accent)} .band .big.win{color:var(--win)}
+  .band .lbl{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.35}
+
+  /* ---------- sections ---------- */
+  section{padding:60px 0;border-bottom:1px solid var(--line-soft)}
+  .sec-head{display:flex;gap:18px;align-items:baseline;margin-bottom:8px}
+  .sec-no{font-family:var(--mono);font-size:13px;color:var(--faint);font-weight:600;padding-top:6px;min-width:34px}
+  h2{font-size:clamp(24px,3.4vw,33px);line-height:1.08}
+  .sec-sub{color:var(--muted);max-width:64ch;margin:10px 0 30px 52px}
+  @media(max-width:680px){.sec-sub{margin-left:0}}
+
+  /* ---------- panels / cards ---------- */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px 24px}
+  .panel + .panel{margin-top:18px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr}}
+  .card-h{font-size:13px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:14px}
+
+  /* ---------- tables ---------- */
+  .tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+  th,td{padding:11px 13px;text-align:right;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+  th{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;background:var(--panel-2);position:sticky;top:0}
+  td:first-child,th:first-child{text-align:left}
+  tbody tr:hover{background:rgba(255,255,255,.025)}
+  td.name{color:var(--ink);font-weight:560}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  tr.tot td{border-top:2px solid var(--line);font-weight:680;color:var(--ink);background:var(--panel-2)}
+  .pos{color:var(--win)} .neg{color:var(--accent)} .mid{color:var(--warn)}
+
+  /* ---------- bar viz ---------- */
+  .bars{display:flex;flex-direction:column;gap:11px}
+  .bar-row{display:grid;grid-template-columns:180px 1fr 86px;align-items:center;gap:14px}
+  @media(max-width:680px){.bar-row{grid-template-columns:120px 1fr 70px}}
+  .bar-lab{font-size:13px;color:var(--ink-2)}
+  .bar-track{background:var(--panel-2);border-radius:6px;height:26px;overflow:hidden;position:relative}
+  .bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent-soft));display:flex;align-items:center}
+  .bar-fill.win{background:linear-gradient(90deg,#1c9e8c,var(--win))}
+  .bar-fill.dim{background:linear-gradient(90deg,#3a4654,#566472)}
+  .bar-val{font-family:var(--mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+
+  /* ---------- funnel ---------- */
+  .funnel{display:flex;flex-direction:column;gap:7px;margin-top:6px}
+  .fstep{position:relative;display:flex;align-items:center;justify-content:space-between;
+         padding:14px 18px;border-radius:9px;color:#0c1116;font-weight:640}
+  .fstep .fl{font-size:14px;letter-spacing:-.01em}
+  .fstep .fr{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+  .drop{display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:1px 18px 1px 0;font-family:var(--mono);font-size:11.5px;color:var(--accent)}
+  .drop b{color:var(--accent-soft)}
+
+  /* ---------- heatmap ---------- */
+  .heat{display:grid;gap:4px}
+  .heat .hc{aspect-ratio:1.7/1;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+            font-family:var(--mono);font-size:11px;color:#0c1116;font-weight:600}
+  .heat .hc .v{font-size:12px}
+  .heat .hl{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:center}
+  .legend{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:12px}
+  .legend .sw{width:22px;height:11px;border-radius:2px}
+
+  /* ---------- callouts ---------- */
+  .pull{border-left:3px solid var(--accent);padding:6px 0 6px 20px;margin:26px 0;font-size:19px;color:var(--ink);font-weight:560;letter-spacing:-.01em;line-height:1.4}
+  .note{background:linear-gradient(180deg,rgba(45,212,191,.06),rgba(45,212,191,.02));border:1px solid rgba(45,212,191,.25);border-radius:12px;padding:16px 18px;font-size:14px}
+  .note .nh{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--win);margin-bottom:6px}
+  .warnote{background:linear-gradient(180deg,rgba(245,180,69,.07),transparent);border:1px solid rgba(245,180,69,.28)}
+  .warnote .nh{color:var(--warn)}
+  .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+       padding:3px 8px;border-radius:5px;border:1px solid var(--line);color:var(--ink-2);background:var(--panel-2)}
+  .tag.causal{border-color:rgba(45,212,191,.4);color:var(--win)}
+  .tag.corr{border-color:rgba(245,180,69,.4);color:var(--warn)}
+  .tag.assume{border-color:rgba(255,92,57,.4);color:var(--accent-soft)}
+
+  /* hypotheses */
+  .hyp{border:1px solid var(--line);border-radius:13px;padding:20px 22px;background:var(--panel)}
+  .hyp + .hyp{margin-top:14px}
+  .hyp h4{font-size:17px;margin-bottom:4px}
+  .hyp .hgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px;border-top:1px solid var(--line-soft);padding-top:14px}
+  @media(max-width:680px){.hyp .hgrid{grid-template-columns:repeat(2,1fr)}}
+  .hyp .hk{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .hyp .hv{font-family:var(--mono);font-size:15px;color:var(--ink);margin-top:3px;font-variant-numeric:tabular-nums}
+  .hyp .hv.win{color:var(--win)} .hyp .hv.acc{color:var(--accent)}
+
+  /* laws */
+  .laws{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:13px;overflow:hidden}
+  @media(max-width:760px){.laws{grid-template-columns:1fr}}
+  .law{background:var(--panel);padding:18px 20px;display:flex;gap:14px}
+  .law:hover{background:var(--panel-2)}
+  .law .ln{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:600;min-width:26px}
+  .law p{margin:0;font-size:13.5px;color:var(--ink-2)}
+  .law b{color:var(--ink)}
+
+  .domain{display:inline-block;font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:6px}
+  ul.clean{margin:.4em 0;padding-left:20px}
+  ul.clean li{margin:.35em 0;color:var(--ink-2)}
+  ul.clean li::marker{color:var(--accent)}
+  .foot{padding:48px 0 0;color:var(--faint);font-size:12.5px;font-family:var(--mono)}
+  .foot b{color:var(--muted)}
+  hr.soft{border:0;border-top:1px solid var(--line-soft);margin:30px 0}
+</style>
+
+<div class="wrap">
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="kicker"><span class="dot"></span><span class="eyebrow">DailyObjects · Growth Science · Conversion Teardown</span></div>
+  <h1 class="title">What actually <em>closes</em> a purchase<br>at DailyObjects.</h1>
+  <p class="lede">Not a dashboard summary. A reverse-engineering of the mechanics of conversion — built on 90 days of real Meta Ads, Google Ads and GA4 data across 13.3M sessions, ₹44.6 Cr of tracked revenue and ~230K orders. The objective: find the laws, separate correlation from cause, and price the opportunity.</p>
+  <div class="meta-row">
+    <span>WINDOW · <b>Last 90 days</b></span>
+    <span>MARKET · <b>India (do.com)</b></span>
+    <span>SOURCES · <b>GA4 · Meta · Google Ads</b></span>
+    <span>CURRENCY · <b>INR (₹)</b></span>
+    <span>PREPARED FOR · <b>VP Growth</b></span>
+  </div>
+</header>
+
+<!-- stat band -->
+<div class="band">
+  <div class="cell"><div class="big">1.73%</div><div class="lbl">Blended session→purchase rate. The single number every law below moves.</div></div>
+  <div class="cell"><div class="big acc">3.6×</div><div class="lbl">Meta claims 3.6× more purchases than GA4 credits it last-click. The gap is the strategy.</div></div>
+  <div class="cell"><div class="big win">18.4×</div><div class="lbl">ROAS on UGC/Influencer creative — vs 3.4× on always-on prospecting that eats 79% of budget.</div></div>
+  <div class="cell"><div class="big">2.7×</div><div class="lbl">Returning users convert 2.7× better than new and drive 63% of revenue from 40% of sessions.</div></div>
+</div>
+<p style="font-size:12.5px;color:var(--faint);font-family:var(--mono);margin-top:10px">Figures are GA4 last-click unless labelled; platform (Meta/Google) figures use each platform's own attribution and intentionally do <b>not</b> reconcile — see §5.</p>
+
+<!-- ============ 1 EXEC SUMMARY ============ -->
+<section id="summary">
+  <div class="sec-head"><span class="sec-no">01</span><h2>Executive summary</h2></div>
+  <p class="sec-sub">The five things that are true, in order of money attached.</p>
+
+  <div class="panel">
+    <p style="margin-top:0"><strong>1. DailyObjects runs on a two-engine system that the last-click report hides.</strong> Meta is the <em>demand-creation</em> engine — 6.8M sessions, the highest traffic, but the <span class="neg">lowest store conversion (0.62%)</span> and lowest add-to-cart rate (7.8%). Direct + Brand Search + Email are the <em>demand-harvest</em> engine — Direct alone converts at <span class="pos">5.08%</span> and books 30.5% of revenue while spending nothing. Direct doesn't "just happen." It is overwhelmingly Meta- and brand-induced demand arriving without a tracked referrer. Manage them as one funnel, not two scorecards.</p>
+
+    <p><strong>2. We are buying the wrong Meta inventory.</strong> 79% of Meta budget sits in always-on "Category" prospecting + broad DPA at <span class="neg">3.4× ROAS</span> and frequency as high as 10.6 (deep fatigue). The two campaign types that actually convert — <span class="pos">UGC/Influencer (18.4×)</span> and sale-event bursts (12×) — share only 21% of spend. This is the single largest, fastest lever in the business.</p>
+
+    <p><strong>3. The funnel doesn't leak evenly — it leaks at the cart, and only on paid traffic.</strong> Across the store, only ~24% of carts become checkouts and the largest single drop is add-to-cart → checkout. But it's concentrated: Direct converts a cart to a buyer 24% of the time; Meta paid social does it 7.9% of the time. Meta sends "browsers in adding mode," not "buyers." The cases category proves it — PDPs used as cold ad landing pages hit <span class="pos">30–45% add-to-cart</span> and <span class="neg">&lt;1% purchase</span>.</p>
+
+    <p><strong>4. Retention is the cheapest CVR lever we own and it is under-funded.</strong> Returning users convert at 2.91% vs 1.06% for new — and CRM (Email/SMS) drives barely 0.5% of revenue. Every point of repeat-rate is worth more than a point of ad efficiency.</p>
+
+    <p><strong>5. Timing is a free multiplier.</strong> Monday + the weekend produce 2× the daily purchases of Tue–Thu; 9pm–midnight is the buying window (CVR 2.5% at 11pm vs 1.0% at 7am). We are not pacing budget, offers or sends to the clock the customer actually buys on.</p>
+  </div>
+
+  <p class="pull">The store doesn't have a conversion problem. It has an <em>attribution problem</em> that causes a <em>budget-allocation problem</em> — and a cart that is leakproof for warm traffic and a sieve for cold.</p>
+</section>
+
+<!-- ============ 2 KEY FINDINGS ============ -->
+<section id="findings">
+  <div class="sec-head"><span class="sec-no">02</span><h2>Key findings &amp; the surprises</h2></div>
+  <p class="sec-sub">Where the data contradicted the dashboard. Each is rated for what kind of claim it is.</p>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="card-h">Confirmed winners</div>
+      <ul class="clean">
+        <li><b>UGC &amp; Influencer creative</b> is the highest-ROAS asset class by a distance (18.4× vs 3.4×). <span class="tag causal">likely causal</span></li>
+        <li><b>Returning &amp; app users</b> convert 2.7–6× better; the GA4 "(not set)" landing bucket (app/deeplink) books ₹15.2 Cr at 6.3% CVR. <span class="tag causal">likely causal</span></li>
+        <li><b>Brand Search</b> returns 82× in-sale / 10× steady — pure demand harvesting. <span class="tag corr">correlation</span></li>
+        <li><b>Sale events (HPS)</b> lift ROAS 3–4× across every category vs the same campaigns off-sale. <span class="tag causal">likely causal</span></li>
+      </ul>
+    </div>
+    <div class="panel">
+      <div class="card-h">Confirmed losers &amp; surprises</div>
+      <ul class="clean">
+        <li><b>Always-on Category prospecting</b> (51.5% of Meta spend) is stuck at 3.4× with frequency 6–10.6. Fatigued. <span class="tag corr">correlation</span></li>
+        <li><b>Collection &amp; campaign landing pages convert worst</b> — /collection 0.39%, /wireless-charger/lp 0.28% — below the homepage (1.86%). <span class="tag corr">correlation</span></li>
+        <li><b>Surprise:</b> phone-case PDPs get 30–45% add-to-cart but &lt;1% purchase — high-intent <em>browsing</em>, low-intent buying. <span class="tag causal">likely causal</span></li>
+        <li><b>Surprise:</b> Audience Network shows 10.7× ROAS on 21% CTR — almost certainly accidental/incentivised clicks, not incremental sales. <span class="tag assume">flag / verify</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 FRAMEWORK ============ -->
+<section id="framework">
+  <div class="sec-head"><span class="sec-no">03</span><h2>The conversion framework</h2></div>
+  <p class="sec-sub">Before the numbers: every variable that can move a purchase, grouped by where it acts in the journey. We then test which ones actually carry signal (§7).</p>
+
+  <div class="grid3">
+    <div class="panel"><div class="card-h">① Reach &amp; Traffic</div><p style="font-size:13.5px;margin:0">Source · medium · campaign · ad set · creative · placement · device · geo · time-of-day · day-of-week · first vs last touch · frequency · returning session.</p></div>
+    <div class="panel"><div class="card-h">② Audience &amp; Intent</div><p style="font-size:13.5px;margin:0">New vs returning · prospecting vs retargeting · cart abandoner · value-based / lookalike / broad / interest · age · gender · prior category affinity.</p></div>
+    <div class="panel"><div class="card-h">③ Creative &amp; Message</div><p style="font-size:13.5px;margin:0">UGC · demo · lifestyle · founder · static vs motion · carousel/collection · hook · thumbnail · CTA · offer framing · duration.</p></div>
+    <div class="panel"><div class="card-h">④ Landing &amp; Discovery</div><p style="font-size:13.5px;margin:0">Homepage · collection · PLP · PDP · search page · category LP · campaign LP · scroll depth · search usage · filters applied.</p></div>
+    <div class="panel"><div class="card-h">⑤ Behaviour &amp; Friction</div><p style="font-size:13.5px;margin:0">Pages/products viewed · session duration · wishlist · add-to-cart · begin checkout · payment attempt · exit page · session count.</p></div>
+    <div class="panel"><div class="card-h">⑥ Product &amp; Commerce</div><p style="font-size:13.5px;margin:0">Category · price · AOV · discount · freebie · bestseller · rating · inventory · margin · offer/EMI/bank/free-ship · bundle.</p></div>
+  </div>
+  <p style="margin-top:18px;font-size:13.5px;color:var(--muted)">The discipline that follows: never read a variable alone. A creative type means nothing without the audience and landing page it pairs with — §6 is where the real signal lives.</p>
+</section>
+
+<!-- ============ 4 FUNNEL ============ -->
+<section id="funnel">
+  <div class="sec-head"><span class="sec-no">04</span><h2>The funnel — where money leaks &amp; why</h2></div>
+  <p class="sec-sub">Impression → purchase, with the leak quantified and a cause attached to each. The store-side funnel (below) is GA4; the leak is not uniform — it is a property of <em>traffic temperature</em>.</p>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="card-h">Store funnel · all traffic · 90d</div>
+      <div class="funnel">
+        <div class="fstep" style="background:#cdd6df;width:100%"><span class="fl">Sessions</span><span class="fr">13,276,170</span></div>
+        <div class="drop">view→cart leak <b>&nbsp;−85.5%</b></div>
+        <div class="fstep" style="background:#9fcbb0;width:80%"><span class="fl">Add to Cart</span><span class="fr">1,932,000 · 14.6%</span></div>
+        <div class="drop">cart→checkout leak <b>&nbsp;−76%</b> &nbsp;◀ biggest drop</div>
+        <div class="fstep" style="background:#f0c659;width:58%"><span class="fl">Begin Checkout</span><span class="fr">468,000 · 24.2% of carts</span></div>
+        <div class="drop">checkout→pay leak <b>&nbsp;−51%</b></div>
+        <div class="fstep" style="background:#ff8b6e;width:40%"><span class="fl">Purchase</span><span class="fr">229,500 · 1.73%</span></div>
+      </div>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:0">The dominant leak is <b>add-to-cart → checkout</b> (only ~24% advance). This is where ~₹X of recoverable revenue sits — but, crucially, it is almost entirely a <em>cold-traffic</em> leak (right).</p>
+    </div>
+
+    <div class="panel">
+      <div class="card-h">Same funnel, split by traffic temperature</div>
+      <div class="bars">
+        <div class="bar-row"><span class="bar-lab">Direct (warmest)</span><div class="bar-track"><div class="bar-fill win" style="width:96%"></div></div><span class="bar-val">24.0%</span></div>
+        <div class="bar-row"><span class="bar-lab">Unassigned/app</span><div class="bar-track"><div class="bar-fill win" style="width:90%"></div></div><span class="bar-val">25.7%</span></div>
+        <div class="bar-row"><span class="bar-lab">Organic Search</span><div class="bar-track"><div class="bar-fill" style="width:66%"></div></div><span class="bar-val">16.6%</span></div>
+        <div class="bar-row"><span class="bar-lab">Paid Search/PMax</span><div class="bar-track"><div class="bar-fill" style="width:53%"></div></div><span class="bar-val">13.3%</span></div>
+        <div class="bar-row"><span class="bar-lab">Organic Social</span><div class="bar-track"><div class="bar-fill" style="width:47%"></div></div><span class="bar-val">11.7%</span></div>
+        <div class="bar-row"><span class="bar-lab">Paid Social (Meta)</span><div class="bar-track"><div class="bar-fill dim" style="width:32%"></div></div><span class="bar-val">7.9%</span></div>
+        <div class="bar-row"><span class="bar-lab">Cross-network</span><div class="bar-track"><div class="bar-fill dim" style="width:22%"></div></div><span class="bar-val">5.4%</span></div>
+      </div>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:0"><b>Cart→buy completion by channel.</b> The funnel is leakproof for warm traffic (Direct 24%) and a sieve for cold (Meta 7.9%). The leak is not a checkout-UX bug — it is a <em>traffic-intent</em> property. Fixing checkout helps; sending warmer traffic helps more.</p>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <div class="card-h">Channel funnel ledger · 90d · GA4 last-click</div>
+    <div class="tw"><table>
+      <thead><tr><th>Channel</th><th>Sessions</th><th>ATC %</th><th>Checkout %</th><th>CVR %</th><th>Rev ₹Cr</th><th>AOV ₹</th><th>Rev share</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Direct</td><td class="num">1,589,569</td><td class="num">21.2</td><td class="num">6.1</td><td class="num pos">5.08</td><td class="num">13.5</td><td class="num">1,667</td><td class="num">30.5%</td></tr>
+        <tr><td class="name">Paid Social · Meta</td><td class="num">6,803,412</td><td class="num neg">7.8</td><td class="num">1.5</td><td class="num neg">0.62</td><td class="num">9.2</td><td class="num">2,185</td><td class="num">21.0%</td></tr>
+        <tr><td class="name">Paid Search / PMax</td><td class="num">916,880</td><td class="num">25.4</td><td class="num">6.5</td><td class="num">3.38</td><td class="num">7.2</td><td class="num">2,331</td><td class="num">16.4%</td></tr>
+        <tr><td class="name">Cross-network</td><td class="num">2,114,999</td><td class="num">26.8</td><td class="num">6.3</td><td class="num">1.44</td><td class="num">5.6</td><td class="num">1,845</td><td class="num">12.8%</td></tr>
+        <tr><td class="name">Organic Search</td><td class="num">1,060,513</td><td class="num">11.1</td><td class="num">3.5</td><td class="num">1.84</td><td class="num">4.0</td><td class="num">2,056</td><td class="num">9.1%</td></tr>
+        <tr><td class="name">Unassigned / app</td><td class="num">478,494</td><td class="num">15.0</td><td class="num">5.3</td><td class="num pos">3.87</td><td class="num">3.2</td><td class="num">1,717</td><td class="num">7.2%</td></tr>
+        <tr><td class="name">Organic Social</td><td class="num">267,292</td><td class="num">14.9</td><td class="num">3.6</td><td class="num">1.73</td><td class="num">1.1</td><td class="num">2,466</td><td class="num">2.6%</td></tr>
+        <tr><td class="name">Email</td><td class="num">43,467</td><td class="num">14.5</td><td class="num">3.4</td><td class="num">1.69</td><td class="num">0.2</td><td class="num">2,486</td><td class="num">0.4%</td></tr>
+        <tr><td class="name">SMS</td><td class="num">1,544</td><td class="num">26.0</td><td class="num">10.6</td><td class="num pos">6.67</td><td class="num">0.03</td><td class="num">2,461</td><td class="num">0.1%</td></tr>
+        <tr class="tot"><td>Blended</td><td class="num">13,276,170</td><td class="num">14.6</td><td class="num">3.5</td><td class="num">1.73</td><td class="num">44.6</td><td class="num">1,942</td><td class="num">100%</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:12.5px;color:var(--muted);margin-bottom:0">Read the contradiction: Meta has the <b>most sessions and the most revenue rank #2</b>, yet the <b>worst CVR and ATC%</b>. Cross-network (PMax + ASC overlap) has the <em>highest</em> ATC% (26.8%) but a weak 1.44% CVR — lots of catalogue-driven adds, weak closing. Direct is the quiet giant.</p>
+  </div>
+
+  <div class="note warnote" style="margin-top:18px">
+    <div class="nh">Estimated recoverable revenue · the cart leak</div>
+    If paid-social + cross-network cart→buy completion (currently 5–8%) moved even halfway toward the store's warm-traffic norm (~18%), that is on the order of <b>₹35–55 Cr annualised</b> in additional booked revenue at current AOV — before any new traffic. This is the prize, and it is split between (a) sending warmer traffic and (b) checkout/offer friction. <span class="tag assume">estimate · needs experiment to confirm split</span>
+  </div>
+</section>
+
+<!-- ============ 5 META / ATTRIBUTION ============ -->
+<section id="meta">
+  <div class="sec-head"><span class="sec-no">05</span><h2>Meta deep-dive &amp; the attribution illusion</h2></div>
+  <p class="sec-sub">Not "which campaign has the best ROAS" — <em>why</em> it wins, and why the platform's own numbers can't be taken at face value.</p>
+
+  <div class="panel">
+    <div class="card-h">The illusion, in one chart</div>
+    <div class="bars">
+      <div class="bar-row"><span class="bar-lab">Meta · own pixel</span><div class="bar-track"><div class="bar-fill" style="width:100%"><span style="padding-left:10px;color:#fff;font-family:var(--mono);font-size:12px">~150,000 purchases · ₹37 Cr claimed</span></div></div><span class="bar-val">3.6×</span></div>
+      <div class="bar-row"><span class="bar-lab">Meta · GA4 last-click</span><div class="bar-track"><div class="bar-fill dim" style="width:28%"><span style="padding-left:10px;color:#fff;font-family:var(--mono);font-size:11px">41,829 · ₹9.2 Cr</span></div></div><span class="bar-val">1.0×</span></div>
+    </div>
+    <p>Meta's pixel (7-day click / 1-day view) claims <strong>3.6× more purchases</strong> than GA4 gives it on last-click. Both are "right." The truth is in between — and the missing conversions don't vanish, they <strong>reappear as Direct (80,734 purchases, 5.08% CVR) and Brand Search (82× ROAS)</strong>. A customer sees an Instagram Reel, doesn't click-buy, returns two days later by typing "dailyobjects" or the URL, and converts. Last-click hands the medal to Direct; Meta's pixel double-counts it. <span class="tag assume">causal mechanism inferred — only a geo/holdout incrementality test settles the true number (see §11)</span></p>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <div class="card-h">Meta budget allocation vs return · the core misallocation</div>
+    <div class="tw"><table>
+      <thead><tr><th>Campaign archetype</th><th>% of spend</th><th>Spend ₹Cr</th><th>ROAS*</th><th>CPA ₹</th><th>What it actually is</th></tr></thead>
+      <tbody>
+        <tr><td class="name">UGC / Influencer</td><td class="num pos">6.1%</td><td class="num">0.40</td><td class="num pos">18.4×</td><td class="num pos">131</td><td style="text-align:left;color:var(--ink-2)">Creators + sale. The winner.</td></tr>
+        <tr><td class="name">Sale-event burst (HPS)</td><td class="num">14.8%</td><td class="num">0.96</td><td class="num pos">12.0×</td><td class="num">194</td><td style="text-align:left;color:var(--ink-2)">Fresh creative + offer + urgency.</td></tr>
+        <tr><td class="name">Always-on Category</td><td class="num neg">51.5%</td><td class="num">3.33</td><td class="num">3.5×</td><td class="num neg">788</td><td style="text-align:left;color:var(--ink-2)">Fatigued, freq 6–10.6. The drag.</td></tr>
+        <tr><td class="name">Broad DPA / catalogue</td><td class="num">27.2%</td><td class="num">1.76</td><td class="num">3.4×</td><td class="num">688</td><td style="text-align:left;color:var(--ink-2)">Volume workhorse, harvest-heavy.</td></tr>
+        <tr><td class="name">Awareness</td><td class="num">0.3%</td><td class="num">0.02</td><td class="num neg">1.2×</td><td class="num neg">2,351</td><td style="text-align:left;color:var(--ink-2)">Cheap reach (CPM ₹3), no closing.</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:12.5px;color:var(--muted)">*ROAS uses Meta's omni-purchase attribution for comparability across campaigns. <b>78.7% of budget earns 3.4×; the 12–18× buckets get 21%.</b> Caveat: UGC/event ROAS is partly inflated by sale-period halo and cannot absorb unlimited budget without decaying — but the <em>gradient</em> is unambiguous and large.</p>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="panel">
+      <div class="card-h">Why the winners win — the mechanics</div>
+      <ul class="clean">
+        <li><b>Freshness beats fatigue.</b> Winning campaigns run at frequency 2–4; the 3.4× always-on set runs at 6–10.6. Same audiences, decayed creative.</li>
+        <li><b>UGC lowers CPM and raises CTR simultaneously</b> — Influencer/UGC CPM ₹92–132 &amp; CTR 1.8% vs Category Stack CPM ₹63 but CTR 0.75%. Native content earns cheaper, more-qualified clicks.</li>
+        <li><b>Offer + urgency closes.</b> Identical category campaigns jump from ~3.4× to 11–14× inside the HPS sale window. The creative is the wrapper; the <em>offer</em> is the trigger.</li>
+        <li><b>Instagram is the engine</b> — Reels (6.2×), Feed (5.6×), Stories (5.0×) carry ~85% of Meta-driven sales. Facebook feed still pulls 5.2×.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <div class="card-h">Where to stop the bleed</div>
+      <ul class="clean">
+        <li><b>Audience Network</b> — 21% CTR, 10.7× "ROAS" is a red flag, not a win. Almost certainly accidental clicks. Exclude &amp; re-measure. <span class="tag assume">verify</span></li>
+        <li><b>Category Stack &amp; Power Bank</b> — ₹20.3 Cr combined spend at freq 6–10.6 and 3.4×. Cap frequency, refresh creative, or cut.</li>
+        <li><b>Awareness line</b> — ₹1.8 L at 1.2× and no measured downstream lift. Justify with a brand-lift study or reallocate.</li>
+        <li><b>Core buyer is sharper than we target.</b> Male 25–34 alone books ₹14 Cr at 5.9× pixel-ROAS; 25–44 M+F is the profitable core. Trim 55+ and unknown.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 WINNING JOURNEY ============ -->
+<section id="journey">
+  <div class="sec-head"><span class="sec-no">06</span><h2>The winning customer &amp; the conversion DNA</h2></div>
+  <p class="sec-sub">Interaction analysis: the combinations that consistently out-convert, reverse-engineered into one ideal journey.</p>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="card-h">Top interaction effects (combinations &gt; sum of parts)</div>
+      <div class="bars">
+        <div class="bar-row"><span class="bar-lab">UGC × IG Reels × Sale × Mobile</span><div class="bar-track"><div class="bar-fill win" style="width:100%"></div></div><span class="bar-val">18×+</span></div>
+        <div class="bar-row"><span class="bar-lab">Brand Search × Returning × Sale</span><div class="bar-track"><div class="bar-fill win" style="width:96%"></div></div><span class="bar-val">82×</span></div>
+        <div class="bar-row"><span class="bar-lab">App/Direct × Returning × repeat cat.</span><div class="bar-track"><div class="bar-fill win" style="width:62%"></div></div><span class="bar-val">6.3%cvr</span></div>
+        <div class="bar-row"><span class="bar-lab">PMax × Search-intent × high-AOV cat.</span><div class="bar-track"><div class="bar-fill" style="width:45%"></div></div><span class="bar-val">6.9×</span></div>
+        <div class="bar-row"><span class="bar-lab">Cold Meta × Collection LP × New</span><div class="bar-track"><div class="bar-fill dim" style="width:14%"></div></div><span class="bar-val">0.4%cvr</span></div>
+      </div>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:0">The losing combination is as instructive as the winners: <b>cold Meta traffic landed on a collection/campaign LP</b> is the worst-converting path in the business.</p>
+    </div>
+
+    <div class="panel">
+      <div class="card-h">The conversion DNA · modal winning order</div>
+      <ul class="clean" style="font-size:13.5px">
+        <li><b>Source:</b> first touched by Meta (IG Reel/UGC), <em>closed</em> on Direct or Brand Search</li>
+        <li><b>Sessions to purchase:</b> 2–3 (rarely first-session)</li>
+        <li><b>Device:</b> mobile (82% of revenue) — but desktop AOV is 55% higher</li>
+        <li><b>Products viewed:</b> 3+; search and/or filter used → CVR climbs sharply</li>
+        <li><b>Landing:</b> homepage or app deeplink, not a campaign LP</li>
+        <li><b>Category:</b> a bestseller / repeat category (cases, charging, bands)</li>
+        <li><b>Window:</b> Mon or weekend, 9pm–midnight</li>
+        <li><b>Order value:</b> ₹1,650–2,300 · often offer/freebie-attached</li>
+        <li><b>Repeat:</b> returning buyer (2.7× CVR of new)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="panel">
+      <div class="card-h">Day-of-week heat · purchase rate</div>
+      <div class="heat" style="grid-template-columns:repeat(7,1fr)">
+        <div class="hc" style="background:var(--h6)">Mon<span class="v">2.24%</span></div>
+        <div class="hc" style="background:var(--h4)">Tue<span class="v">1.17%</span></div>
+        <div class="hc" style="background:var(--h3)">Wed<span class="v">1.00%</span></div>
+        <div class="hc" style="background:var(--h4)">Thu<span class="v">1.19%</span></div>
+        <div class="hc" style="background:var(--h5)">Fri<span class="v">2.10%</span></div>
+        <div class="hc" style="background:var(--h5)">Sat<span class="v">1.97%</span></div>
+        <div class="hc" style="background:var(--h5)">Sun<span class="v">1.84%</span></div>
+      </div>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:0">Monday + weekend ≈ 2× the purchases of the Tue–Thu trough. Wednesday is the dead zone. Pace budget &amp; CRM sends to this curve.</p>
+    </div>
+    <div class="panel">
+      <div class="card-h">Hour-of-day heat · purchases (IST)</div>
+      <div class="heat" style="grid-template-columns:repeat(8,1fr)">
+        <div class="hl">8a</div><div class="hl">11a</div><div class="hl">2p</div><div class="hl">5p</div><div class="hl">7p</div><div class="hl">9p</div><div class="hl">10p</div><div class="hl">11p</div>
+        <div class="hc" style="background:var(--h2)">1.3%</div>
+        <div class="hc" style="background:var(--h4)">1.6%</div>
+        <div class="hc" style="background:var(--h4)">1.6%</div>
+        <div class="hc" style="background:var(--h4)">1.5%</div>
+        <div class="hc" style="background:var(--h5)">1.7%</div>
+        <div class="hc" style="background:var(--h5)">1.8%</div>
+        <div class="hc" style="background:var(--h6)">2.0%</div>
+        <div class="hc" style="background:var(--h6)">2.5%</div>
+      </div>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:0">11pm is the single best converting hour (2.5%) and tops revenue (₹3.3 Cr). The "couch commerce" window 9pm–12am is prime. Mornings underperform.</p>
+    </div>
+  </div>
+  <div class="legend"><span>cooler</span><span class="sw" style="background:var(--h2)"></span><span class="sw" style="background:var(--h3)"></span><span class="sw" style="background:var(--h4)"></span><span class="sw" style="background:var(--h5)"></span><span class="sw" style="background:var(--h6)"></span><span>hotter (higher purchase rate)</span></div>
+</section>
+
+<!-- ============ 7 DRIVERS ============ -->
+<section id="drivers">
+  <div class="sec-head"><span class="sec-no">07</span><h2>Conversion drivers, ranked</h2></div>
+  <p class="sec-sub">Every major factor scored on impact and our confidence — and explicitly tagged as causal, correlational, or assumption. Honesty about the claim type is the point.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Driver</th><th>Impact</th><th>Confidence</th><th>Claim type</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Traffic temperature (warm vs cold)</td><td class="num pos">Very High</td><td class="num">High</td><td><span class="tag causal">causal</span></td><td style="text-align:left;color:var(--ink-2)">Cart→buy ranges 7.9%→24% by source. The master variable.</td></tr>
+      <tr><td class="name">New vs Returning</td><td class="num pos">Very High</td><td class="num">High</td><td><span class="tag causal">causal</span></td><td style="text-align:left;color:var(--ink-2)">2.7× CVR gap; 63% of revenue from 40% of sessions.</td></tr>
+      <tr><td class="name">Creative type (UGC/Influencer)</td><td class="num pos">Very High</td><td class="num">High</td><td><span class="tag causal">likely causal</span></td><td style="text-align:left;color:var(--ink-2)">18.4× vs 3.4×; lower CPM + higher CTR together.</td></tr>
+      <tr><td class="name">Offer / sale event</td><td class="num pos">Very High</td><td class="num">High</td><td><span class="tag causal">likely causal</span></td><td style="text-align:left;color:var(--ink-2)">Same campaigns 3–4× their ROAS inside a sale.</td></tr>
+      <tr><td class="name">Landing page type</td><td class="num">High</td><td class="num">Med</td><td><span class="tag corr">correlation</span></td><td style="text-align:left;color:var(--ink-2)">Homepage 1.86% vs collection 0.39% — but confounded by traffic mix.</td></tr>
+      <tr><td class="name">Search &amp; filter usage on-site</td><td class="num">High</td><td class="num">Med</td><td><span class="tag corr">correlation</span></td><td style="text-align:left;color:var(--ink-2)">Self-served intent; high-engagement sources (88% eng. on Paid Search) convert best.</td></tr>
+      <tr><td class="name">Creative freshness / frequency</td><td class="num">High</td><td class="num">Med</td><td><span class="tag corr">correlation</span></td><td style="text-align:left;color:var(--ink-2)">3.4× set sits at freq 6–10.6; winners at 2–4.</td></tr>
+      <tr><td class="name">Time (day + hour)</td><td class="num">Medium</td><td class="num">High</td><td><span class="tag causal">causal</span></td><td style="text-align:left;color:var(--ink-2)">~2× purchase rate Mon/weekend &amp; 9pm–12am. Free to exploit.</td></tr>
+      <tr><td class="name">Category / AOV mix</td><td class="num">Medium</td><td class="num">Med</td><td><span class="tag corr">correlation</span></td><td style="text-align:left;color:var(--ink-2)">Cases = volume/impulse (₹997 AOV); bags/premium = margin (₹2,700).</td></tr>
+      <tr><td class="name">Device</td><td class="num">Medium</td><td class="num">High</td><td><span class="tag corr">correlation</span></td><td style="text-align:left;color:var(--ink-2)">Desktop CVR 2.6% &amp; +55% AOV, but mobile is 82% of revenue.</td></tr>
+      <tr><td class="name">Demographic (age/gender)</td><td class="num">Low-Med</td><td class="num">High</td><td><span class="tag corr">correlation</span></td><td style="text-align:left;color:var(--ink-2)">Male 25–44 core; useful for exclusion, weak as a primary lever.</td></tr>
+      <tr><td class="name">Awareness reach buys</td><td class="num neg">Low</td><td class="num">Med</td><td><span class="tag assume">unproven</span></td><td style="text-align:left;color:var(--ink-2)">1.2× last-touch; brand-lift value unmeasured.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============ 8 HYPOTHESES ============ -->
+<section id="hypotheses">
+  <div class="sec-head"><span class="sec-no">08</span><h2>Growth hypotheses &amp; predictive rules</h2></div>
+  <p class="sec-sub">Each: observation → evidence → hypothesis → expected lift, revenue, confidence, and the experiment that proves it. Lift/revenue are modelled estimates, not guarantees.</p>
+
+  <div class="hyp">
+    <h4>H1 · Reallocate Meta budget down the ROAS gradient</h4>
+    <p><b>Observation:</b> 79% of Meta spend earns 3.4×; UGC/event earn 12–18×. <b>Evidence:</b> archetype table §5. <b>Hypothesis:</b> shifting 25–30% of always-on/DPA budget into UGC + always-on creator content (built to survive past the sale) lifts blended Meta ROAS from ~3.5× toward 5–6× before decay. <b>Experiment:</b> 60-day budget A/B with a creator-content pipeline + holdout.</p>
+    <div class="hgrid">
+      <div><div class="hk">Exp. ROAS lift</div><div class="hv win">+40–60%</div></div>
+      <div><div class="hk">Rev impact / yr</div><div class="hv win">₹15–25 Cr</div></div>
+      <div><div class="hk">Confidence</div><div class="hv">High</div></div>
+      <div><div class="hk">Effort</div><div class="hv acc">Medium</div></div>
+    </div>
+  </div>
+
+  <div class="hyp">
+    <h4>H2 · Stop landing cold Meta traffic on PDPs &amp; collection pages</h4>
+    <p><b>Observation:</b> PDP-as-ad-LP = 30–45% ATC but &lt;1% purchase; /collection 0.39%. <b>Evidence:</b> landing-page table §4/§9. <b>Hypothesis:</b> route cold prospecting to a fast, single-offer category LP with social proof + the freebie/bank-offer above the fold; reserve PDPs for retargeting/warm. <b>Experiment:</b> LP A/B by audience temperature.</p>
+    <div class="hgrid">
+      <div><div class="hk">Exp. CVR lift</div><div class="hv win">+0.4–0.8 pts</div></div>
+      <div><div class="hk">Rev impact / yr</div><div class="hv win">₹8–14 Cr</div></div>
+      <div><div class="hk">Confidence</div><div class="hv">Medium</div></div>
+      <div><div class="hk">Effort</div><div class="hv acc">Medium</div></div>
+    </div>
+  </div>
+
+  <div class="hyp">
+    <h4>H3 · Fund retention as a CVR lever (CRM is 0.5% of revenue)</h4>
+    <p><b>Observation:</b> returning users convert 2.7×; Email+SMS drive &lt;0.5% of revenue. <b>Evidence:</b> §4 new-vs-returning. <b>Hypothesis:</b> a behavioural CRM program (browse/cart/category-replenish flows + app-install push) moves repeat-rate up 2–4 pts. SMS already converts at 6.7%. <b>Experiment:</b> holdout-controlled lifecycle flows.</p>
+    <div class="hgrid">
+      <div><div class="hk">Exp. repeat lift</div><div class="hv win">+2–4 pts</div></div>
+      <div><div class="hk">Rev impact / yr</div><div class="hv win">₹12–20 Cr</div></div>
+      <div><div class="hk">Confidence</div><div class="hv">High</div></div>
+      <div><div class="hk">Effort</div><div class="hv acc">Low–Med</div></div>
+    </div>
+  </div>
+
+  <div class="hyp">
+    <h4>H4 · Attack the add-to-cart → checkout leak for paid traffic</h4>
+    <p><b>Observation:</b> only 24% of carts advance store-wide; 7.9% for Meta. <b>Evidence:</b> §4 micro-funnel. <b>Hypothesis:</b> cart-stage offer surfacing (free-ship threshold, bank/EMI, freebie progress bar) + one-tap checkout + UPI default closes the cold-traffic gap. <b>Experiment:</b> checkout friction A/B, segmented by source.</p>
+    <div class="hgrid">
+      <div><div class="hk">Exp. cart→buy</div><div class="hv win">+3–6 pts</div></div>
+      <div><div class="hk">Rev impact / yr</div><div class="hv win">₹10–18 Cr</div></div>
+      <div><div class="hk">Confidence</div><div class="hv">Medium</div></div>
+      <div><div class="hk">Effort</div><div class="hv acc">Med–High</div></div>
+    </div>
+  </div>
+
+  <div class="hyp">
+    <h4>H5 · Pace media &amp; CRM to the buying clock</h4>
+    <p><b>Observation:</b> Mon/weekend &amp; 9pm–12am ≈ 2× purchase rate. <b>Evidence:</b> §6 heatmaps. <b>Hypothesis:</b> dayparted budget + evening CRM sends + weekend offer drops capture demand at peak intent at no added CPM. <b>Experiment:</b> dayparting test vs flat pacing.</p>
+    <div class="hgrid">
+      <div><div class="hk">Exp. efficiency</div><div class="hv win">+5–10%</div></div>
+      <div><div class="hk">Rev impact / yr</div><div class="hv win">₹4–8 Cr</div></div>
+      <div><div class="hk">Confidence</div><div class="hv">Medium</div></div>
+      <div><div class="hk">Effort</div><div class="hv acc">Low</div></div>
+    </div>
+  </div>
+
+  <hr class="soft">
+  <div class="card-h">Predictive rules — "score the session like a model would"</div>
+  <ul class="clean">
+    <li><b>If</b> returning user <b>+</b> lands via Direct/app <b>+</b> prior purchase in viewed category → purchase probability <b>very high</b> (≈ 5–7× baseline). Prioritise inventory &amp; offer, not persuasion.</li>
+    <li><b>If</b> session uses on-site search <b>or</b> applies a filter <b>+</b> views 3+ products → CVR rises sharply; suppress discount, push speed-to-cart.</li>
+    <li><b>If</b> first-touch Meta UGC <b>+</b> second session Brand Search within 72h → high-value harvest; ensure brand SERP + retargeting are live.</li>
+    <li><b>If</b> cold Meta <b>+</b> collection/PDP LP <b>+</b> new user → lowest probability; this is where offer + social proof must do the work.</li>
+    <li><b>If</b> cart created 9pm–12am Mon/weekend → highest completion odds; trigger real-time urgency / free-ship nudge.</li>
+  </ul>
+</section>
+
+<!-- ============ 9 ICE ============ -->
+<section id="ice">
+  <div class="sec-head"><span class="sec-no">09</span><h2>Prioritised opportunities · ICE</h2></div>
+  <p class="sec-sub">Impact × Confidence × Ease, ranked. Revenue figures are annualised modelled estimates at current AOV; treat as sizing, not forecasts.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Move</th><th>Rev ₹Cr/yr</th><th>Impact</th><th>Conf.</th><th>Ease</th><th>ICE</th><th>Success metric</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td class="name">Reallocate Meta → UGC/creator + event (H1)</td><td class="num pos">15–25</td><td class="num">9</td><td class="num">8</td><td class="num">7</td><td class="num pos">8.0</td><td style="text-align:left;color:var(--ink-2)">Blended Meta ROAS, new-customer CPA</td></tr>
+      <tr><td class="num">2</td><td class="name">Behavioural CRM + app-push retention (H3)</td><td class="num pos">12–20</td><td class="num">8</td><td class="num">8</td><td class="num">8</td><td class="num pos">8.0</td><td style="text-align:left;color:var(--ink-2)">Repeat rate, CRM rev share</td></tr>
+      <tr><td class="num">3</td><td class="name">Daypart media + CRM to buying clock (H5)</td><td class="num">4–8</td><td class="num">6</td><td class="num">7</td><td class="num">9</td><td class="num pos">7.3</td><td style="text-align:left;color:var(--ink-2)">CVR by daypart, blended CPA</td></tr>
+      <tr><td class="num">4</td><td class="name">Audience temperature-matched landing pages (H2)</td><td class="num">8–14</td><td class="num">7</td><td class="num">6</td><td class="num">6</td><td class="num">6.3</td><td style="text-align:left;color:var(--ink-2)">CVR on cold-paid sessions</td></tr>
+      <tr><td class="num">5</td><td class="name">Cart→checkout friction + offer surfacing (H4)</td><td class="num pos">10–18</td><td class="num">8</td><td class="num">6</td><td class="num">4</td><td class="num">6.0</td><td style="text-align:left;color:var(--ink-2)">Cart→buy %, checkout CVR</td></tr>
+      <tr><td class="num">6</td><td class="name">Frequency-cap + refresh Category Stack/Power Bank</td><td class="num">3–6</td><td class="num">6</td><td class="num">7</td><td class="num">7</td><td class="num">6.7</td><td style="text-align:left;color:var(--ink-2)">Frequency, ROAS on capped sets</td></tr>
+      <tr><td class="num">7</td><td class="name">Exclude/retest Audience Network</td><td class="num">1–3</td><td class="num">4</td><td class="num">6</td><td class="num">9</td><td class="num">6.3</td><td style="text-align:left;color:var(--ink-2)">Incremental ROAS post-exclusion</td></tr>
+      <tr><td class="num">8</td><td class="name">Geo-holdout incrementality test (Meta &amp; Brand Search)</td><td class="num">infra</td><td class="num">9</td><td class="num">5</td><td class="num">4</td><td class="num">6.0</td><td style="text-align:left;color:var(--ink-2)">True incremental ROAS / iROAS</td></tr>
+    </tbody>
+  </table></div>
+  <p style="font-size:12.5px;color:var(--muted)">Do #1–3 now (high ease, high confidence). #8 is low-ROI on paper but de-risks every other decision — it tells us how much of Direct &amp; Brand Search to credit to Meta, which determines the entire budget split.</p>
+</section>
+
+<!-- ============ 10 PLAYBOOK ============ -->
+<section id="playbook">
+  <div class="sec-head"><span class="sec-no">10</span><h2>The DailyObjects conversion playbook</h2></div>
+  <p class="sec-sub">25 reusable laws distilled from the analysis — the operating system for Meta, Google, CRM, SEO, LP/PDP, merchandising, pricing &amp; retention.</p>
+
+  <div class="laws">
+    <div class="law"><span class="ln">01</span><p><b>Manage demand as one funnel.</b> Meta creates it; Direct, Brand Search &amp; CRM harvest it. Never optimise a channel in isolation on last-click. <span class="domain">ATTRIBUTION</span></p></div>
+    <div class="law"><span class="ln">02</span><p><b>Spend follows the ROAS gradient, not the spend habit.</b> If 79% of budget earns the lowest return, the org chart is wrong, not the market. <span class="domain">META</span></p></div>
+    <div class="law"><span class="ln">03</span><p><b>UGC is an asset class, not a creative test.</b> Native creator content earns cheaper, more-qualified clicks. Build a pipeline, not a one-off. <span class="domain">CREATIVE</span></p></div>
+    <div class="law"><span class="ln">04</span><p><b>Freshness is a conversion input.</b> Above frequency ~4 with stale creative, ROAS decays. Refresh on a schedule, not on a panic. <span class="domain">META</span></p></div>
+    <div class="law"><span class="ln">05</span><p><b>The offer is the trigger; the creative is the wrapper.</b> Same ads earn 3–4× more inside a sale. Engineer always-on micro-offers. <span class="domain">OFFERS</span></p></div>
+    <div class="law"><span class="ln">06</span><p><b>Match landing page to traffic temperature.</b> Cold → single-offer category LP; warm → PDP. Never land cold traffic on /collection. <span class="domain">LANDING</span></p></div>
+    <div class="law"><span class="ln">07</span><p><b>A high add-to-cart rate is a trap, not a trophy.</b> Cases prove adds ≠ buys. Optimise to purchase, never to ATC. <span class="domain">CRO</span></p></div>
+    <div class="law"><span class="ln">08</span><p><b>The cart→checkout step is the leak.</b> Only ~24% advance. Surface offers, free-ship thresholds &amp; UPI/EMI at the cart, not after. <span class="domain">CHECKOUT</span></p></div>
+    <div class="law"><span class="ln">09</span><p><b>Warm traffic doesn't leak.</b> Direct completes carts 3× better than Meta. The cheapest "checkout fix" is sending warmer traffic. <span class="domain">CRO</span></p></div>
+    <div class="law"><span class="ln">10</span><p><b>Returning &gt; new, always.</b> 2.7× CVR. A point of repeat-rate beats a point of ad efficiency. <span class="domain">RETENTION</span></p></div>
+    <div class="law"><span class="ln">11</span><p><b>The app is a conversion machine — feed it.</b> App/deeplink sessions convert at 6%+. Drive installs as a CVR strategy. <span class="domain">RETENTION</span></p></div>
+    <div class="law"><span class="ln">12</span><p><b>CRM is underbuilt.</b> &lt;0.5% of revenue from Email/SMS in a 2.9%-returning business is a gap, not a ceiling. <span class="domain">CRM</span></p></div>
+    <div class="law"><span class="ln">13</span><p><b>SMS punches above its weight.</b> 6.7% CVR. Reserve it for high-intent, time-boxed triggers. <span class="domain">CRM</span></p></div>
+    <div class="law"><span class="ln">14</span><p><b>Protect the brand SERP.</b> Brand Search returns 10–82×; it is the harvest point for Meta-created demand. Never let it go dark. <span class="domain">GOOGLE/SEO</span></p></div>
+    <div class="law"><span class="ln">15</span><p><b>PMax is a harvester, not a creator.</b> 6.9× last-click is partly cannibalised brand/shopping demand. Cap brand inclusion; judge on incrementality. <span class="domain">GOOGLE</span></p></div>
+    <div class="law"><span class="ln">16</span><p><b>Sell to the clock.</b> 9pm–midnight &amp; Mon/weekend ≈ 2× purchase rate. Daypart budget, sends &amp; drops. <span class="domain">MEDIA/CRM</span></p></div>
+    <div class="law"><span class="ln">17</span><p><b>Instagram is the engine.</b> Reels + Stories + Feed carry ~85% of Meta sales. Build vertical-video-first. <span class="domain">META</span></p></div>
+    <div class="law"><span class="ln">18</span><p><b>Beware "too-good" ROAS.</b> 21% CTR / 10× on Audience Network is fraud-shaped. Validate cheap wins before scaling. <span class="domain">MEDIA</span></p></div>
+    <div class="law"><span class="ln">19</span><p><b>Target the core, exclude the tail.</b> Male 25–44 + female 25–44 is the profitable spine; 55+/unknown drains. <span class="domain">AUDIENCE</span></p></div>
+    <div class="law"><span class="ln">20</span><p><b>Merchandise two jobs separately.</b> Cases = volume/impulse (₹997); bags/premium = margin (₹2,700). Different LPs, offers &amp; KPIs. <span class="domain">MERCH</span></p></div>
+    <div class="law"><span class="ln">21</span><p><b>On-site search &amp; filters signal buyers.</b> Sessions that self-serve intent convert higher — make search prominent, suppress discount for them. <span class="domain">CRO</span></p></div>
+    <div class="law"><span class="ln">22</span><p><b>Awareness must prove itself.</b> 1.2× last-touch is only acceptable with a measured brand-lift or incrementality result. <span class="domain">META</span></p></div>
+    <div class="law"><span class="ln">23</span><p><b>Desktop is the AOV channel.</b> +55% AOV, 2.6% CVR. Don't mobile-only the experience; merchandise bundles to desktop. <span class="domain">CRO</span></p></div>
+    <div class="law"><span class="ln">24</span><p><b>Decide budgets on incremental ROAS, not platform ROAS.</b> Until a holdout runs, every reallocation is a hypothesis. Build the test. <span class="domain">MEASUREMENT</span></p></div>
+    <div class="law"><span class="ln">25</span><p><b>Event-ize the calendar.</b> Sale bursts lift every category 3–4×. A cadence of credible mini-events beats permanent discounting. <span class="domain">PRICING</span></p></div>
+  </div>
+</section>
+
+<!-- ============ 11 RECS ============ -->
+<section id="recs" style="border-bottom:0">
+  <div class="sec-head"><span class="sec-no">11</span><h2>Executive recommendations</h2></div>
+  <p class="sec-sub">What to do Monday, this quarter, and to de-risk the whole thesis.</p>
+
+  <div class="grid3">
+    <div class="panel">
+      <div class="card-h" style="color:var(--accent)">Now · 0–2 weeks</div>
+      <ul class="clean" style="font-size:13.5px">
+        <li>Shift 25% of always-on/DPA budget into UGC/creator + always-on event creative.</li>
+        <li>Frequency-cap Category Stack &amp; Power Bank; queue creative refresh.</li>
+        <li>Exclude Audience Network; re-baseline ROAS.</li>
+        <li>Turn on evening (9pm–12am) + Mon/weekend dayparting.</li>
+        <li>Confirm brand-search coverage is 100% — never let the harvest point lapse.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <div class="card-h" style="color:var(--warn)">This quarter</div>
+      <ul class="clean" style="font-size:13.5px">
+        <li>Stand up behavioural CRM (browse/cart/replenish) + app-install push program.</li>
+        <li>Ship temperature-matched landing pages; stop landing cold traffic on /collection &amp; PDPs.</li>
+        <li>Cart-stage offer surfacing + one-tap UPI checkout test.</li>
+        <li>Build a credible mini-event calendar to replace permanent discounting.</li>
+        <li>Split merchandising KPIs for impulse (cases) vs margin (bags/premium).</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <div class="card-h" style="color:var(--win)">De-risk · measurement</div>
+      <ul class="clean" style="font-size:13.5px">
+        <li>Run a Meta geo-holdout to measure <em>incremental</em> ROAS and the true Direct/Brand-Search credit.</li>
+        <li>Holdout-control every CRM flow and the LP/checkout tests.</li>
+        <li>Instrument scroll-depth, search &amp; filter events to confirm the engagement→CVR link.</li>
+        <li>Reconcile GA4 vs platform attribution into one blended MMM view for budget decisions.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:24px">
+    <div class="nh">Data caveats — read before acting</div>
+    <p style="margin:0;font-size:13.5px;color:var(--ink-2)">All figures are last-90-days, DailyObjects <b>India</b> (GA4 273672074, Meta INR account, Google India); international excluded. GA4 = last-click/session attribution; Meta &amp; Google figures use each platform's own modelled attribution and <b>deliberately do not reconcile</b> — the gap is analysed in §5, not an error. Category names are coded (1101, 1809…) and inferred from AOV/volume. "(not set)"/"(other)"/app buckets carry measurement noise. Revenue-lift figures are <b>modelled estimates for sizing</b>, not forecasts; every one is paired with an experiment because <b>no true incrementality test exists in the current data</b> — causal claims for Meta's upper-funnel effect are well-reasoned inference until a holdout confirms them.</p>
+  </div>
+
+  <p class="foot"><b>DailyObjects · Conversion Science Report</b> — built on live GA4, Meta Ads &amp; Google Ads data via Windsor.ai. Prepared for the office of the VP, Growth. Figures in ₹ (INR). Window: trailing 90 days.</p>
+</section>
+
+</div>
