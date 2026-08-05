@@ -184,6 +184,7 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
     <a href="#summary">Summary</a>
     <a href="#synthesis">Synthesis</a>
     <a href="#heatmap">Heatmap</a>
+    <a href="#sizing">Top 10</a>
     <a href="#tracker">Initiatives</a>
     <a href="#roadmap">Roadmap</a>
     <button class="themebtn" onclick="tog()">◐ Theme</button>
@@ -490,10 +491,44 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
   </div>
 </section>
 
-<!-- SECTION 4: INITIATIVE TRACKER -->
+<!-- SECTION 4: SIZING / TOP 10 -->
+<section id="sizing">
+  <div class="wrap">
+    <div class="sechead"><span class="num">04</span><h2 class="serif">Impact Sizing — the 10 pieces to pick up first</h2></div>
+    <p class="section-intro">A Pareto on the actual return volumes. The key structural finding: <b>the problem is a long tail <i>inside</i> a few categories, not a handful of hot SKUs</b> — the top-10 single SKUs are only 8.7% of returns. So the unit of action is the <b>fix-workstream</b>, not the SKU. The 10 workstreams below together cover <b>84% of all returns and 74% of all 1-star reviews (17,207 of 23,236)</b> — retiring the bulk of both operational leakage and review drag.</p>
+
+    <div class="kpis" style="margin-bottom:24px;">
+      <div class="kpi"><div class="n">84%</div><div class="l">of all returns sit in these 10 fix-workstreams.</div></div>
+      <div class="kpi"><div class="n">74%</div><div class="l">of all 1-star reviews too (17,207 of 23,236).</div></div>
+      <div class="kpi"><div class="n">8.7%</div><div class="l">= share of returns from the top-10 <b>single SKUs</b> — proof it's a category-wide tail, not hot SKUs.</div></div>
+      <div class="kpi"><div class="n">4 of 10</div><div class="l">are <b>P0</b> — start in the first 0–3 months.</div></div>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>#</th><th>Fix-workstream (the "piece")</th><th class="num">Size — returns (% of all)</th><th>Review signal</th><th>Root-cause lever</th><th>Priority</th><th>Owner</th></tr></thead>
+        <tbody>
+          <tr><td class="num"><b>1</b></td><td><b>Phone-case material fix</b> (anti-yellowing / anti-peel clear &amp; printed)</td><td class="num">21,414 · 27%</td><td>3.32★ · 3,374×1★</td><td>UV-stable TPU + water-fast print</td><td><span class="sev sev-5">P0</span></td><td>Supply Chain + Quality</td></tr>
+          <tr><td class="num"><b>2</b></td><td><b>Watch-band sizing system + Solo Loop redesign</b></td><td class="num">15,088 · 19%</td><td>3.10★ · 4,703×1★ (largest drag)</td><td>Size gauge + adjustable SKUs</td><td><span class="sev sev-5">P0</span></td><td>Ecommerce + Product</td></tr>
+          <tr><td class="num"><b>3</b></td><td><b>Bags PDP sizing/expectation</b> (Kelp, Rhythm, Pedal, Idyll)</td><td class="num">11,675 · 15%</td><td>3.81★ — loved, not defective</td><td>Dimensions/capacity in context</td><td><span class="sev sev-4">P1</span></td><td>Ecommerce + Category</td></tr>
+          <tr><td class="num"><b>4</b></td><td><b>Charging reliability overhaul</b> (Loop, SURGE, GaN)</td><td class="num">10,886 · 14%</td><td>47–90% warranty-swap vs 20%</td><td>Vendor RCA + 100% powered QC</td><td><span class="sev sev-5">P0</span></td><td>Quality + Supply Chain</td></tr>
+          <tr><td class="num"><b>5</b></td><td><b>Wallets / leather — stitched, not glued</b></td><td class="num">3,961 · 5%</td><td>3.43★ · 1,171×1★</td><td>Adhesive spec + stitching/rivets</td><td><span class="sev sev-4">P1</span></td><td>Supply Chain + Quality</td></tr>
+          <tr><td class="num"><b>6</b></td><td><b>Screen protectors — kill/redesign Apple-Watch glass</b></td><td class="num">3,328 · 4%</td><td>3.12★ (AW glass 2.17)</td><td>Fitted PET / case bumper</td><td><span class="sev sev-5">P0</span></td><td>Product + Category</td></tr>
+          <tr><td class="num"><b>7</b></td><td><b>AirPods case relaunch</b></td><td class="num">2,059 · 3%</td><td>2.62★ · 50% 1★ (worst)</td><td>Re-tool fit + stitched construction</td><td><span class="sev sev-5">P0</span></td><td>Product + Quality</td></tr>
+          <tr><td class="num"><b>8</b></td><td><b>Stack stand/grip ergonomics redesign</b></td><td class="num">1,994 · 3%</td><td>3.24★ (Slate 2.35) · moat SKU</td><td>Grip/kickstand user-test redesign</td><td><span class="sev sev-4">P1</span></td><td>Product / Industrial Design</td></tr>
+          <tr><td class="num"><b>9</b></td><td><b>Colour-accuracy PDP fix</b> (Rose Gold Milanese +)</td><td class="num">2,726 colour-returns</td><td>fast, cheap content win</td><td>Calibrated shoot + incoming QC</td><td><span class="sev sev-4">P1</span></td><td>Ecommerce + Brand</td></tr>
+          <tr><td class="num"><b>10</b></td><td><b>After-sales SLA + reason-code capture</b> (enabler)</td><td class="num">cross-cutting</td><td>top external liability</td><td>Refund SLA + live agent + clean data</td><td><span class="sev sev-5">P0</span></td><td>Customer Support + CX</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small" style="margin-top:12px;"><b>How to read the sizing.</b> "Size" is absolute return records and share of all returns (denominator-free, valid) — <b>not</b> a return rate. Ordering blends return volume, 1-star review drag and defect intensity. #3 and #9 are quick, cheap content/photography wins with fast payback; #4, #6, #7 are the acute product-quality fixes; #1 and #2 are the biggest volume prizes; #10 is the enabler that makes every other metric trustworthy and protects the brand with new customers.</p>
+  </div>
+</section>
+
+<!-- SECTION 5: INITIATIVE TRACKER -->
 <section id="tracker">
   <div class="wrap">
-    <div class="sechead"><span class="num">04</span><h2 class="serif">Cross-Functional Initiative Tracker</h2></div>
+    <div class="sechead"><span class="num">05</span><h2 class="serif">Cross-Functional Initiative Tracker</h2></div>
     <p class="section-intro">Every initiative carries a problem, evidence, root cause, action, expected outcome, business impact, confidence, priority, owner and timeline. Organised under the nine standard workstreams.</p>
 
     <!-- BUCKET 1 -->
@@ -771,7 +806,7 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
 <!-- SECTION 5: ROADMAP -->
 <section id="roadmap">
   <div class="wrap">
-    <div class="sechead"><span class="num">05</span><h2 class="serif">12-Month Strategic Roadmap</h2></div>
+    <div class="sechead"><span class="num">06</span><h2 class="serif">12-Month Strategic Roadmap</h2></div>
     <p class="section-intro">Sequenced by urgency and dependency. <b>Now</b> stops the bleeding &amp; builds the data spine; <b>Next</b> fixes root causes the spine reveals; <b>Later</b> compounds the design moat into growth.</p>
 
     <div class="road">
