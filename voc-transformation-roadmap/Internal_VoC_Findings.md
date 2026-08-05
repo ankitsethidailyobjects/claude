@@ -2,9 +2,9 @@
 
 ## Data assets
 - Reviews Master: 80,303 valid reviews (rating 1-5), Aug'21–Apr'26, 11,771 SKUs, 28,534 with text. Mean rating 3.38, 28.9% one-star.
-- Returns raw: 78,947 return/replacement rows, effective window Mar'25–Mar'26. 63,511 Returns + 15,436 Replacements.
+- Returns raw: 78,947 return/replacement rows, effective window Mar'25–Mar'26. 63,511 refund-Returns + 15,436 Replacements (brand-wide warranty-swap share = 19.6% ≈ 20%).
 - Mar-Jun reviews file: 728 recent rows (subset, corroborates).
-- LIMITATION: no sales/units denominator → rank by absolute return VOLUME + replacement RATE, not true return rate.
+- **CRITICAL LIMITATION: no sales/units column exists in any sheet → a true return rate (returns ÷ units sold) CANNOT be computed. No figure here is one.** Rank by absolute return VOLUME (valid count) + WARRANTY-SWAP SHARE = replacements ÷ (returns+replacements) for a SKU/category (a composition of returned units vs the ~20% baseline; a defect-intensity signal, NOT a return rate).
 
 ## Rating deterioration trend (created month)
 - 2024 H1 ~3.6 avg, 23-27% 1★ → 2025 H2 3.23-3.26 avg, 30-32% 1★ → 2026 Apr 3.03 avg, 39% 1★.
@@ -26,16 +26,17 @@
 | Cables | 1,664 | 1,987 | 3.44 | 27% | SURGE fraying/reliability |
 | Keychains & Lanyards | 1,551 | 806 | 3.41 | 27% | finish (Universal Lanyard Link) |
 
-## CHARGING ECOSYSTEM = WARRANTY CRISIS (highest priority)
-- Power Banks + Chargers + Cables: 10,886 return rows, 47% REPLACEMENT (5,079 warranty replacements).
-- Loop power bank variants: 3,684 rows, 69% replacement.
-- Loop Qi2 MagSafe power bank variants: 71-89% replacement each (968, 493, 375, 323, 284, 244 units).
-- SURGE Kevlar 4-in-1 100W cable: 493 rows, 76% repl; SURGE 2-in-1: 225 @88%; SURGE 2-in-1 review avg 2.24.
-- POP 67W Triple Port GaN Desk Adapter (Blue/Black/White): 79-90% replacement.
+## CHARGING ECOSYSTEM = HIGHEST DEFECT INTENSITY (not highest volume)
+NOTE: all %s below are WARRANTY-SWAP SHARE (replacements ÷ returned units), vs a 20% brand baseline — NOT return rates. Charging is only ~12% of all returns by VOLUME (Power Banks 4.8%, Chargers 6.9%, Cables ~2%); the big VOLUME drivers are Cases 27%, Bands 19%, Bags 15%. Charging's severity is defect-INTENSITY + bad reviews + external corroboration.
+- Power Banks + Chargers + Cables: 10,886 returned units, 47% warranty-swap (5,079 replacements vs 5,807 refunds).
+- Loop power bank variants: 3,684 returned units, 69% warranty-swap.
+- Loop Qi2 MagSafe power bank variants: 71-89% warranty-swap each (across 968, 493, 375, 323, 284, 244 returned units).
+- SURGE Kevlar 4-in-1 100W cable: 493 returned units, 76% swap; SURGE 2-in-1: 225 @88%; SURGE 2-in-1 review avg 2.24.
+- POP 67W Triple Port GaN Desk Adapter (Blue/Black/White): 79-90% warranty-swap.
 - SURGE 3-Port 67W GaN: 147 @80%. SURGE Max Foldaway 3-in-1: 90 @84%.
 - Neg review themes: charging/heat/weak-magnet/not-charging/slow (152 mentions power banks).
-- Reason coded "as per CX request" masks true defect nature → warranty replacements.
-- Trend: 40-58% replacement all year; Feb'26 peak 58%. Structural, not one batch.
+- Reason coded "as per CX request" masks true defect nature → shows up as warranty swaps.
+- Trend: 40-58% warranty-swap share all year; Feb'26 peak 58%. Structural, not one batch.
 
 ## SKU-level failure list
 - Tempered Glass Apple Watch Screen Protector (multiple variants): 1.70-2.18 avg, ~1,436 reviews avg 2.17. Adhesion/bubble on curved face, touch, size cut. #1 worst product.

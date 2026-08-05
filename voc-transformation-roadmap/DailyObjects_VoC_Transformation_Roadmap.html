@@ -206,8 +206,8 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
     <div class="kpis">
       <div class="kpi"><div class="n bad">3.38<span style="font-size:16px;color:var(--muted)"> / 5</span></div><div class="l">Mean product rating. <b>28.9% of all reviews are 1-star.</b></div></div>
       <div class="kpi"><div class="n warn">3.6 → 3.0</div><div class="l">Rating trend, early-2024 → Apr-2026. 1-star share rose 24% → 39%.</div></div>
-      <div class="kpi"><div class="n bad">47%</div><div class="l">of charging-line returns are warranty <b>replacements</b> (10,886 rows).</div></div>
-      <div class="kpi"><div class="n">61%</div><div class="l">of all returns sit in just 3 categories: Cases, Watch Bands, Bags.</div></div>
+      <div class="kpi"><div class="n bad">47%<span style="font-size:15px;color:var(--muted)"> vs 20%</span></div><div class="l">of <b>returned</b> charging units came back as warranty swaps (not refunds) — vs a 20% brand-wide baseline. <b>Not a return rate.</b></div></div>
+      <div class="kpi"><div class="n">61%</div><div class="l">of all returns sit in just 3 categories: Cases (27%), Watch Bands (19%), Bags (15%).</div></div>
       <div class="kpi"><div class="n bad">2.5 / 2.35 / 1.7</div><div class="l">Trustpilot / MouthShut / Sitejabber — vs <b>4.7★</b> app store.</div></div>
       <div class="kpi"><div class="n good">Design</div><div class="l">The consistent #1 reason customers buy &amp; recommend. The moat is real.</div></div>
     </div>
@@ -224,7 +224,7 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
         <h4>What the data can &amp; can't say</h4>
         <ul>
           <li><b>Two internal ground-truths</b> — the full review dump and the full returns/replacement log — cross-referenced against each other and against external web sentiment. A finding is rated <span class="pill p-pos">High</span> only when it appears in <b>two or more</b> independent sources.</li>
-          <li><b>No units-sold denominator was provided</b>, so SKUs are ranked by <b>absolute return volume</b> and <b>replacement rate</b>, not true return rate. Where a high-volume SKU is also a best-seller, severity is moderated accordingly and flagged.</li>
+          <li><b>No units-sold denominator exists anywhere in the data</b> — there is no orders/units column in any of the three sheets. <b>A true return rate (returns ÷ units sold) therefore cannot be computed</b>, and no figure in this document is one. SKUs and categories are ranked by <b>absolute return volume</b> (a valid, denominator-free count) and by <b>warranty-swap share</b> (defined at right).</li>
           <li><b>Return-reason coding is noisy</b> — 22% blank and 13% "as per CX request." We reconstruct true cause from replacement-vs-refund mix, QC notes, and review text rather than trusting the reason label.</li>
           <li><b>External review volumes are small &amp; complaint-skewed</b> — they reveal <i>what</i> goes wrong reliably, not <i>how often</i> across the base. Treated as directional.</li>
         </ul>
@@ -234,6 +234,10 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
         <p style="color:var(--muted);font-size:14px;margin:0 0 10px;">DailyObjects has built a genuine, defensible advantage in <b style="color:var(--ink)">design, aesthetics and the Stack modular ecosystem</b> — and it is being quietly taxed by a widening <b style="color:var(--ink)">quality, durability, reliability and expectation-setting gap</b>, most acutely in the electronics line and in after-sales.</p>
         <p style="color:var(--muted);font-size:14px;margin:0;">Left unaddressed as the company scales from <b style="color:var(--ink)">~₹111 Cr toward ₹400 Cr</b>, the quality-vs-price perception becomes the ceiling on repeat rate, review scores, marketplace expansion and premium pricing power. This plan attacks the gap without diluting the design edge.</p>
       </div>
+    </div>
+    <div class="callout" style="margin-top:22px;">
+      <h4>Metric definition — "warranty-swap share" (read this before the numbers)</h4>
+      <p>Each return row is flagged <span class="mono">Return</span> (refund) or <span class="mono">Replacement</span> (like-for-like swap). <b>Warranty-swap share = replacements ÷ (refund-returns + replacements) for that SKU or category.</b> It measures <i>the composition of the units that came back</i> — a high share means that when a product was sent back, customers wanted the same item again rather than their money back, which is a strong signal the unit was faulty. <b>It is not a return rate</b> (returns ÷ units sold), which this data cannot produce. The brand-wide baseline is <b>~20%</b> (15,436 of 78,947 returned units were replacements); readings well above 20% flag disproportionate defect/warranty behaviour, and that is exactly how the charging-line figures below should be read.</p>
     </div>
   </div>
 </section>
@@ -246,9 +250,9 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
 
     <div class="opps">
 
-      <div class="opp"><div class="top"><h4>Fix the charging line: Loop power banks &amp; SURGE cables/chargers are a warranty crisis</h4><div class="badges"><span class="pill p-crit">Critical</span><span class="conf">Conf: High</span></div></div>
-        <p class="why">The electronics ecosystem is failing in the field at a rate no premium brand can sustain and is the single largest source of operational leakage and reputational drag.</p>
-        <p class="ev"><b>Evidence:</b> 10,886 charging returns at <b>47% replacement</b>; Loop power-bank variants <b>69%</b> replacement (Qi2 MagSafe variants 71–89%); SURGE Kevlar cables 76–88%; POP 67W GaN 79–90%. Review avg: Power Banks 3.08, SURGE 2-in-1 cable 2.24. External: "takes hours to charge… absolutely horrible," runs hot; a dual-port power-sharing defect so common DailyObjects publishes a troubleshooting article. <b>Owner:</b> Quality + Supply Chain.</p>
+      <div class="opp"><div class="top"><h4>Fix the charging line: Loop power banks &amp; SURGE cables/chargers show the catalogue's worst defect intensity</h4><div class="badges"><span class="pill p-crit">Critical</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">The electronics line has the highest warranty-swap intensity in the catalogue — the clearest reliability liability. (Note: it is <i>not</i> the biggest return <i>volume</i> — that is Cases, Watch Bands and Bags; charging is ~12% of all returns. This is a severity-by-defect-intensity call, corroborated by reviews and external sources.)</p>
+        <p class="ev"><b>Evidence:</b> Of 10,886 returned charging units, <b>47% came back as warranty swaps rather than refunds — vs a 20% brand-wide baseline</b>. Loop power-bank units <b>69%</b> warranty-swap (Qi2 variants 71–89%); SURGE Kevlar cables 76–88%; POP 67W GaN 79–90% — all far above baseline. <b>These are the composition of returned units, not return rates.</b> Corroboration: Power Banks review avg 3.08, SURGE 2-in-1 cable 2.24; external "takes hours to charge… absolutely horrible," runs hot; a dual-port power-sharing defect common enough that DailyObjects publishes a troubleshooting article. <b>Owner:</b> Quality + Supply Chain.</p>
       </div>
 
       <div class="opp"><div class="top"><h4>Discontinue or redesign the Apple Watch Tempered-Glass Screen Protector</h4><div class="badges"><span class="pill p-crit">Critical</span><span class="conf">Conf: High</span></div></div>
@@ -318,7 +322,7 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
 
       <div class="opp"><div class="top"><h4>Fix the SURGE GaN dual-port power-sharing behaviour &amp; DOA rate</h4><div class="badges"><span class="pill p-high">High</span><span class="conf">Conf: Med-High</span></div></div>
         <p class="why">A specific, reproducible engineering complaint plus dead-on-arrival units — competitors (Anker/Ugreen) win precisely here.</p>
-        <p class="ev"><b>Evidence:</b> External: low USB-C output when Type-A occupied (repeated, reproducible); scattered DOA "didn't work at all, tried multiple devices"; brand's own GaN troubleshooting blog implies volume. POP 67W GaN 79–90% replacement internally. <b>Owner:</b> Product (Electronics) + Quality.</p>
+        <p class="ev"><b>Evidence:</b> External: low USB-C output when Type-A occupied (repeated, reproducible); scattered DOA "didn't work at all, tried multiple devices"; brand's own GaN troubleshooting blog implies volume. Internally, POP 67W GaN returns are 79–90% warranty-swaps (vs 20% baseline). <b>Owner:</b> Product (Electronics) + Quality.</p>
       </div>
 
       <div class="opp"><div class="top"><h4>Standardise premium protective packaging to end transit &amp; "arrived used" complaints</h4><div class="badges"><span class="pill p-med">Medium</span><span class="conf">Conf: Med</span></div></div>
@@ -383,7 +387,7 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
 
     <div class="callout crit">
       <h4>The defining pattern: reason-coding hides the electronics defect problem</h4>
-      <p>Power banks look "clean" on the reason label (mostly "as per CX request," low fault-coded share) — yet <b>69% of Loop returns are replacements</b>, and review text is full of "won't charge / runs hot / slow." The warranty channel, not the reason field, is where the defect lives. Any analysis trusting the reason label alone would miss the company's most expensive quality problem.</p>
+      <p>Power banks look "clean" on the reason label (mostly "as per CX request," low fault-coded share) — yet <b>69% of returned Loop units come back as warranty swaps, not refunds</b> (vs a 20% brand-wide baseline), and review text is full of "won't charge / runs hot / slow." The warranty channel, not the reason field, is where the defect shows up. Any analysis trusting the reason label alone would miss the catalogue's most acute reliability problem. (This is defect <i>intensity</i>, not defect <i>volume</i> — see the metric definition in §Method.)</p>
     </div>
 
     <div class="compare">
@@ -399,7 +403,7 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
       <div class="cbox pain"><h4>What consistently drives dissatisfaction (the tax)</h4>
         <ul>
           <li><b>Durability &amp; reliability</b> — yellowing, print-peel, adhesive failure, charging failure. The through-line of every 1-star.</li>
-          <li><b>Electronics reliability</b> — power banks, cables, GaN chargers failing in-field at 47–90% replacement.</li>
+          <li><b>Electronics reliability</b> — returned power banks, cables &amp; GaN chargers come back as warranty swaps at 47–90% (vs a 20% baseline).</li>
           <li><b>Sizing &amp; fit</b> — watch bands (esp. fixed-size Solo Loop), bags, laptop sleeves; largely a content gap.</li>
           <li><b>After-sales</b> — slow refunds, adversarial returns, no live agent. The biggest brand-promise-vs-delivery gap.</li>
           <li><b>Price-to-quality perception</b> — the market's #1 objection and the reason for competitive defection.</li>
@@ -413,7 +417,7 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
       <table>
         <thead><tr><th>Issue</th><th>In reviews?</th><th>In returns?</th><th>In external web?</th><th>Verdict &amp; priority</th></tr></thead>
         <tbody>
-          <tr><td><b>Charging-line reliability</b></td><td>Yes (3.08 PB, 2.24 cable)</td><td>Yes (47–90% replacement)</td><td>Yes (slow/hot, DOA, GaN blog)</td><td><span class="pill p-crit">Systemic — Critical</span></td></tr>
+          <tr><td><b>Charging-line reliability</b></td><td>Yes (3.08 PB, 2.24 cable)</td><td>Yes (47–90% warranty-swap vs 20% base)</td><td>Yes (slow/hot, DOA, GaN blog)</td><td><span class="pill p-crit">Systemic — Critical</span></td></tr>
           <tr><td><b>Case yellowing / print-peel</b></td><td>Yes (durability 425)</td><td>Yes (2,669 fault returns)</td><td>Yes (yellow ~1mo, peel on water)</td><td><span class="pill p-crit">Systemic — Critical</span></td></tr>
           <tr><td><b>Watch-band sizing</b></td><td>Yes (Solo Loop 2.56)</td><td>Yes (Size 19%)</td><td>Yes (band "different from image")</td><td><span class="pill p-high">Systemic — High</span></td></tr>
           <tr><td><b>After-sales / refund friction</b></td><td>Partial (few in-site)</td><td>Implied (CX-initiated 10.6k)</td><td><b>Yes — dominant</b></td><td><span class="pill p-crit">Reputation — Critical</span></td></tr>
@@ -435,7 +439,7 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
 <section id="heatmap">
   <div class="wrap">
     <div class="sechead"><span class="num">03</span><h2 class="serif">SKU &amp; Category Heatmap</h2></div>
-    <p class="section-intro">Highest-priority categories and SKUs by issue severity, trend, and recommended action. Severity blends review score, return volume/replacement rate, and cross-source confirmation.</p>
+    <p class="section-intro">Highest-priority categories and SKUs by issue severity, trend, and recommended action. Severity blends review score, absolute return volume, warranty-swap share (vs the 20% baseline), and cross-source confirmation — <b>not</b> a return rate, which this data can't produce. A high-severity, moderate-volume category (e.g. charging) is flagged on defect <i>intensity</i>; a high-volume, higher-rated one (e.g. Bags) is flagged on volume + a fixable content gap.</p>
 
     <div class="legend">
       <span><span class="dot" style="background:var(--crit)"></span>5 — Critical / systemic</span>
@@ -451,7 +455,7 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
       <table>
         <thead><tr><th>Category</th><th class="num">Returns</th><th class="num">Rev n</th><th class="num">Avg ★</th><th class="num">1★%</th><th>Severity</th><th>Trend</th><th>Primary issue → action</th></tr></thead>
         <tbody>
-          <tr><td><b>Chargers·Power Banks·Cables</b></td><td class="num">10,886</td><td class="num">11,017</td><td class="num">3.1–3.5</td><td class="num">27–34%</td><td><span class="sev sev-5">5</span></td><td><span class="trend up">▲</span></td><td>Field reliability (47% replacement) → vendor/QC overhaul, bench-test protocol</td></tr>
+          <tr><td><b>Chargers·Power Banks·Cables</b></td><td class="num">10,886</td><td class="num">11,017</td><td class="num">3.1–3.5</td><td class="num">27–34%</td><td><span class="sev sev-5">5</span></td><td><span class="trend up">▲</span></td><td>Reliability — 47% warranty-swap vs 20% base (moderate volume) → vendor/QC overhaul, bench-test protocol</td></tr>
           <tr><td><b>AirPods Cases</b></td><td class="num">2,059</td><td class="num">1,282</td><td class="num">2.62</td><td class="num">50%</td><td><span class="sev sev-5">5</span></td><td><span class="trend flat">▬</span></td><td>Fit/stitching/finish → relaunch line, tighten spec &amp; QC</td></tr>
           <tr><td><b>Screen Protectors</b></td><td class="num">3,328</td><td class="num">5,767</td><td class="num">3.12</td><td class="num">36%</td><td><span class="sev sev-5">5</span></td><td><span class="trend up">▲</span></td><td>Apple-Watch glass (2.17) → discontinue/redesign; fix fit on phone glass</td></tr>
           <tr><td><b>Phone Cases</b></td><td class="num">21,414</td><td class="num">11,067</td><td class="num">3.32</td><td class="num">30%</td><td><span class="sev sev-4">4</span></td><td><span class="trend up">▲</span></td><td>Yellowing/peel/finish → material change; lean into Stack</td></tr>
@@ -470,9 +474,9 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
       <table>
         <thead><tr><th>SKU / family</th><th>Category</th><th>Signal</th><th>Root cause</th><th>Severity</th><th>Action</th></tr></thead>
         <tbody>
-          <tr><td><b>Loop Qi2 MagSafe Power Bank</b> (all variants)</td><td>Power Banks</td><td>3,684 returns, 69% replacement; 71–89% on Qi2 variants</td><td>Charging reliability / heat / Qi2 firmware</td><td><span class="sev sev-5">5</span></td><td>Vendor RCA, batch quarantine, bench-test gate before re-list</td></tr>
-          <tr><td><b>SURGE Kevlar Cables</b> (4-in-1 100W, 2-in-1)</td><td>Cables</td><td>76–88% replacement; 2-in-1 review 2.24</td><td>Internal-wire/connector failure</td><td><span class="sev sev-5">5</span></td><td>Cable-vendor change; strain-relief &amp; endurance spec</td></tr>
-          <tr><td><b>POP 67W Triple-Port GaN</b> (Blue/Black/White)</td><td>Chargers</td><td>79–90% replacement</td><td>Dead-on-arrival / dual-port power-sharing</td><td><span class="sev sev-5">5</span></td><td>Circuit RCA; 100% powered QC; fix port logic</td></tr>
+          <tr><td><b>Loop Qi2 MagSafe Power Bank</b> (all variants)</td><td>Power Banks</td><td>3,684 returned units, 69% warranty-swap (71–89% on Qi2 variants) vs 20% base</td><td>Charging reliability / heat / Qi2 firmware</td><td><span class="sev sev-5">5</span></td><td>Vendor RCA, batch quarantine, bench-test gate before re-list</td></tr>
+          <tr><td><b>SURGE Kevlar Cables</b> (4-in-1 100W, 2-in-1)</td><td>Cables</td><td>76–88% warranty-swap; 2-in-1 review 2.24</td><td>Internal-wire/connector failure</td><td><span class="sev sev-5">5</span></td><td>Cable-vendor change; strain-relief &amp; endurance spec</td></tr>
+          <tr><td><b>POP 67W Triple-Port GaN</b> (Blue/Black/White)</td><td>Chargers</td><td>79–90% warranty-swap vs 20% base</td><td>Dead-on-arrival / dual-port power-sharing</td><td><span class="sev sev-5">5</span></td><td>Circuit RCA; 100% powered QC; fix port logic</td></tr>
           <tr><td><b>Tempered-Glass Apple Watch Protector</b></td><td>Screen Protectors</td><td>~1,436 reviews @ 2.17; variants 1.70–2.18</td><td>Rigid glass can't fit curved face; bubbles/dust</td><td><span class="sev sev-5">5</span></td><td>Discontinue; replace with fitted PET / case bumper</td></tr>
           <tr><td><b>Solo Loop bands</b> (Braided &amp; silicone, all colours)</td><td>Watch Bands</td><td>2,405 reviews @ 2.56, 47% 1★</td><td>Fixed-size fit failure + no size guidance</td><td><span class="sev sev-4">4</span></td><td>Printable sizing gauge; migrate to adjustable</td></tr>
           <tr><td><b>AirPods Pro cases</b> (Coast, Poncho, Leatherite, Leather)</td><td>AirPods Cases</td><td>Variants 2.1–2.5; 50% 1★ category</td><td>Fit for wrong gen, stitching, glue/finish</td><td><span class="sev sev-4">4</span></td><td>Relaunch with corrected fit &amp; construction</td></tr>
@@ -505,7 +509,7 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
           <div class="foot"><span class="conf">Conf: High</span><span class="owner">Supply Chain + Quality</span></div>
         </div>
         <div class="init"><div class="ih"><h4>Charging-line reliability overhaul</h4><span class="pill p-crit">Critical</span></div>
-          <div class="field"><span class="k">Problem</span><span class="v">Power banks/cables/GaN fail in field at 47–90% replacement.</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Returned power banks/cables/GaN come back as warranty swaps at 47–90% (vs 20% baseline) — a defect signal, not a return rate.</span></div>
           <div class="field"><span class="k">Root cause</span><span class="v">Component/firmware reliability; Qi2 heat; connector durability; DOA escaping QC.</span></div>
           <div class="field"><span class="k">Action</span><span class="v">Vendor RCA + batch quarantine; 100% powered-on QC; endurance/heat bench spec; fix GaN dual-port logic.</span></div>
           <div class="field"><span class="k">Outcome / impact</span><span class="v">Halve charging replacements (5,079/yr); recover the electronics P&amp;L &amp; rating.</span></div>
@@ -581,7 +585,7 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
       <div class="inits">
         <div class="init"><div class="ih"><h4>Vendor scorecards &amp; corrective-action loop</h4><span class="pill p-high">High</span></div>
           <div class="field"><span class="k">Problem</span><span class="v">Chronic per-SKU defect rates persist with no vendor accountability.</span></div>
-          <div class="field"><span class="k">Action</span><span class="v">Monthly scorecard (replacement rate, 1★ rate, defect type); CAPA on breach; re-source repeat offenders.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Monthly scorecard (warranty-swap share, 1★ rate, defect type); CAPA on breach; re-source repeat offenders.</span></div>
           <div class="field"><span class="k">Outcome / impact</span><span class="v">Structural downward pressure on defects; halts the rating decline.</span></div>
           <div class="foot"><span class="conf">Conf: High</span><span class="owner">Supply Chain + Quality</span></div>
         </div>
@@ -743,13 +747,13 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
       <div class="inits">
         <div class="init"><div class="ih"><h4>Monthly closed-loop VoC council</h4><span class="pill p-high">High</span></div>
           <div class="field"><span class="k">Problem</span><span class="v">Every issue here was visible in data months earlier but un-actioned.</span></div>
-          <div class="field"><span class="k">Action</span><span class="v">Standing monthly review: live SKU heatmap, replacement-rate alerts, vendor CAPA, rating-trend KPI.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Standing monthly review: live SKU heatmap, warranty-swap-share alerts, vendor CAPA, rating-trend KPI.</span></div>
           <div class="field"><span class="k">Outcome / impact</span><span class="v">Turns VoC into a repeatable operating system, not a one-off study.</span></div>
           <div class="foot"><span class="conf">Conf: High</span><span class="owner">CPO + PMO</span></div>
         </div>
-        <div class="init"><div class="ih"><h4>Rating &amp; replacement-rate early-warning dashboard</h4><span class="pill p-med">Medium</span></div>
+        <div class="init"><div class="ih"><h4>Rating &amp; warranty-swap early-warning dashboard</h4><span class="pill p-med">Medium</span></div>
           <div class="field"><span class="k">Problem</span><span class="v">Rating fell 3.6→3.0 over two years without an alarm.</span></div>
-          <div class="field"><span class="k">Action</span><span class="v">Automated per-SKU alerts on 1★ spikes &amp; replacement-rate thresholds.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Automated per-SKU alerts on 1★ spikes &amp; warranty-swap-share thresholds.</span></div>
           <div class="field"><span class="k">Outcome / impact</span><span class="v">Catch the next bad batch in weeks, not quarters.</span></div>
           <div class="foot"><span class="conf">Conf: High</span><span class="owner">Consumer Insights + Analytics</span></div>
         </div>
@@ -774,7 +778,7 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
       <div class="lane">
         <div class="lane-h"><span class="ph">Phase 1</span><h3 class="serif">Now</h3><span class="when">0–3 months · stop the bleeding</span></div>
         <ul>
-          <li><span class="t">Charging-line triage</span><span class="d">Vendor RCA + batch quarantine + 100% powered QC on power banks, cables, GaN.</span><span class="m">KPI: charging replacement 47% → &lt;30%</span></li>
+          <li><span class="t">Charging-line triage</span><span class="d">Vendor RCA + batch quarantine + 100% powered QC on power banks, cables, GaN.</span><span class="m">KPI: warranty-swap share of charging returns 47% → &lt;30%</span></li>
           <li><span class="t">Discontinue Apple-Watch tempered glass</span><span class="d">Sunset the 2.17-rated SKUs; interim PET alternative.</span><span class="m">KPI: category avg +0.3★</span></li>
           <li><span class="t">After-sales SLA + live agent</span><span class="d">Enforce refund ≤5 days, proactive status, ownership per ticket.</span><span class="m">KPI: refund TAT, CSAT, complaint volume</span></li>
           <li><span class="t">Fix return-reason capture</span><span class="d">Structured reasons + reconcile vs replacement flag — builds the data spine.</span><span class="m">KPI: blank/CX codes &lt;10%</span></li>
@@ -818,7 +822,7 @@ hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
 <div class="footer">
   <div class="wrap">
     <p><b>Methodology &amp; confidence.</b> Internal analysis covers 80,303 valid product reviews (Aug 2021–Apr 2026) and 78,947 return/replacement records (effective window Mar 2025–Mar 2026), categorised by an SKU/name classifier (97% coverage) and a return-reason root-cause model. External VoC drew on six-plus independent public sources (App Store, Trustpilot, MouthShut, Sitejabber, ConsumerComplaints/Voxya, marketplace &amp; community snippets) plus competitor and market research. A finding is rated <b>High</b> confidence only where corroborated across two or more independent sources.</p>
-    <p class="small" style="margin-top:12px;"><b>Stated limitations.</b> No units-sold denominator was provided, so SKUs are ranked by absolute return volume and replacement rate rather than true return rate — best-sellers naturally surface and severity is moderated where a SKU is likely high-volume. Return-reason fields are noisy (35% blank/CX-coded); true cause is reconstructed from the replacement-vs-refund mix and review text. External review volumes are small and complaint-skewed — directional on <i>what</i> fails, not <i>how often</i>. Indian community sentiment (Reddit/regional forums) and exact Google Play figures remain gaps to close with dedicated social listening. Financial and strategy context (₹111 Cr FY25, Stack ecosystem, EBO/B2B plans) is drawn from public reporting and should be validated against internal figures before funding decisions.</p>
+    <p class="small" style="margin-top:12px;"><b>Stated limitations — please read.</b> <b>There is no units-sold or orders column anywhere in the three sheets, so a true return rate (returns ÷ units sold) cannot be computed and no figure here is one.</b> Categories and SKUs are ranked by <b>absolute return volume</b> (a valid count) and by <b>warranty-swap share</b> — replacements ÷ (refund-returns + replacements) for that item, i.e. the composition of the units that came back, against a ~20% brand-wide baseline. A high warranty-swap share (e.g. charging at 47–90%) is a defect-<i>intensity</i> signal, not a statement that 47–90% of units sold were returned. Because best-sellers generate more returns in absolute terms, volume-based severity is cross-checked against review rating and warranty-swap share so a popular SKU is not mistaken for a defective one. Return-reason fields are noisy (≈35% blank or "CX-coded"); true cause is reconstructed from the replacement-vs-refund mix and review text. External review volumes are small and complaint-skewed — directional on <i>what</i> fails, not <i>how often</i>. Indian community sentiment (Reddit/regional forums) and exact Google Play figures remain gaps. Financial/strategy context (₹111 Cr FY25, Stack ecosystem, EBO/B2B plans) is from public reporting and should be validated against internal figures before funding decisions. <b>To convert any warranty-swap figure into a genuine return rate, provide units-sold per SKU and the analysis can be re-run.</b></p>
     <p class="small">Prepared as a cross-functional operating roadmap for Product, Category, Supply Chain, Quality, Marketing, Brand, CX, Customer Support, Marketplace, Ecommerce &amp; Leadership.</p>
   </div>
 </div>
