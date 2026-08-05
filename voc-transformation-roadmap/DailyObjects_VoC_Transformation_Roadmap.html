@@ -1,0 +1,828 @@
+<title>DailyObjects — Voice of Customer Transformation Roadmap</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --paper:#F6F3EE; --surface:#FFFFFF; --surface-2:#FBF9F5; --ink:#1C1A17; --muted:#6B6357;
+  --hairline:#E5DDD0; --hairline-2:#EFE9DE; --accent:#0E5C56; --accent-ink:#0B4A45; --accent-soft:#E1EEEB;
+  --crit:#A4342A; --crit-bg:#F5E2DE; --high:#B4661A; --high-bg:#F6E7D5; --med:#8C7415; --med-bg:#F1EBD3;
+  --low:#3E6B7C; --low-bg:#E1ECF0; --pos:#2E6B4F; --pos-bg:#E0EFE6;
+  --shadow:0 1px 2px rgba(28,26,23,.04),0 4px 16px rgba(28,26,23,.06);
+  --maxw:1180px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#131210; --surface:#1D1B17; --surface-2:#232019; --ink:#F0EBE2; --muted:#A79E8E;
+    --hairline:#332F28; --hairline-2:#2A2721; --accent:#5FBDB1; --accent-ink:#8AD3C9; --accent-soft:#123330;
+    --crit:#E68A7E; --crit-bg:#3A211D; --high:#E0A768; --high-bg:#38291731; --high-bg:#372718; --med:#D8C169; --med-bg:#332D16;
+    --low:#8FBACB; --low-bg:#1B2C33; --pos:#7FC9A2; --pos-bg:#183026;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#131210; --surface:#1D1B17; --surface-2:#232019; --ink:#F0EBE2; --muted:#A79E8E;
+  --hairline:#332F28; --hairline-2:#2A2721; --accent:#5FBDB1; --accent-ink:#8AD3C9; --accent-soft:#123330;
+  --crit:#E68A7E; --crit-bg:#3A211D; --high:#E0A768; --high-bg:#372718; --med:#D8C169; --med-bg:#332D16;
+  --low:#8FBACB; --low-bg:#1B2C33; --pos:#7FC9A2; --pos-bg:#183026;
+}
+:root[data-theme="light"]{
+  --paper:#F6F3EE; --surface:#FFFFFF; --surface-2:#FBF9F5; --ink:#1C1A17; --muted:#6B6357;
+  --hairline:#E5DDD0; --hairline-2:#EFE9DE; --accent:#0E5C56; --accent-ink:#0B4A45; --accent-soft:#E1EEEB;
+  --crit:#A4342A; --crit-bg:#F5E2DE; --high:#B4661A; --high-bg:#F6E7D5; --med:#8C7415; --med-bg:#F1EBD3;
+  --low:#3E6B7C; --low-bg:#E1ECF0; --pos:#2E6B4F; --pos-bg:#E0EFE6;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+.serif{font-family:Georgia,"Iowan Old Style","Times New Roman",serif;}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+a{color:var(--accent-ink);text-decoration:none;}
+a:hover{text-decoration:underline;}
+h1,h2,h3,h4{font-family:Georgia,"Iowan Old Style","Times New Roman",serif;text-wrap:balance;line-height:1.2;font-weight:600;}
+.eyebrow{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-ink);font-weight:600;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--paper) 88%,transparent);
+  backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--hairline);}
+nav .wrap{display:flex;align-items:center;gap:8px;height:54px;overflow-x:auto;}
+nav .brand{font-family:Georgia,serif;font-weight:600;font-size:15px;white-space:nowrap;margin-right:auto;letter-spacing:.01em;}
+nav .brand b{color:var(--accent-ink);}
+nav a{font-size:13px;color:var(--muted);white-space:nowrap;padding:6px 10px;border-radius:7px;}
+nav a:hover{background:var(--accent-soft);color:var(--accent-ink);text-decoration:none;}
+.themebtn{border:1px solid var(--hairline);background:var(--surface);color:var(--muted);border-radius:7px;
+  padding:5px 10px;font-size:12px;cursor:pointer;white-space:nowrap;}
+
+/* HERO */
+header.hero{padding:64px 0 34px;border-bottom:1px solid var(--hairline);}
+.hero .eyebrow{margin-bottom:16px;display:block;}
+.hero h1{font-size:clamp(30px,5vw,50px);letter-spacing:-.015em;margin:0 0 18px;}
+.hero .lede{font-size:clamp(17px,2.2vw,20px);color:var(--muted);max-width:52ch;margin:0;}
+.hero .meta{margin-top:26px;display:flex;flex-wrap:wrap;gap:8px 8px;}
+.tag{font-size:12px;color:var(--muted);border:1px solid var(--hairline);border-radius:999px;padding:4px 11px;background:var(--surface);}
+
+/* KPI STRIP */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--hairline);
+  border:1px solid var(--hairline);border-radius:14px;overflow:hidden;margin:30px 0 0;}
+.kpi{background:var(--surface);padding:18px 18px 16px;}
+.kpi .n{font-family:Georgia,serif;font-size:29px;font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums;line-height:1.05;}
+.kpi .n.bad{color:var(--crit);} .kpi .n.warn{color:var(--high);} .kpi .n.good{color:var(--pos);}
+.kpi .l{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.35;}
+
+/* SECTIONS */
+section{padding:52px 0;border-bottom:1px solid var(--hairline);}
+.sechead{display:flex;align-items:baseline;gap:14px;margin-bottom:6px;flex-wrap:wrap;}
+.sechead .num{font-family:ui-monospace,monospace;font-size:13px;color:var(--accent-ink);font-weight:600;}
+.sechead h2{font-size:clamp(23px,3.4vw,32px);letter-spacing:-.01em;margin:0;}
+.section-intro{color:var(--muted);max-width:75ch;margin:8px 0 28px;font-size:15.5px;}
+
+/* CALLOUT */
+.callout{background:var(--surface);border:1px solid var(--hairline);border-left:3px solid var(--accent);
+  border-radius:10px;padding:18px 20px;margin:22px 0;box-shadow:var(--shadow);}
+.callout.crit{border-left-color:var(--crit);}
+.callout h4{margin:0 0 6px;font-size:16px;}
+.callout p{margin:6px 0 0;color:var(--muted);font-size:14.5px;}
+
+/* pills */
+.pill{display:inline-flex;align-items:center;gap:5px;font-family:ui-monospace,monospace;font-size:10.5px;
+  letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:3px 8px;border-radius:6px;white-space:nowrap;}
+.p-crit{background:var(--crit-bg);color:var(--crit);} .p-high{background:var(--high-bg);color:var(--high);}
+.p-med{background:var(--med-bg);color:var(--med);} .p-low{background:var(--low-bg);color:var(--low);}
+.p-pos{background:var(--pos-bg);color:var(--pos);}
+.conf{font-family:ui-monospace,monospace;font-size:11px;color:var(--muted);}
+
+/* OPPORTUNITY LIST */
+.opps{display:grid;gap:10px;counter-reset:opp;}
+.opp{background:var(--surface);border:1px solid var(--hairline);border-radius:11px;padding:16px 18px 16px 54px;
+  position:relative;box-shadow:var(--shadow);}
+.opp::before{counter-increment:opp;content:counter(opp,decimal-leading-zero);position:absolute;left:16px;top:16px;
+  font-family:ui-monospace,monospace;font-size:12px;font-weight:600;color:var(--accent-ink);}
+.opp .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;}
+.opp h4{margin:0;font-size:16.5px;letter-spacing:-.005em;}
+.opp .badges{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-shrink:0;}
+.opp p{margin:8px 0 0;font-size:14px;color:var(--muted);}
+.opp .why{color:var(--ink);}
+.opp .ev{font-size:12.5px;color:var(--muted);margin-top:8px;border-top:1px dashed var(--hairline);padding-top:8px;}
+.opp .ev b{color:var(--accent-ink);font-weight:600;}
+
+/* TABLE / HEATMAP */
+.tablewrap{overflow-x:auto;border:1px solid var(--hairline);border-radius:12px;box-shadow:var(--shadow);}
+table{border-collapse:collapse;width:100%;min-width:840px;font-size:13.5px;background:var(--surface);}
+th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--hairline-2);vertical-align:top;}
+thead th{background:var(--surface-2);font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--muted);font-weight:600;position:sticky;top:0;}
+tbody tr:last-child td{border-bottom:none;}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap;}
+.sev{display:inline-block;width:100%;text-align:center;border-radius:6px;padding:3px 6px;font-weight:600;
+  font-family:ui-monospace,monospace;font-size:11.5px;}
+.sev-5{background:var(--crit);color:#fff;} .sev-4{background:var(--crit-bg);color:var(--crit);}
+.sev-3{background:var(--high-bg);color:var(--high);} .sev-2{background:var(--med-bg);color:var(--med);}
+.sev-1{background:var(--pos-bg);color:var(--pos);}
+:root[data-theme="dark"] .sev-5,.sev-5{color:#fff;}
+.trend{font-family:ui-monospace,monospace;font-size:12px;white-space:nowrap;}
+.trend.up{color:var(--crit);} .trend.dn{color:var(--pos);} .trend.flat{color:var(--muted);}
+
+/* INITIATIVE BUCKETS */
+.bucket{margin:34px 0 0;}
+.bucket-h{display:flex;align-items:center;gap:12px;margin:0 0 4px;}
+.bucket-h .bnum{font-family:ui-monospace,monospace;font-size:12px;font-weight:700;color:#fff;background:var(--accent);
+  width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;}
+.bucket-h h3{margin:0;font-size:19px;}
+.bucket-sub{color:var(--muted);font-size:13.5px;margin:2px 0 14px 42px;}
+.inits{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;}
+.init{background:var(--surface);border:1px solid var(--hairline);border-radius:11px;padding:15px 16px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;}
+.init .ih{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
+.init h4{margin:0 0 2px;font-size:15px;line-height:1.25;}
+.init .field{font-size:13px;margin-top:7px;}
+.init .field .k{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent-ink);display:block;margin-bottom:1px;font-weight:600;}
+.init .field .v{color:var(--muted);}
+.init .foot{margin-top:auto;padding-top:11px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+  border-top:1px solid var(--hairline-2);margin-top:12px;}
+.init .owner{font-size:11.5px;color:var(--muted);margin-left:auto;font-family:ui-monospace,monospace;}
+
+/* ROADMAP */
+.road{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:820px){.road{grid-template-columns:1fr;}}
+.lane{background:var(--surface);border:1px solid var(--hairline);border-radius:13px;padding:4px 4px 12px;box-shadow:var(--shadow);}
+.lane-h{padding:15px 16px 12px;border-bottom:1px solid var(--hairline);}
+.lane-h .ph{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink);font-weight:600;}
+.lane-h h3{margin:4px 0 2px;font-size:18px;}
+.lane-h .when{font-size:12.5px;color:var(--muted);}
+.lane ul{list-style:none;margin:10px 8px 0;padding:0;display:grid;gap:8px;}
+.lane li{background:var(--surface-2);border:1px solid var(--hairline-2);border-radius:9px;padding:10px 12px;font-size:13px;}
+.lane li .t{font-weight:600;color:var(--ink);display:block;margin-bottom:3px;font-size:13.5px;}
+.lane li .d{color:var(--muted);font-size:12.5px;}
+.lane li .m{font-family:ui-monospace,monospace;font-size:11px;color:var(--accent-ink);margin-top:5px;display:block;}
+
+/* two-col compare */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:720px){.compare{grid-template-columns:1fr;}}
+.cbox{background:var(--surface);border:1px solid var(--hairline);border-radius:11px;padding:16px 18px;box-shadow:var(--shadow);}
+.cbox h4{margin:0 0 8px;font-size:15px;}
+.cbox ul{margin:0;padding-left:18px;color:var(--muted);font-size:13.5px;}
+.cbox li{margin:5px 0;}
+.cbox.love{border-top:3px solid var(--pos);} .cbox.pain{border-top:3px solid var(--crit);}
+
+.footer{padding:40px 0 60px;color:var(--muted);font-size:13px;}
+.footer .wrap>p{max-width:80ch;}
+.small{font-size:12.5px;color:var(--muted);}
+mark{background:var(--accent-soft);color:var(--ink);padding:0 3px;border-radius:3px;}
+.quote{font-family:Georgia,serif;font-style:italic;color:var(--ink);border-left:2px solid var(--hairline);
+  padding-left:12px;margin:10px 0;font-size:14px;}
+hr.soft{border:none;border-top:1px solid var(--hairline);margin:28px 0;}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:14px 0 0;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.dot{width:11px;height:11px;border-radius:3px;display:inline-block;}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth;}}
+</style>
+
+<nav>
+  <div class="wrap">
+    <span class="brand">Daily<b>Objects</b> · VoC Roadmap</span>
+    <a href="#summary">Summary</a>
+    <a href="#synthesis">Synthesis</a>
+    <a href="#heatmap">Heatmap</a>
+    <a href="#tracker">Initiatives</a>
+    <a href="#roadmap">Roadmap</a>
+    <button class="themebtn" onclick="tog()">◐ Theme</button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Cross-Functional Transformation Plan · Prepared for the Leadership Team</span>
+    <h1 class="serif">The premium-design promise is outrunning quality delivery — and the gap is widening.</h1>
+    <p class="lede">A root-cause read of 80,300 product reviews, 78,900 returns &amp; replacements, and a public-web Voice-of-Customer sweep — converted into a prioritised, owner-assigned 12-month operating roadmap.</p>
+    <div class="meta">
+      <span class="tag">80,303 reviews (Aug'21–Apr'26)</span>
+      <span class="tag">78,947 returns/replacements (Mar'25–Mar'26)</span>
+      <span class="tag">11,771 SKUs analysed</span>
+      <span class="tag">6 independent external review sources</span>
+      <span class="tag">9 business functions</span>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="n bad">3.38<span style="font-size:16px;color:var(--muted)"> / 5</span></div><div class="l">Mean product rating. <b>28.9% of all reviews are 1-star.</b></div></div>
+      <div class="kpi"><div class="n warn">3.6 → 3.0</div><div class="l">Rating trend, early-2024 → Apr-2026. 1-star share rose 24% → 39%.</div></div>
+      <div class="kpi"><div class="n bad">47%</div><div class="l">of charging-line returns are warranty <b>replacements</b> (10,886 rows).</div></div>
+      <div class="kpi"><div class="n">61%</div><div class="l">of all returns sit in just 3 categories: Cases, Watch Bands, Bags.</div></div>
+      <div class="kpi"><div class="n bad">2.5 / 2.35 / 1.7</div><div class="l">Trustpilot / MouthShut / Sitejabber — vs <b>4.7★</b> app store.</div></div>
+      <div class="kpi"><div class="n good">Design</div><div class="l">The consistent #1 reason customers buy &amp; recommend. The moat is real.</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- METHOD -->
+<section id="method" style="padding-top:40px;padding-bottom:36px;">
+  <div class="wrap">
+    <span class="eyebrow">How to read this document</span>
+    <h2 class="serif" style="font-size:22px;margin:8px 0 10px;">Evidence base &amp; confidence discipline</h2>
+    <div class="compare">
+      <div class="cbox">
+        <h4>What the data can &amp; can't say</h4>
+        <ul>
+          <li><b>Two internal ground-truths</b> — the full review dump and the full returns/replacement log — cross-referenced against each other and against external web sentiment. A finding is rated <span class="pill p-pos">High</span> only when it appears in <b>two or more</b> independent sources.</li>
+          <li><b>No units-sold denominator was provided</b>, so SKUs are ranked by <b>absolute return volume</b> and <b>replacement rate</b>, not true return rate. Where a high-volume SKU is also a best-seller, severity is moderated accordingly and flagged.</li>
+          <li><b>Return-reason coding is noisy</b> — 22% blank and 13% "as per CX request." We reconstruct true cause from replacement-vs-refund mix, QC notes, and review text rather than trusting the reason label.</li>
+          <li><b>External review volumes are small &amp; complaint-skewed</b> — they reveal <i>what</i> goes wrong reliably, not <i>how often</i> across the base. Treated as directional.</li>
+        </ul>
+      </div>
+      <div class="cbox">
+        <h4>The one-sentence thesis</h4>
+        <p style="color:var(--muted);font-size:14px;margin:0 0 10px;">DailyObjects has built a genuine, defensible advantage in <b style="color:var(--ink)">design, aesthetics and the Stack modular ecosystem</b> — and it is being quietly taxed by a widening <b style="color:var(--ink)">quality, durability, reliability and expectation-setting gap</b>, most acutely in the electronics line and in after-sales.</p>
+        <p style="color:var(--muted);font-size:14px;margin:0;">Left unaddressed as the company scales from <b style="color:var(--ink)">~₹111 Cr toward ₹400 Cr</b>, the quality-vs-price perception becomes the ceiling on repeat rate, review scores, marketplace expansion and premium pricing power. This plan attacks the gap without diluting the design edge.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 1: EXEC SUMMARY -->
+<section id="summary">
+  <div class="wrap">
+    <div class="sechead"><span class="num">01</span><h2 class="serif">Executive Summary — the 25 highest-impact opportunities</h2></div>
+    <p class="section-intro">Ranked by a blend of customer impact, business impact and confidence. Each maps to a fuller initiative in the tracker (§3). Priority reflects urgency × value; confidence reflects strength of evidence.</p>
+
+    <div class="opps">
+
+      <div class="opp"><div class="top"><h4>Fix the charging line: Loop power banks &amp; SURGE cables/chargers are a warranty crisis</h4><div class="badges"><span class="pill p-crit">Critical</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">The electronics ecosystem is failing in the field at a rate no premium brand can sustain and is the single largest source of operational leakage and reputational drag.</p>
+        <p class="ev"><b>Evidence:</b> 10,886 charging returns at <b>47% replacement</b>; Loop power-bank variants <b>69%</b> replacement (Qi2 MagSafe variants 71–89%); SURGE Kevlar cables 76–88%; POP 67W GaN 79–90%. Review avg: Power Banks 3.08, SURGE 2-in-1 cable 2.24. External: "takes hours to charge… absolutely horrible," runs hot; a dual-port power-sharing defect so common DailyObjects publishes a troubleshooting article. <b>Owner:</b> Quality + Supply Chain.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Discontinue or redesign the Apple Watch Tempered-Glass Screen Protector</h4><div class="badges"><span class="pill p-crit">Critical</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">A structurally broken product: rigid glass cannot conform to a curved watch face. It is destroying the Screen-Protector category rating and generating avoidable returns.</p>
+        <p class="ev"><b>Evidence:</b> ~1,436 reviews at <b>2.17 avg</b>; multiple variants 1.70–2.18. Top negative themes: air-gaps/bubbles (269), doesn't fit / "hides screen from sides," dust under glass. <b>Action:</b> sunset glass, replace with a case-integrated bumper or PET film that fits the curve. <b>Owner:</b> Product + Category.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Rebuild the AirPods Case line — worst-rated category in the catalogue</h4><div class="badges"><span class="pill p-crit">Critical</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">Half of all AirPods-case reviews are 1-star; the category fails on the fundamentals of fit, stitching and finish.</p>
+        <p class="ev"><b>Evidence:</b> 2.62 avg, <b>50% 1-star</b> (1,282 reviews); highest company-fault return share (16.6%). Verbatim: "stitching came out too quickly," "inside fabric glued off, left colour on my pods," "expected better for Rs 500." <b>Owner:</b> Product + Quality.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Close the after-sales gap: enforce a refund/replacement SLA &amp; add live-agent escalation</h4><div class="badges"><span class="pill p-crit">Critical</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">The stated policy is competitive; the lived experience is the brand's clearest reputational liability and appears on every independent platform.</p>
+        <p class="ev"><b>Evidence:</b> Across Trustpilot/MouthShut/Sitejabber/ConsumerComplaints — "refund dragged on… money stuck even after return accepted," "returning a defective product is a nightmare, no one takes ownership," "calls never attended," warranty "kept asking for pictures then stopped replying." MouthShut titles: "Pathetic Service," "Fraud Company." <b>Owner:</b> Customer Support + CX.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Kill the "overpriced for the quality" perception — the market's #1 objection</h4><div class="badges"><span class="pill p-crit">Critical</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">This is the recurring verdict across every external source and the reason buyers defect to Spigen/ESR/Ugreen. It is a durability problem wearing a pricing mask.</p>
+        <p class="ev"><b>Evidence:</b> Cross-platform #1 theme; independent aggregators 1.7–2.5 vs 4.7 app store. "Spigen if you'll drop it, DailyObjects if you want it beautiful." Root cause is durability failures (yellowing, peeling, adhesive), not the price point itself. <b>Owner:</b> CPO + Brand.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Stop clear-case yellowing &amp; print-peel across the phone-case range</h4><div class="badges"><span class="pill p-crit">Critical</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">The core category (21,414 returns, 11,067 reviews) is being eroded by a material-durability defect that turns a hero product into a complaint within weeks.</p>
+        <p class="ev"><b>Evidence:</b> Durability the #1 negative theme (425 mentions); verbatims "becoming yellow within 3 days," "torn from places in just a month," "downgraded the quality." External corroboration: edge-yellowing ~1 month, print peels after water. 2,669 company-fault returns in cases. <b>Owner:</b> Supply Chain + Quality.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Solve Apple Watch band sizing — the largest single return driver</h4><div class="badges"><span class="pill p-high">High</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">Bands are the #2 returned category; the dominant cause is fit, not defect — a fixable content/product problem, especially on fixed-size Solo Loops.</p>
+        <p class="ev"><b>Evidence:</b> 15,088 returns, Size/Fit 19% of them; Solo Loop bands 2.56 avg / 47% 1-star (2,405 reviews). Verbatim: "not adjustable… doesn't specify which wrist size it fits — unable to order due to missing information." <b>Action:</b> printable sizing tool + shift fixed-size SKUs to adjustable. <b>Owner:</b> Ecommerce + Product.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Fix Rose Gold Milanese &amp; the colour-accuracy problem on PDPs</h4><div class="badges"><span class="pill p-high">High</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">A concentrated, cheap-to-fix photography/colour-calibration issue driving avoidable "colour is different" returns and 1-stars.</p>
+        <p class="ev"><b>Evidence:</b> Rose Gold Magnetic Milanese Loop is the #1 colour-mismatch SKU (173 "Color is Different" across two sizes); Stack stands "not black… washed-out bluish grey." Colour mismatch = 2,736 returns. <b>Owner:</b> Ecommerce (Content) + Brand.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Turn Bags from "loved-but-returned" into a repeat-purchase engine</h4><div class="badges"><span class="pill p-high">High</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">Bags rate well (3.81) yet return heavily (11,675) — the product is good; the PDP under-sets size/capacity expectations. This is margin left on the table, not a quality defect.</p>
+        <p class="ev"><b>Evidence:</b> 18% of bag returns are Size, 20% "didn't like product" (expectation); love themes design (267)/quality (224)/material (161). Kelp Duffle #1 returned bag (1,329) but category is a strength. <b>Action:</b> dimensions-in-context, capacity demos, model/scale shots. <b>Owner:</b> Ecommerce + Category.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Redesign the Stack Phone Wallet-Stand / Grip family for ergonomics</h4><div class="badges"><span class="pill p-high">High</span><span class="conf">Conf: Med-High</span></div></div>
+        <p class="why">A flagship ecosystem SKU family is returned for being "uncomfortable to use" — an ergonomic design flaw undermining the Stack moat.</p>
+        <p class="ev"><b>Evidence:</b> Slate Stack Phone Wallet Stand 2.35 avg; "Uncomfortable to use" leaders: Slate (92), Tangerine Grip (45), Carbon (43/35). Since Stack is the strategic moat, quality here is disproportionately important. <b>Owner:</b> Product.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Attack the review-score deterioration before it compounds</h4><div class="badges"><span class="pill p-high">High</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">Perceived quality has fallen for two years straight — a leading indicator of repeat-rate and marketplace-rating erosion.</p>
+        <p class="ev"><b>Evidence:</b> Mean rating 3.6 (H1'24) → 3.2–3.3 (H2'25) → 3.03 (Apr'26); 1-star share 24% → 39%. Deterioration is structural, not seasonal. <b>Owner:</b> CPO (as tracked KPI) + Quality.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Own the modular MagSafe / Qi2 (Stack) ecosystem in India</h4><div class="badges"><span class="pill p-high">High</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">The single clearest growth moat — no Indian rival owns a true accessory <i>ecosystem</i>; Casetify's Snappy is the only global analog and is priced out of the market.</p>
+        <p class="ev"><b>Evidence:</b> 980+ combinations, European Design Award, now Qi2/Samsung; external reviewers note Stack build quality holds up better than legacy graphic cases. Deepening it lifts AOV and creates switching cost. <b>Owner:</b> CPO + Category.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Re-engineer leather &amp; adhesive construction (wallets, card holders, leather bands)</h4><div class="badges"><span class="pill p-high">High</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">Glued construction fails within weeks — repeatedly, even on replacements — and cedes the leather segment to Nappa Dori on craftsmanship.</p>
+        <p class="ev"><b>Evidence:</b> External: "glue from the wallet came off within a week… again after replacement"; internal wallets 3.43 with quality/durability negatives; Poppy Leather Link bands 2.30–2.47. <b>Action:</b> stitched/riveted construction, adhesive-spec change. <b>Owner:</b> Supply Chain + Quality.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Reduce operational leakage on the top-5 returned SKUs</h4><div class="badges"><span class="pill p-high">High</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">A small SKU set drives an outsized share of reverse-logistics cost; targeted intervention pays back fastest.</p>
+        <p class="ev"><b>Evidence:</b> Kelp Duffle (1,329), Rhythm Crossbody (1,038), Loop Qi2 PB Titanium (968), Universal Lanyard Link (688), Rose Gold Milanese (516) — each with a distinct, addressable root cause (content, warranty, finish, colour). <b>Owner:</b> Supply Chain + Category.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Fix the SURGE GaN dual-port power-sharing behaviour &amp; DOA rate</h4><div class="badges"><span class="pill p-high">High</span><span class="conf">Conf: Med-High</span></div></div>
+        <p class="why">A specific, reproducible engineering complaint plus dead-on-arrival units — competitors (Anker/Ugreen) win precisely here.</p>
+        <p class="ev"><b>Evidence:</b> External: low USB-C output when Type-A occupied (repeated, reproducible); scattered DOA "didn't work at all, tried multiple devices"; brand's own GaN troubleshooting blog implies volume. POP 67W GaN 79–90% replacement internally. <b>Owner:</b> Product (Electronics) + Quality.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Standardise premium protective packaging to end transit &amp; "arrived used" complaints</h4><div class="badges"><span class="pill p-med">Medium</span><span class="conf">Conf: Med</span></div></div>
+        <p class="why">Broken seals and transit scuffs undercut the premium unboxing that is otherwise a brand strength.</p>
+        <p class="ev"><b>Evidence:</b> "package seal was always broken and the product looks used"; "box was fully opened, scratches on cover"; cosmetic-damage returns 428. Packaging is also a top external <i>praise</i> theme — protect it. <b>Owner:</b> Supply Chain.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Convert the design advantage into explicit, defensible marketing claims</h4><div class="badges"><span class="pill p-med">Medium</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">Design is the proven purchase driver but is under-leveraged against the durability narrative — the brand should reframe the value equation.</p>
+        <p class="ev"><b>Evidence:</b> Love themes dominated by design/aesthetics/premium/giftability across every category and source; European Design Award on Stack. Pair with visible durability proof to neutralise "overpriced." <b>Owner:</b> CMO + Brand.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Launch a visible "No-Quibble Replacement" durability guarantee</h4><div class="badges"><span class="pill p-high">High</span><span class="conf">Conf: Med-High</span></div></div>
+        <p class="why">Turn the biggest liability (after-sales) into a differentiator, echoing how Mokobara's 6-yr warranty builds trust.</p>
+        <p class="ev"><b>Evidence:</b> Customers already cite free replacements as a rare positive; a proactive, well-marketed guarantee on print/adhesion/yellowing defects is cheaper than the CAC it protects and directly answers the #1 objection. <b>Owner:</b> CX + Brand.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Scale corporate / B2B gifting as a high-margin, under-marketed lane</h4><div class="badges"><span class="pill p-med">Medium</span><span class="conf">Conf: Med</span></div></div>
+        <p class="why">Already ~10–12% of revenue with steadier cash flow and predictable bulk orders; few pure-play case brands occupy it.</p>
+        <p class="ev"><b>Evidence:</b> External: premium packaging/gifting a repeated praise theme; corporate testimonials strong. <b>Action:</b> dedicated B2B portal + Stack-based gift kits + bulk customisation. <b>Owner:</b> Category / Commercial.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Rebuild PDP content system: sizing, dimensions-in-context, compatibility &amp; materials</h4><div class="badges"><span class="pill p-high">High</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">"Expectation/PDP" causes (mismatch, misleading images, wrong model, misunderstood description) are the second-largest return root cause — pure content debt.</p>
+        <p class="ev"><b>Evidence:</b> Content/PDP-gap returns 3,685 + preference/expectation 10,846; laptop sleeves return 25% on size (wrong model fit), sleeves otherwise rate 3.70. <b>Owner:</b> Ecommerce.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Close the channel-perception gap between owned &amp; independent review surfaces</h4><div class="badges"><span class="pill p-med">Medium</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">A 4.7★ app store vs 1.7–2.5 independent sites means prospective buyers researching the brand hit a wall of negativity the brand isn't managing.</p>
+        <p class="ev"><b>Evidence:</b> Documented split across App Store vs Trustpilot/MouthShut/Sitejabber. <b>Action:</b> structured review-generation + response program on Trustpilot/MouthShut/Google; verified-buyer solicitation post-delivery. <b>Owner:</b> Brand + Marketplace.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Win the marketplace shelf with A+ content, sizing videos &amp; review velocity</h4><div class="badges"><span class="pill p-med">Medium</span><span class="conf">Conf: Med</span></div></div>
+        <p class="why">On Amazon/Flipkart, DailyObjects competes on a shelf where Spigen/ESR win on ratings and value; content and review velocity are the levers.</p>
+        <p class="ev"><b>Evidence:</b> Marketplace product ratings mixed (~4/5) but sizing/DOA complaints surface; external notes strong Spigen availability advantage. <b>Owner:</b> Head of Marketplace.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Open a women-first design line (bags &amp; accessories)</h4><div class="badges"><span class="pill p-low">Medium-Low</span><span class="conf">Conf: Med</span></div></div>
+        <p class="why">The category (and Mokobara) skews male in colourway/silhouette — an explicit white-space aligned to DailyObjects' design strength.</p>
+        <p class="ev"><b>Evidence:</b> External white-space signal; DailyObjects' proven design equity in bags (3.81 rating) makes this a lower-risk NPD bet. <b>Owner:</b> Category + Consumer Insights.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Use offline EBOs to counter the "overpriced-for-quality" skepticism</h4><div class="badges"><span class="pill p-low">Medium-Low</span><span class="conf">Conf: Med</span></div></div>
+        <p class="why">Letting buyers feel build quality before purchase is the most direct answer to online quality doubt; retail rollout is already underway.</p>
+        <p class="ev"><b>Evidence:</b> 13 EBOs live, 150–160 planned; premium look/feel is the brand's proven in-hand strength. Make quality-touch the merchandising thesis. <b>Owner:</b> Retail / Brand.</p>
+      </div>
+
+      <div class="opp"><div class="top"><h4>Institute closed-loop VoC governance — a standing monthly quality &amp; returns review</h4><div class="badges"><span class="pill p-high">High</span><span class="conf">Conf: High</span></div></div>
+        <p class="why">Every issue above was detectable months earlier in the data; the missing capability is a routine that turns signals into vendor actions on a cadence.</p>
+        <p class="ev"><b>Evidence:</b> Reason-coding noise, rising 1-star trend, and per-SKU replacement spikes all went un-actioned. <b>Action:</b> monthly cross-functional VoC council with a live SKU heatmap and vendor scorecards. <b>Owner:</b> CPO + Consulting/PMO.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: SYNTHESIS -->
+<section id="synthesis">
+  <div class="wrap">
+    <div class="sechead"><span class="num">02</span><h2 class="serif">Synthesis — internal reality vs. market perception</h2></div>
+    <p class="section-intro">Internal feedback tells us what existing customers experience after purchase; external feedback tells us how the market decides whether to buy at all. Reading them together separates the true systemic problems from the noise.</p>
+
+    <div class="callout crit">
+      <h4>The defining pattern: reason-coding hides the electronics defect problem</h4>
+      <p>Power banks look "clean" on the reason label (mostly "as per CX request," low fault-coded share) — yet <b>69% of Loop returns are replacements</b>, and review text is full of "won't charge / runs hot / slow." The warranty channel, not the reason field, is where the defect lives. Any analysis trusting the reason label alone would miss the company's most expensive quality problem.</p>
+    </div>
+
+    <div class="compare">
+      <div class="cbox love"><h4>What customers consistently love (the moat)</h4>
+        <ul>
+          <li><b>Design &amp; aesthetics</b> — the #1 purchase and recommendation driver in every category and every external source. "The most beautiful, premium case India has to offer."</li>
+          <li><b>The Stack modular ecosystem</b> — 980+ combinations, European Design Award, now Qi2; a genuine, defensible moat no Indian rival matches.</li>
+          <li><b>Premium materials &amp; finish</b> — vegan-leather desk mats, tech organisers (4.15 avg — best category), laptop sleeves (3.70) win on feel &amp; build.</li>
+          <li><b>Packaging, unboxing &amp; giftability</b> — a repeated external praise theme and the basis of the B2B lane.</li>
+          <li><b>Protection &amp; fit (when quality holds)</b> — phone-case love themes led by protection (337) and quality (303).</li>
+        </ul>
+      </div>
+      <div class="cbox pain"><h4>What consistently drives dissatisfaction (the tax)</h4>
+        <ul>
+          <li><b>Durability &amp; reliability</b> — yellowing, print-peel, adhesive failure, charging failure. The through-line of every 1-star.</li>
+          <li><b>Electronics reliability</b> — power banks, cables, GaN chargers failing in-field at 47–90% replacement.</li>
+          <li><b>Sizing &amp; fit</b> — watch bands (esp. fixed-size Solo Loop), bags, laptop sleeves; largely a content gap.</li>
+          <li><b>After-sales</b> — slow refunds, adversarial returns, no live agent. The biggest brand-promise-vs-delivery gap.</li>
+          <li><b>Price-to-quality perception</b> — the market's #1 objection and the reason for competitive defection.</li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="soft">
+    <h3 class="serif" style="font-size:18px;margin:0 0 12px;">Where the two workstreams agree, diverge, and stay silent</h3>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Issue</th><th>In reviews?</th><th>In returns?</th><th>In external web?</th><th>Verdict &amp; priority</th></tr></thead>
+        <tbody>
+          <tr><td><b>Charging-line reliability</b></td><td>Yes (3.08 PB, 2.24 cable)</td><td>Yes (47–90% replacement)</td><td>Yes (slow/hot, DOA, GaN blog)</td><td><span class="pill p-crit">Systemic — Critical</span></td></tr>
+          <tr><td><b>Case yellowing / print-peel</b></td><td>Yes (durability 425)</td><td>Yes (2,669 fault returns)</td><td>Yes (yellow ~1mo, peel on water)</td><td><span class="pill p-crit">Systemic — Critical</span></td></tr>
+          <tr><td><b>Watch-band sizing</b></td><td>Yes (Solo Loop 2.56)</td><td>Yes (Size 19%)</td><td>Yes (band "different from image")</td><td><span class="pill p-high">Systemic — High</span></td></tr>
+          <tr><td><b>After-sales / refund friction</b></td><td>Partial (few in-site)</td><td>Implied (CX-initiated 10.6k)</td><td><b>Yes — dominant</b></td><td><span class="pill p-crit">Reputation — Critical</span></td></tr>
+          <tr><td><b>AirPods case quality</b></td><td>Yes (2.62, 50% 1★)</td><td>Yes (16.6% fault)</td><td>Weak signal</td><td><span class="pill p-crit">Product — Critical</span></td></tr>
+          <tr><td><b>Adhesive/leather failure</b></td><td>Yes (wallets, leather bands)</td><td>Yes (finish/durability)</td><td>Yes (glue off in a week)</td><td><span class="pill p-high">Systemic — High</span></td></tr>
+          <tr><td><b>Stack stand ergonomics</b></td><td>Yes (2.35)</td><td>Yes ("uncomfortable")</td><td>—</td><td><span class="pill p-high">Vocal internal — High</span></td></tr>
+          <tr><td><b>Stands &amp; Mounts (silent)</b></td><td>Thin (648 reviews)</td><td><b>High (1,994 returns)</b></td><td>—</td><td><span class="pill p-med">Silent problem — Medium</span></td></tr>
+          <tr><td><b>Bags size/expectation</b></td><td>Loved (3.81)</td><td><b>High (11,675)</b></td><td>Mixed (material/size)</td><td><span class="pill p-high">Content fix — High</span></td></tr>
+          <tr><td><b>"Overpriced for quality"</b></td><td>Indirect (pricing 1★s)</td><td>Minor (559)</td><td><b>Yes — #1 objection</b></td><td><span class="pill p-crit">Perception — Critical</span></td></tr>
+          <tr><td><b>Delivery delays</b></td><td>Some</td><td>Logistics 306</td><td><b>Yes — repeated</b></td><td><span class="pill p-med">Ops — Medium</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small" style="margin-top:12px;"><b>Reading the matrix:</b> Issues confirmed in 3/3 sources are the non-negotiable Critical fixes. After-sales is the standout case of an issue nearly invisible internally but dominant externally — it prevents <i>new</i> customers from buying. Bags and Stands are the mirror image: internal-only signals existing customers feel but the market never hears.</p>
+  </div>
+</section>
+
+<!-- SECTION 3: HEATMAP -->
+<section id="heatmap">
+  <div class="wrap">
+    <div class="sechead"><span class="num">03</span><h2 class="serif">SKU &amp; Category Heatmap</h2></div>
+    <p class="section-intro">Highest-priority categories and SKUs by issue severity, trend, and recommended action. Severity blends review score, return volume/replacement rate, and cross-source confirmation.</p>
+
+    <div class="legend">
+      <span><span class="dot" style="background:var(--crit)"></span>5 — Critical / systemic</span>
+      <span><span class="dot" style="background:var(--crit-bg)"></span>4 — Severe</span>
+      <span><span class="dot" style="background:var(--high-bg)"></span>3 — Elevated</span>
+      <span><span class="dot" style="background:var(--med-bg)"></span>2 — Watch</span>
+      <span><span class="dot" style="background:var(--pos-bg)"></span>1 — Strength</span>
+      <span class="trend up">▲ worsening</span><span class="trend flat">▬ stable</span><span class="trend dn">▼ improving/strong</span>
+    </div>
+
+    <h3 class="serif" style="font-size:17px;margin:22px 0 10px;">By category</h3>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Category</th><th class="num">Returns</th><th class="num">Rev n</th><th class="num">Avg ★</th><th class="num">1★%</th><th>Severity</th><th>Trend</th><th>Primary issue → action</th></tr></thead>
+        <tbody>
+          <tr><td><b>Chargers·Power Banks·Cables</b></td><td class="num">10,886</td><td class="num">11,017</td><td class="num">3.1–3.5</td><td class="num">27–34%</td><td><span class="sev sev-5">5</span></td><td><span class="trend up">▲</span></td><td>Field reliability (47% replacement) → vendor/QC overhaul, bench-test protocol</td></tr>
+          <tr><td><b>AirPods Cases</b></td><td class="num">2,059</td><td class="num">1,282</td><td class="num">2.62</td><td class="num">50%</td><td><span class="sev sev-5">5</span></td><td><span class="trend flat">▬</span></td><td>Fit/stitching/finish → relaunch line, tighten spec &amp; QC</td></tr>
+          <tr><td><b>Screen Protectors</b></td><td class="num">3,328</td><td class="num">5,767</td><td class="num">3.12</td><td class="num">36%</td><td><span class="sev sev-5">5</span></td><td><span class="trend up">▲</span></td><td>Apple-Watch glass (2.17) → discontinue/redesign; fix fit on phone glass</td></tr>
+          <tr><td><b>Phone Cases</b></td><td class="num">21,414</td><td class="num">11,067</td><td class="num">3.32</td><td class="num">30%</td><td><span class="sev sev-4">4</span></td><td><span class="trend up">▲</span></td><td>Yellowing/peel/finish → material change; lean into Stack</td></tr>
+          <tr><td><b>Apple Watch Bands</b></td><td class="num">15,088</td><td class="num">14,071</td><td class="num">3.10</td><td class="num">33%</td><td><span class="sev sev-4">4</span></td><td><span class="trend flat">▬</span></td><td>Sizing + Solo Loop fit + colour → sizing tool, adjustable SKUs, colour QA</td></tr>
+          <tr><td><b>Wallets &amp; Card Holders</b></td><td class="num">3,961</td><td class="num">4,178</td><td class="num">3.43</td><td class="num">28%</td><td><span class="sev sev-3">3</span></td><td><span class="trend flat">▬</span></td><td>Adhesive/ergonomics → stitched construction</td></tr>
+          <tr><td><b>Stands &amp; Mounts</b></td><td class="num">1,994</td><td class="num">648</td><td class="num">3.24</td><td class="num">33%</td><td><span class="sev sev-3">3</span></td><td><span class="trend flat">▬</span></td><td><b>Silent</b> (few reviews, high returns) → Stack ergonomics redesign</td></tr>
+          <tr><td><b>Bags</b></td><td class="num">11,675</td><td class="num">9,257</td><td class="num">3.81</td><td class="num">19%</td><td><span class="sev sev-2">2</span></td><td><span class="trend dn">▼</span></td><td>Loved but size-returned → PDP dimensions/capacity, not a quality fix</td></tr>
+          <tr><td><b>Laptop Sleeves &amp; Folios</b></td><td class="num">2,966</td><td class="num">1,808</td><td class="num">3.70</td><td class="num">22%</td><td><span class="sev sev-2">2</span></td><td><span class="trend dn">▼</span></td><td>Model-fit sizing → compatibility selector on PDP</td></tr>
+          <tr><td><b>Tech Organisers / Desk Mats</b></td><td class="num">996</td><td class="num">913</td><td class="num">3.9–4.15</td><td class="num">13–18%</td><td><span class="sev sev-1">1</span></td><td><span class="trend dn">▼</span></td><td><b>Strength</b> — protect &amp; expand; use as quality proof-point</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="serif" style="font-size:17px;margin:26px 0 10px;">Priority SKUs / SKU families requiring intervention</h3>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>SKU / family</th><th>Category</th><th>Signal</th><th>Root cause</th><th>Severity</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><b>Loop Qi2 MagSafe Power Bank</b> (all variants)</td><td>Power Banks</td><td>3,684 returns, 69% replacement; 71–89% on Qi2 variants</td><td>Charging reliability / heat / Qi2 firmware</td><td><span class="sev sev-5">5</span></td><td>Vendor RCA, batch quarantine, bench-test gate before re-list</td></tr>
+          <tr><td><b>SURGE Kevlar Cables</b> (4-in-1 100W, 2-in-1)</td><td>Cables</td><td>76–88% replacement; 2-in-1 review 2.24</td><td>Internal-wire/connector failure</td><td><span class="sev sev-5">5</span></td><td>Cable-vendor change; strain-relief &amp; endurance spec</td></tr>
+          <tr><td><b>POP 67W Triple-Port GaN</b> (Blue/Black/White)</td><td>Chargers</td><td>79–90% replacement</td><td>Dead-on-arrival / dual-port power-sharing</td><td><span class="sev sev-5">5</span></td><td>Circuit RCA; 100% powered QC; fix port logic</td></tr>
+          <tr><td><b>Tempered-Glass Apple Watch Protector</b></td><td>Screen Protectors</td><td>~1,436 reviews @ 2.17; variants 1.70–2.18</td><td>Rigid glass can't fit curved face; bubbles/dust</td><td><span class="sev sev-5">5</span></td><td>Discontinue; replace with fitted PET / case bumper</td></tr>
+          <tr><td><b>Solo Loop bands</b> (Braided &amp; silicone, all colours)</td><td>Watch Bands</td><td>2,405 reviews @ 2.56, 47% 1★</td><td>Fixed-size fit failure + no size guidance</td><td><span class="sev sev-4">4</span></td><td>Printable sizing gauge; migrate to adjustable</td></tr>
+          <tr><td><b>AirPods Pro cases</b> (Coast, Poncho, Leatherite, Leather)</td><td>AirPods Cases</td><td>Variants 2.1–2.5; 50% 1★ category</td><td>Fit for wrong gen, stitching, glue/finish</td><td><span class="sev sev-4">4</span></td><td>Relaunch with corrected fit &amp; construction</td></tr>
+          <tr><td><b>Rose Gold Magnetic Milanese Loop</b> (38/40/41 &amp; 42/44/45)</td><td>Watch Bands</td><td>173 "Color is Different" returns</td><td>PDP colour inaccurate vs product</td><td><span class="sev sev-3">3</span></td><td>Re-shoot; colour-calibrate; add real-light photos</td></tr>
+          <tr><td><b>Stack Phone Wallet-Stand / Grip family</b> (Slate, Carbon, Tangerine)</td><td>Stands</td><td>Slate 2.35; top "uncomfortable" SKUs</td><td>Ergonomic design flaw in a moat product</td><td><span class="sev sev-3">3</span></td><td>Ergonomics redesign; protect Stack equity</td></tr>
+          <tr><td><b>Beam MagSafe cases</b> (iPhone 16/16 Pro/Max)</td><td>Phone Cases</td><td>2.31; "Bad Finishing" leader</td><td>Finish/moulding defect + MagSafe ring</td><td><span class="sev sev-3">3</span></td><td>Tooling/finish QC; supplier corrective action</td></tr>
+          <tr><td><b>Kelp Daily Duffle</b> &amp; <b>Rhythm Crossbody</b></td><td>Bags</td><td>#1/#2 returned SKUs (1,329 / 1,038)</td><td>Size/capacity expectation (product itself liked)</td><td><span class="sev sev-2">2</span></td><td>PDP capacity demos; not a recall — content fix</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: INITIATIVE TRACKER -->
+<section id="tracker">
+  <div class="wrap">
+    <div class="sechead"><span class="num">04</span><h2 class="serif">Cross-Functional Initiative Tracker</h2></div>
+    <p class="section-intro">Every initiative carries a problem, evidence, root cause, action, expected outcome, business impact, confidence, priority, owner and timeline. Organised under the nine standard workstreams.</p>
+
+    <!-- BUCKET 1 -->
+    <div class="bucket">
+      <div class="bucket-h"><span class="bnum">1</span><h3 class="serif">Product Improvements</h3></div>
+      <p class="bucket-sub">SKU &amp; category fixes to materials, features, design, durability.</p>
+      <div class="inits">
+        <div class="init"><div class="ih"><h4>Clear-case anti-yellowing material change</h4><span class="pill p-crit">Critical</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Clear/printed cases yellow &amp; print peels within weeks.</span></div>
+          <div class="field"><span class="k">Root cause</span><span class="v">Low-grade TPU/PC blend + UV instability; print lacquer not water-fast.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Move to anti-yellowing TPU + UV coat; water-fast print; 12-week accelerated-aging test gate.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">↓ case fault returns (from 2,669) &amp; ↑ case rating from 3.32; protects the 21k-return core category.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">Supply Chain + Quality</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Charging-line reliability overhaul</h4><span class="pill p-crit">Critical</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Power banks/cables/GaN fail in field at 47–90% replacement.</span></div>
+          <div class="field"><span class="k">Root cause</span><span class="v">Component/firmware reliability; Qi2 heat; connector durability; DOA escaping QC.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Vendor RCA + batch quarantine; 100% powered-on QC; endurance/heat bench spec; fix GaN dual-port logic.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Halve charging replacements (5,079/yr); recover the electronics P&amp;L &amp; rating.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">Quality + Product (Electronics)</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>AirPods case relaunch</h4><span class="pill p-crit">Critical</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">2.62 avg, 50% 1★ — worst category.</span></div>
+          <div class="field"><span class="k">Root cause</span><span class="v">Generation-fit errors, weak stitching, glue bleeding onto pods.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Re-tool moulds per generation; stitched not glued; dye-fastness test; relaunch SKUs.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Rating 2.62 → 4.0+; removes a chronic 1★ drag on brand average.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">Product + Quality</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Stack stand/grip ergonomics redesign</h4><span class="pill p-high">High</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">"Uncomfortable to use" on flagship Stack SKUs (Slate 2.35).</span></div>
+          <div class="field"><span class="k">Root cause</span><span class="v">Grip geometry / fold mechanism ergonomics.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">User-test redesign of grip &amp; kickstand; validate before re-release.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Protects the ecosystem moat; ↓ Stands returns (1,994).</span></div>
+          <div class="foot"><span class="conf">Conf: Med-High</span><span class="owner">Product / Industrial Design</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Migrate fixed-size Solo Loops to adjustable</h4><span class="pill p-high">High</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Fixed-size Solo Loops 2.56 avg, 47% 1★, heavy size returns.</span></div>
+          <div class="field"><span class="k">Root cause</span><span class="v">No adjustability + no size guidance at purchase.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Prioritise adjustable/loop designs; retire worst fixed SKUs.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Cuts the single largest band return driver.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">Product + Category</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Discontinue/redesign Apple Watch tempered glass</h4><span class="pill p-crit">Critical</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">2.17 avg; glass cannot fit a curved face.</span></div>
+          <div class="field"><span class="k">Root cause</span><span class="v">Wrong material format for the product geometry.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Sunset glass SKUs; offer fitted PET film or case bumper.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Removes ~1,436 low-star reviews dragging the category.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">Product + Category</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUCKET 2 -->
+    <div class="bucket">
+      <div class="bucket-h"><span class="bnum">2</span><h3 class="serif">New Product Development (NPD)</h3></div>
+      <p class="bucket-sub">New products, variants, colours, bundles, premiumisation, category expansion.</p>
+      <div class="inits">
+        <div class="init"><div class="ih"><h4>Deepen the Stack / Qi2 ecosystem</h4><span class="pill p-high">High</span></div>
+          <div class="field"><span class="k">Opportunity</span><span class="v">Extend the modular moat: charging modules, car/desk mounts, camera grips, MagSafe banks.</span></div>
+          <div class="field"><span class="k">Evidence</span><span class="v">980+ combos, EU Design Award, Qi2/Samsung; Stack build quality praised externally.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">↑ AOV &amp; switching cost; converts single-case buyers to ecosystem buyers.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">CPO + Category</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Women-first design line</h4><span class="pill p-low">Med-Low</span></div>
+          <div class="field"><span class="k">Opportunity</span><span class="v">Category skews male; female-first bags/accessories are open space.</span></div>
+          <div class="field"><span class="k">Evidence</span><span class="v">External white-space; DO's proven bag design equity (3.81).</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">New TAM aligned to the design strength.</span></div>
+          <div class="foot"><span class="conf">Conf: Med</span><span class="owner">Category + Consumer Insights</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Stack-based corporate gift kits &amp; bundles</h4><span class="pill p-med">Medium</span></div>
+          <div class="field"><span class="k">Opportunity</span><span class="v">Bundle economics beat brand-diluting discounts; gifting is high-margin.</span></div>
+          <div class="field"><span class="k">Evidence</span><span class="v">Gifting/packaging a top praise theme; B2B ~10–12% of revenue.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">↑ AOV, steadier cash flow, defensible lane.</span></div>
+          <div class="foot"><span class="conf">Conf: Med</span><span class="owner">Category / Commercial</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Restock &amp; complete high-demand colourways</h4><span class="pill p-low">Med-Low</span></div>
+          <div class="field"><span class="k">Opportunity</span><span class="v">Reviews show demand for out-of-stock colours (e.g. black variants).</span></div>
+          <div class="field"><span class="k">Evidence</span><span class="v">1★ reviews literally requesting restocks / missing colours.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Captures lost demand; converts frustration to sales.</span></div>
+          <div class="foot"><span class="conf">Conf: Med</span><span class="owner">Category + Supply Chain</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUCKET 3 -->
+    <div class="bucket">
+      <div class="bucket-h"><span class="bnum">3</span><h3 class="serif">Supply Chain &amp; Quality</h3></div>
+      <p class="bucket-sub">Manufacturing, vendor, QC, packaging, inspection.</p>
+      <div class="inits">
+        <div class="init"><div class="ih"><h4>Vendor scorecards &amp; corrective-action loop</h4><span class="pill p-high">High</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Chronic per-SKU defect rates persist with no vendor accountability.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Monthly scorecard (replacement rate, 1★ rate, defect type); CAPA on breach; re-source repeat offenders.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Structural downward pressure on defects; halts the rating decline.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">Supply Chain + Quality</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>100% powered-on QC for all electronics</h4><span class="pill p-crit">Critical</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Dead-on-arrival chargers/cables reach customers.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Functional power-test gate on every unit; heat &amp; dual-port test on sample.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Eliminates DOA returns; directly counters Anker/Ugreen reliability edge.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">Quality</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Stitched/riveted construction for leather goods</h4><span class="pill p-high">High</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Glue fails within a week on wallets/card holders — even on replacements.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Change adhesive spec + add stitching/rivets; peel-strength test.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Closes the craftsmanship gap vs Nappa Dori; ↓ wallet returns.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">Supply Chain + Quality</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Premium protective packaging standard</h4><span class="pill p-med">Medium</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">"Seal broken / looks used"; transit scuffs.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Tamper-evident seal, protective inserts; standard across 3PLs.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Protects the unboxing strength; ↓ cosmetic-damage returns (428).</span></div>
+          <div class="foot"><span class="conf">Conf: Med</span><span class="owner">Supply Chain</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Colour-calibration standard for production &amp; PDP</h4><span class="pill p-med">Medium</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Colour mismatch (2,736 returns) — production &amp; photography drift.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Pantone reference per SKU; calibrated PDP shoot; incoming colour QC.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">↓ colour returns; fixes Rose Gold Milanese &amp; Stack finishes.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">Supply Chain + Brand</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUCKET 4 -->
+    <div class="bucket">
+      <div class="bucket-h"><span class="bnum">4</span><h3 class="serif">Returns &amp; Customer Experience</h3></div>
+      <p class="bucket-sub">Returns/exchange/warranty policy, support, replacement process, education.</p>
+      <div class="inits">
+        <div class="init"><div class="ih"><h4>Enforce refund/replacement SLA + live-agent escalation</h4><span class="pill p-crit">Critical</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Refunds "drag on"; returns feel adversarial; no live agent.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Hard SLA (refund ≤5 days), proactive status comms, empowered live-agent path, ownership per ticket.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Neutralises the #1 reputation liability; protects repeat rate &amp; CAC.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">Customer Support + CX</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>"No-Quibble Replacement" durability guarantee</h4><span class="pill p-high">High</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Warranty runaround on print/adhesion/yellowing defects.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Public, marketed no-questions replacement for defined defects; auto-approve within window.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Converts liability to differentiator (à la Mokobara warranty).</span></div>
+          <div class="foot"><span class="conf">Conf: Med-High</span><span class="owner">CX + Brand</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Root-cause the "as per CX request" &amp; blank reason codes</h4><span class="pill p-med">Medium</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">35% of returns are blank/CX-coded, masking true causes (esp. defects).</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Mandatory structured reason capture + free-text; reconcile against replacement flag.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Restores signal quality for the whole VoC engine.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">CX + Analytics</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Delivery &amp; logistics reliability program</h4><span class="pill p-med">Medium</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">External: month-long delays, "delivered" without handover.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">3PL SLA scorecards; OTP-verified delivery; proactive delay comms.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">↓ delivery-driven cancellations &amp; 1★s; ↑ trust.</span></div>
+          <div class="foot"><span class="conf">Conf: Med</span><span class="owner">Supply Chain + CX</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUCKET 5 -->
+    <div class="bucket">
+      <div class="bucket-h"><span class="bnum">5</span><h3 class="serif">Marketing &amp; Brand</h3></div>
+      <p class="bucket-sub">Messaging, positioning, claims, PDP &amp; content.</p>
+      <div class="inits">
+        <div class="init"><div class="ih"><h4>Reframe the value equation: design + proven durability</h4><span class="pill p-high">High</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">"Overpriced for quality" is the market's #1 objection.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Pair design storytelling with visible durability proof (drop tests, materials, guarantee).</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Defends premium pricing power as the brand scales to ₹400 Cr.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">CMO + Brand</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Rethink permanent-discount signalling</h4><span class="pill p-med">Medium</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Near-permanent discounts make list prices feel inflated ("999 vs 799 in a half-price sale?").</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Move to honest everyday pricing + genuine event promos; bundle instead of discount.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Rebuilds price integrity &amp; trust.</span></div>
+          <div class="foot"><span class="conf">Conf: Med</span><span class="owner">CMO + Merchandising</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Off-platform reputation management</h4><span class="pill p-med">Medium</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">4.7★ app vs 1.7–2.5 independent sites greets every researching prospect.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Respond on Trustpilot/MouthShut/Google; solicit verified-buyer reviews post-delivery.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Lifts independent scores; removes a top-of-funnel objection.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">Brand + Marketplace</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUCKET 6 -->
+    <div class="bucket">
+      <div class="bucket-h"><span class="bnum">6</span><h3 class="serif">Marketplace Strategy</h3></div>
+      <p class="bucket-sub">Assortment, A+ content, images/video, ratings &amp; review generation.</p>
+      <div class="inits">
+        <div class="init"><div class="ih"><h4>A+ content, sizing video &amp; review velocity on Amazon/Flipkart</h4><span class="pill p-med">Medium</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">On marketplace shelves, Spigen/ESR win on rating &amp; value.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">A+ pages, sizing/compatibility video, DOA-prevention (100% QC), post-purchase review requests.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">↑ shelf ratings &amp; conversion vs value competitors.</span></div>
+          <div class="foot"><span class="conf">Conf: Med</span><span class="owner">Head of Marketplace</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Marketplace assortment differentiation</h4><span class="pill p-low">Med-Low</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Undifferentiated SKUs get out-competed on price.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Lead marketplaces with design-led hero SKUs &amp; Stack bundles, not commodity chargers.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Protects margin; avoids price war on me-too electronics.</span></div>
+          <div class="foot"><span class="conf">Conf: Med</span><span class="owner">Marketplace + Category</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUCKET 7 -->
+    <div class="bucket">
+      <div class="bucket-h"><span class="bnum">7</span><h3 class="serif">Ecommerce Experience</h3></div>
+      <p class="bucket-sub">PDP, sizing, compatibility, discovery, trust-building.</p>
+      <div class="inits">
+        <div class="init"><div class="ih"><h4>Sizing &amp; compatibility system across PDPs</h4><span class="pill p-high">High</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Size/fit &amp; model-compatibility drive ~9,300 returns.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Printable watch-band gauge; laptop/phone model selector; bag dimensions-in-context &amp; capacity demos.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Largest single lever on avoidable returns; frees reverse-logistics cost.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">Ecommerce</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Accurate, calibrated PDP imagery &amp; real-scale shots</h4><span class="pill p-high">High</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">"Doesn't match picture / colour different" — 3,685 content-gap returns.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Colour-calibrated, real-light photography; in-hand/scale references; 360° video.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">↓ expectation-mismatch returns; ↑ conversion confidence.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">Ecommerce + Brand</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>On-PDP durability &amp; care education</h4><span class="pill p-med">Medium</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Some failures are usage/expectation (e.g. water on print).</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Care instructions, material expectations, warranty terms surfaced on PDP.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Sets honest expectations; ↓ preventable dissatisfaction.</span></div>
+          <div class="foot"><span class="conf">Conf: Med</span><span class="owner">Ecommerce + CX</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUCKET 8 -->
+    <div class="bucket">
+      <div class="bucket-h"><span class="bnum">8</span><h3 class="serif">Pricing &amp; Merchandising</h3></div>
+      <p class="bucket-sub">Price architecture, bundles, value perception, cross/upsell.</p>
+      <div class="inits">
+        <div class="init"><div class="ih"><h4>Stack bundle architecture (case + grip + wallet + stand)</h4><span class="pill p-med">Medium</span></div>
+          <div class="field"><span class="k">Opportunity</span><span class="v">Bundle to raise AOV &amp; value perception without eroding brand price.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Curated Stack starter kits at a bundle price; cross-sell at PDP/cart.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">↑ AOV &amp; ecosystem lock-in; healthier than blanket discounts.</span></div>
+          <div class="foot"><span class="conf">Conf: Med</span><span class="owner">Merchandising + Ecommerce</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Entry-price fighter without brand dilution</h4><span class="pill p-low">Med-Low</span></div>
+          <div class="field"><span class="k">Opportunity</span><span class="v">Spigen/ESR/Ugreen/Karwan pressure from below.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Use Stack base case (₹799) &amp; bundles as the value answer, not markdowns.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Defends entry buyers while holding premium equity.</span></div>
+          <div class="foot"><span class="conf">Conf: Med</span><span class="owner">Merchandising + Category</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUCKET 9 -->
+    <div class="bucket">
+      <div class="bucket-h"><span class="bnum">9</span><h3 class="serif">Customer Insights &amp; Governance</h3></div>
+      <p class="bucket-sub">Emerging needs, closed-loop VoC, measurement.</p>
+      <div class="inits">
+        <div class="init"><div class="ih"><h4>Monthly closed-loop VoC council</h4><span class="pill p-high">High</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Every issue here was visible in data months earlier but un-actioned.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Standing monthly review: live SKU heatmap, replacement-rate alerts, vendor CAPA, rating-trend KPI.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Turns VoC into a repeatable operating system, not a one-off study.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">CPO + PMO</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Rating &amp; replacement-rate early-warning dashboard</h4><span class="pill p-med">Medium</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Rating fell 3.6→3.0 over two years without an alarm.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Automated per-SKU alerts on 1★ spikes &amp; replacement-rate thresholds.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Catch the next bad batch in weeks, not quarters.</span></div>
+          <div class="foot"><span class="conf">Conf: High</span><span class="owner">Consumer Insights + Analytics</span></div>
+        </div>
+        <div class="init"><div class="ih"><h4>Social-listening &amp; Reddit/India-forum pass</h4><span class="pill p-low">Med-Low</span></div>
+          <div class="field"><span class="k">Problem</span><span class="v">Indian community sentiment (Reddit/forums) is a known blind spot in this study.</span></div>
+          <div class="field"><span class="k">Action</span><span class="v">Stand up ongoing social listening across Reddit/Instagram/X/regional forums.</span></div>
+          <div class="field"><span class="k">Outcome / impact</span><span class="v">Completes the external VoC picture; early trend detection.</span></div>
+          <div class="foot"><span class="conf">Conf: Med</span><span class="owner">Consumer Insights + Brand</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: ROADMAP -->
+<section id="roadmap">
+  <div class="wrap">
+    <div class="sechead"><span class="num">05</span><h2 class="serif">12-Month Strategic Roadmap</h2></div>
+    <p class="section-intro">Sequenced by urgency and dependency. <b>Now</b> stops the bleeding &amp; builds the data spine; <b>Next</b> fixes root causes the spine reveals; <b>Later</b> compounds the design moat into growth.</p>
+
+    <div class="road">
+      <div class="lane">
+        <div class="lane-h"><span class="ph">Phase 1</span><h3 class="serif">Now</h3><span class="when">0–3 months · stop the bleeding</span></div>
+        <ul>
+          <li><span class="t">Charging-line triage</span><span class="d">Vendor RCA + batch quarantine + 100% powered QC on power banks, cables, GaN.</span><span class="m">KPI: charging replacement 47% → &lt;30%</span></li>
+          <li><span class="t">Discontinue Apple-Watch tempered glass</span><span class="d">Sunset the 2.17-rated SKUs; interim PET alternative.</span><span class="m">KPI: category avg +0.3★</span></li>
+          <li><span class="t">After-sales SLA + live agent</span><span class="d">Enforce refund ≤5 days, proactive status, ownership per ticket.</span><span class="m">KPI: refund TAT, CSAT, complaint volume</span></li>
+          <li><span class="t">Fix return-reason capture</span><span class="d">Structured reasons + reconcile vs replacement flag — builds the data spine.</span><span class="m">KPI: blank/CX codes &lt;10%</span></li>
+          <li><span class="t">Colour &amp; PDP quick-fixes</span><span class="d">Re-shoot Rose Gold Milanese &amp; top colour-mismatch SKUs; add watch-band size gauge.</span><span class="m">KPI: colour + size returns ↓</span></li>
+          <li><span class="t">Stand up VoC dashboard</span><span class="d">Live SKU heatmap + 1★/replacement alerts.</span><span class="m">Dependency for all later phases</span></li>
+        </ul>
+      </div>
+      <div class="lane">
+        <div class="lane-h"><span class="ph">Phase 2</span><h3 class="serif">Next</h3><span class="when">3–6 months · fix root causes</span></div>
+        <ul>
+          <li><span class="t">Anti-yellowing case material</span><span class="d">Roll out new TPU/UV coat + water-fast print after aging tests pass.</span><span class="m">KPI: case fault returns ↓, rating 3.32→3.7</span></li>
+          <li><span class="t">AirPods case relaunch</span><span class="d">Re-tooled fit, stitched construction, dye-fastness.</span><span class="m">KPI: 2.62 → 4.0★</span></li>
+          <li><span class="t">SURGE GaN dual-port + cable redesign</span><span class="d">Fix power-sharing logic; new cable vendor/spec.</span><span class="m">KPI: DOA ~0; replacement ↓</span></li>
+          <li><span class="t">Stitched leather construction</span><span class="d">Wallets/card holders/leather bands off pure glue.</span><span class="m">KPI: adhesive returns ↓</span></li>
+          <li><span class="t">Sizing/compatibility system</span><span class="d">Full PDP rollout across bands, sleeves, bags.</span><span class="m">KPI: size returns 9.3k ↓ materially</span></li>
+          <li><span class="t">No-Quibble guarantee + reputation mgmt</span><span class="d">Launch &amp; market; respond on independent review sites.</span><span class="m">KPI: independent scores ↑</span></li>
+          <li><span class="t">Vendor scorecards live</span><span class="d">Monthly CAPA cadence begins.</span><span class="m">Feeds VoC council</span></li>
+        </ul>
+      </div>
+      <div class="lane">
+        <div class="lane-h"><span class="ph">Phase 3</span><h3 class="serif">Later</h3><span class="when">6–12 months · compound the moat</span></div>
+        <ul>
+          <li><span class="t">Deepen Stack / Qi2 ecosystem</span><span class="d">New modules, mounts, grips, charging — post quality-fix so growth isn't taxed by returns.</span><span class="m">KPI: AOV ↑, ecosystem attach rate</span></li>
+          <li><span class="t">Value equation re-brand</span><span class="d">Design + proven durability campaign; retire permanent-discount signalling.</span><span class="m">KPI: price integrity, premium hold</span></li>
+          <li><span class="t">Corporate/B2B gifting scale-up</span><span class="d">Dedicated portal + Stack gift kits + bulk customisation.</span><span class="m">KPI: B2B share 12% → higher</span></li>
+          <li><span class="t">Women-first design line</span><span class="d">NPD leveraging bag design equity.</span><span class="m">KPI: new-segment revenue</span></li>
+          <li><span class="t">Offline EBO quality-touch merchandising</span><span class="d">Use retail to defeat online quality skepticism.</span><span class="m">KPI: conversion, brand trust</span></li>
+          <li><span class="t">Marketplace differentiation + review velocity</span><span class="d">A+ content, design-led assortment, sizing video.</span><span class="m">KPI: shelf ratings, conversion</span></li>
+          <li><span class="t">Standing VoC operating system</span><span class="d">Monthly council institutionalised.</span><span class="m">KPI: rating trend reversed &amp; rising</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:26px;">
+      <h4>Dependency logic (why this order)</h4>
+      <p>Reason-code repair and the VoC dashboard come <b>first</b> because every downstream vendor action and success metric depends on trustworthy data. Quality/material fixes precede the growth push so the Stack ecosystem and marketing spend don't scale a returns problem. The durability guarantee is timed to launch <b>after</b> the material fixes land — otherwise it funds the defect it was meant to signal away. After-sales SLA is Now, not Next, because it protects the customers you already have while the product fixes take a quarter to ship.</p>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="wrap">
+    <p><b>Methodology &amp; confidence.</b> Internal analysis covers 80,303 valid product reviews (Aug 2021–Apr 2026) and 78,947 return/replacement records (effective window Mar 2025–Mar 2026), categorised by an SKU/name classifier (97% coverage) and a return-reason root-cause model. External VoC drew on six-plus independent public sources (App Store, Trustpilot, MouthShut, Sitejabber, ConsumerComplaints/Voxya, marketplace &amp; community snippets) plus competitor and market research. A finding is rated <b>High</b> confidence only where corroborated across two or more independent sources.</p>
+    <p class="small" style="margin-top:12px;"><b>Stated limitations.</b> No units-sold denominator was provided, so SKUs are ranked by absolute return volume and replacement rate rather than true return rate — best-sellers naturally surface and severity is moderated where a SKU is likely high-volume. Return-reason fields are noisy (35% blank/CX-coded); true cause is reconstructed from the replacement-vs-refund mix and review text. External review volumes are small and complaint-skewed — directional on <i>what</i> fails, not <i>how often</i>. Indian community sentiment (Reddit/regional forums) and exact Google Play figures remain gaps to close with dedicated social listening. Financial and strategy context (₹111 Cr FY25, Stack ecosystem, EBO/B2B plans) is drawn from public reporting and should be validated against internal figures before funding decisions.</p>
+    <p class="small">Prepared as a cross-functional operating roadmap for Product, Category, Supply Chain, Quality, Marketing, Brand, CX, Customer Support, Marketplace, Ecommerce &amp; Leadership.</p>
+  </div>
+</div>
+
+<script>
+function tog(){var r=document.documentElement;var d=(r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));r.setAttribute('data-theme',d==='dark'?'light':'dark');}
+</script>
