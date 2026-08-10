@@ -1,0 +1,6 @@
+# Real crawl outputs + secrets — never commit. Regenerate by running the pipeline.
+data/
+*.env
+.env
+__pycache__/
+*.pyc

@@ -1,0 +1,4 @@
+praw>=7.7
+openpyxl>=3.1
+pandas>=2.0
+requests>=2.31
