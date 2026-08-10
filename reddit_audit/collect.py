@@ -49,6 +49,17 @@ def append_seen(ids: Iterable[str]) -> None:
             fh.write(i + "\n")
 
 
+def _cutoff_ts() -> float:
+    """Epoch seconds before which mentions are dropped (0 = no window)."""
+    if config.SINCE_DAYS is None:
+        return 0.0
+    return time.time() - config.SINCE_DAYS * 86400
+
+
+def _too_old(created_utc: float, cutoff: float) -> bool:
+    return cutoff > 0 and float(created_utc or 0) < cutoff
+
+
 def _matches_brand(text: str) -> bool:
     """True if text plausibly refers to DailyObjects (not just 'daily objects' noise)."""
     low = (text or "").lower()
@@ -88,6 +99,7 @@ def collect_with_praw(out, seen: set[str]) -> list[str]:
     reddit.read_only = True
 
     new_ids: list[str] = []
+    cutoff = _cutoff_ts()
 
     def emit(rec: dict, uid: str):
         if uid in seen:
@@ -96,6 +108,7 @@ def collect_with_praw(out, seen: set[str]) -> list[str]:
         new_ids.append(uid)
         out.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
+    tf = config.reddit_time_filter()
     # ---- site-wide + seed-subreddit search over the full query surface ----
     targets = ["all"] + taxonomy.SEED_SUBREDDITS
     for sub in targets:
@@ -103,24 +116,24 @@ def collect_with_praw(out, seen: set[str]) -> list[str]:
             for sort in config.SORTS:
                 try:
                     listing = reddit.subreddit(sub).search(
-                        query, sort=sort, time_filter="all",
+                        query, sort=sort, time_filter=tf,
                         limit=config.SEARCH_LIMIT_PER_QUERY,
                     )
                     for post in listing:
-                        _handle_post(post, emit, config)
+                        _handle_post(post, emit, config, cutoff)
                 except Exception as e:  # network / 429 / private sub — log & continue
                     print(f"  ! search failed sub={sub} q='{query}' sort={sort}: {e}", file=sys.stderr)
                     time.sleep(2)
     return new_ids
 
 
-def _handle_post(post, emit, config) -> None:
+def _handle_post(post, emit, config, cutoff: float = 0.0) -> None:
     title = getattr(post, "title", "") or ""
     body = getattr(post, "selftext", "") or ""
     post_uid = f"t3_{post.id}"
     blob = f"{title}\n{body}"
 
-    if _matches_brand(blob):
+    if _matches_brand(blob) and not _too_old(getattr(post, "created_utc", 0), cutoff):
         emit(_record("post", {
             "thread_id": post.id, "comment_id": "",
             "subreddit": str(post.subreddit), "thread_title": title,
@@ -143,6 +156,8 @@ def _handle_post(post, emit, config) -> None:
                 if len(cbody) < config.MIN_COMMENT_CHARS:
                     continue
                 if not _matches_brand(cbody):
+                    continue
+                if _too_old(getattr(c, "created_utc", 0), cutoff):
                     continue
                 emit(_record("comment", {
                     "thread_id": post.id, "comment_id": c.id,
@@ -167,12 +182,14 @@ def collect_with_public_json(out, seen: set[str]) -> list[str]:
 
     headers = {"User-Agent": config.REDDIT_USER_AGENT}
     new_ids: list[str] = []
+    cutoff = _cutoff_ts()
     sess = requests.Session()
 
     for query in taxonomy.SEARCH_QUERIES:
         for sort in config.SORTS:
             url = "https://www.reddit.com/search.json"
-            params = {"q": query, "sort": sort, "limit": 100, "t": "all", "raw_json": 1}
+            params = {"q": query, "sort": sort, "limit": 100,
+                      "t": config.reddit_time_filter(), "raw_json": 1}
             try:
                 r = sess.get(url, params=params, headers=headers, timeout=30)
                 if r.status_code != 200:
@@ -185,6 +202,8 @@ def collect_with_public_json(out, seen: set[str]) -> list[str]:
                     title = d.get("title", "") or ""
                     body = d.get("selftext", "") or ""
                     if not _matches_brand(f"{title}\n{body}"):
+                        continue
+                    if _too_old(d.get("created_utc", 0), cutoff):
                         continue
                     uid = "t3_" + d.get("id", "")
                     if uid in seen:

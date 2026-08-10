@@ -76,10 +76,19 @@ Credentials are read from the environment only — never hard-coded, never commi
 ## Run
 
 ```bash
-python -m reddit_audit.run            # full: discover + extract + classify + build
-python -m reddit_audit.run --build-only   # rebuild tabs from the existing raw log
-python -m reddit_audit.run --check        # readiness / connectivity probe
+python -m reddit_audit.run                       # full lifetime: discover + extract + classify + build
+python -m reddit_audit.run --since-days 30 --report   # LAST-30-DAYS report (recommended cadence)
+python -m reddit_audit.run --build-only              # rebuild tabs from the existing raw log
+python -m reddit_audit.run --check                   # readiness / connectivity probe
 ```
+
+**Last-30-days mode.** `--since-days N` scopes the crawl to the last *N* days
+(the collector drops older mentions and biases Reddit's own time filter to
+`month`/`year`). `--report` then renders `data/DailyObjects_Reddit_Report.md` —
+the Phases 15-23 Voice-of-Customer report — with every number computed from real
+rows, sections under 5 mentions flagged as *insufficient evidence*, and the
+positioning/root-cause narrative left as a labelled scaffold for analyst
+completion (never auto-invented).
 
 Outputs land in `reddit_audit/data/` (git-ignored):
 `DailyObjects_Reddit_Master.csv`, `DailyObjects_Reddit_Master.xlsx`,

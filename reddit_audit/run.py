@@ -51,7 +51,14 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Run the DailyObjects Reddit audit pipeline.")
     ap.add_argument("--build-only", action="store_true", help="skip crawl; rebuild tabs from raw log")
     ap.add_argument("--check", action="store_true", help="print readiness check and exit")
+    ap.add_argument("--since-days", type=int, default=None, metavar="N",
+                    help="only collect mentions from the last N days (e.g. 30 for the last-30-days report)")
+    ap.add_argument("--report", action="store_true", help="also render the Markdown VoC report after building")
     args = ap.parse_args()
+
+    if args.since_days is not None:
+        config.SINCE_DAYS = args.since_days
+        print(f">>> scope: last {args.since_days} days (reddit time filter = '{config.reddit_time_filter()}')")
 
     if args.check:
         return check()
@@ -62,6 +69,15 @@ def main() -> int:
 
     print(">>> AGENT 3 + PHASE 2: classification & dataset build")
     build_dataset.main()
+
+    if args.report:
+        print(">>> PHASES 15-23: rendering Markdown VoC report")
+        try:
+            from . import report
+        except ImportError:
+            import report  # type: ignore
+        report.main(window_days=args.since_days)
+
     print(">>> done. Open data/DailyObjects_Reddit_Master.xlsx")
     return 0
 

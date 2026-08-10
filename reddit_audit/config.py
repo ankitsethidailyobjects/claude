@@ -46,6 +46,25 @@ HAS_API_CREDS = bool(REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET)
 SEARCH_LIMIT_PER_QUERY = 250
 SORTS = ["relevance", "new", "top", "comments"]
 TIME_FILTERS = ["all"]              # 'all' for lifetime; add 'year','month' for reruns
+
+# Rolling-window scope. When set (e.g. via `run.py --since-days 30`), the
+# collector drops anything older than this many days and biases Reddit's own
+# time filter toward the matching window ('month' for <=31d, 'year' for <=366d).
+# None = lifetime crawl. This is what makes "last 30 days" a first-class mode.
+SINCE_DAYS: int | None = None
+
+
+def reddit_time_filter() -> str:
+    """Map SINCE_DAYS to Reddit's coarse search time filter."""
+    if SINCE_DAYS is None:
+        return "all"
+    if SINCE_DAYS <= 31:
+        return "month"
+    if SINCE_DAYS <= 93:
+        return "month"
+    if SINCE_DAYS <= 366:
+        return "year"
+    return "all"
 FETCH_COMMENTS = True               # expand comment trees on matched posts (Agent 2)
 MAX_COMMENTS_PER_POST = 500
 POLITE_SLEEP_SECONDS = 1.0          # between API calls when unauthenticated
