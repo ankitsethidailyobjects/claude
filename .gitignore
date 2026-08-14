@@ -1,0 +1,10 @@
+# Raw DMR data & any downloaded customer data (PII) — never commit
+data/
+*.xlsx
+*.csv
+*.bin
+!*.example.csv
+
+# Scratch / temp
+scratch/
+*.tmp
