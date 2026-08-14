@@ -15,7 +15,9 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score
 
-SEG="analysis/seg"; SUF=sys.argv[1]; K=int(sys.argv[2]) if len(sys.argv)>2 else None
+SEG="analysis/seg"; SUF=sys.argv[1]; K=int(sys.argv[2]) if len(sys.argv)>2 and sys.argv[2].isdigit() else None
+MODE=sys.argv[3] if len(sys.argv)>3 else ("full" if "--stable" not in sys.argv else "stable")
+if "--stable" in sys.argv: MODE="stable"
 RS=42
 df=pd.read_csv(os.path.join(SEG,f"userfeat_{SUF}.csv"))
 print("mature users:",len(df))
@@ -36,24 +38,31 @@ core["disc_rate_L180"]=core["disc_rate_L180"].fillna(0.0)
 for c in ["src_ios","src_web","src_mobile","src_android","cat_hhi"]:
     core[c]=core[c].fillna(0.0)
 
+core["avg_qty"]=core["avg_qty"].fillna(1.0)
 feats={}
-feats["f_freq"]=np.log1p(core["lifetime_orders"])
-feats["f_recency"]=np.log1p(core["days_since_last"].clip(lower=0))
-feats["f_recency_ratio"]=core["recency_ratio"]
-feats["f_orders90"]=core["orders_L90"]
-feats["f_orders180"]=core["orders_L180"]
+# STABLE "style/value" identity features (present in both modes)
+feats["f_freq_rate"]=core["lifetime_orders"]/(core["tenure_days"].clip(lower=30)/365.0)  # orders/yr
 feats["f_tenure"]=np.log1p(core["tenure_days"].clip(lower=0))
 feats["f_aov"]=np.log1p(core["aov_life"].clip(lower=0))
-feats["f_aov_trend"]=core["aov_trend"].clip(0,5)
-feats["f_velocity"]=core["velocity"].clip(0,10)
 feats["f_pct_disc"]=core["pct_discounted"]
-feats["f_disc_rate"]=core["avg_disc_rate"]
+feats["f_disc_rate"]=core["avg_disc_rate"].clip(0,1)
 feats["f_cod"]=core["cod_rate"]
 feats["f_hhi"]=core["cat_hhi"]
 feats["f_ncat"]=np.log1p(core["n_categories"])
 feats["f_src_ios"]=core["src_ios"]
 feats["f_src_web"]=core["src_web"]
+feats["f_qty"]=np.log1p(core["avg_qty"].clip(lower=0))
+if MODE=="full":
+    # add DYNAMIC recency/momentum (blends activity into identity)
+    feats["f_freq"]=np.log1p(core["lifetime_orders"])
+    feats["f_recency"]=np.log1p(core["days_since_last"].clip(lower=0))
+    feats["f_recency_ratio"]=core["recency_ratio"].clip(0,50)
+    feats["f_orders90"]=core["orders_L90"]
+    feats["f_orders180"]=core["orders_L180"]
+    feats["f_aov_trend"]=core["aov_trend"].clip(0,5)
+    feats["f_velocity"]=core["velocity"].clip(0,10)
 X=pd.DataFrame(feats).replace([np.inf,-np.inf],np.nan).fillna(0.0)
+print(f"MODE={MODE}  features={list(X.columns)}")
 
 # winsorize 1/99
 for c in X.columns:
@@ -108,8 +117,7 @@ if len(whale):
 # save
 out=core[["identity","cluster","lifetime_orders","days_since_last","aov_life",
           "pct_discounted","primary_category","recent_category"]+ret_cols].copy()
-out.to_csv(os.path.join(SEG,f"clusters_{SUF}_k{K}.csv"),index=False)
-prof.round(3).to_csv(os.path.join(SEG,f"profile_{SUF}_k{K}.csv"))
-# persist centroids (registry)
-cent=pd.DataFrame(km.cluster_centers_); cent.to_csv(os.path.join(SEG,f"centroids_{SUF}_k{K}.csv"),index=False)
-print("\nwrote clusters/profile/centroids for",SUF,"k=",K)
+out.to_csv(os.path.join(SEG,f"clusters_{SUF}_{MODE}_k{K}.csv"),index=False)
+prof.round(3).to_csv(os.path.join(SEG,f"profile_{SUF}_{MODE}_k{K}.csv"))
+cent=pd.DataFrame(km.cluster_centers_); cent.to_csv(os.path.join(SEG,f"centroids_{SUF}_{MODE}_k{K}.csv"),index=False)
+print("\nwrote clusters/profile/centroids for",SUF,MODE,"k=",K)
