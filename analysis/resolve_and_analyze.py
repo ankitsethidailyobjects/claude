@@ -62,18 +62,37 @@ def tokens(row):
     return t
 
 em = orders["email"].values; ph = orders["phone"].values; uu = orders["uuid"].values
-tok_lists = []
+
+# raw token list per order
+raw_tok = []
 for i in range(len(orders)):
     t = []
     e = em[i]
     if e and e not in EMAIL_BLOCK and not e.endswith("@dailyobjects.com"): t.append("e:"+e)
     if ph[i]: t.append("p:"+ph[i])
     if uu[i]: t.append("u:"+uu[i])
-    tok_lists.append(t)
-    for tk in t:
+    raw_tok.append(t)
+
+# --- hub suppression: drop identifiers shared across too many distinct others ---
+# A real person uses a few identifiers; a shared COD phone / guest id links thousands.
+from collections import defaultdict
+DEG = 10
+neigh = defaultdict(set)
+for t in raw_tok:
+    for a in t:
+        for b in t:
+            if a != b: neigh[a].add(b)
+suppressed = {tk for tk, ns in neigh.items() if len(ns) > DEG}
+print(f"Hub identifiers suppressed (degree>{DEG}): {len(suppressed)}")
+
+tok_lists = []
+for t in raw_tok:
+    kept = [tk for tk in t if tk not in suppressed]
+    tok_lists.append(kept)
+    for tk in kept:
         if tk not in parent: parent[tk] = tk
-    for k in range(1, len(t)):
-        union(t[0], t[k])
+    for k in range(1, len(kept)):
+        union(kept[0], kept[k])
 
 # assign canonical identity id
 root_to_id = {}
@@ -108,9 +127,17 @@ cohort["ordered_2025"] = cohort["ordered_2025"].astype(int)
 print("Cohort identities (>=1 order thru 2024):", len(cohort))
 print("Identities first-seen in 2025 (excluded):", int((pu["lifetime_2024"]==0).sum()))
 
-# top clusters sanity
+# top clusters sanity + token composition (verify no over-merge)
 top = cohort.sort_values("lifetime_2024", ascending=False).head(15)
 print("Top lifetime counts:", top["lifetime_2024"].tolist())
+id_to_tokens = defaultdict(list)
+for i, t in enumerate(tok_lists):
+    if ident[i] is not None: id_to_tokens[ident[i]].extend(t)
+from collections import Counter as _C
+for idv in top["ident"].head(6):
+    ts = set(id_to_tokens[idv]); k = _C(x[0] for x in ts)
+    print(f"  id={idv} lifetime={int(cohort.loc[cohort.ident==idv,'lifetime_2024'].iloc[0])}"
+          f" distinct e/p/u={k.get('e',0)}/{k.get('p',0)}/{k.get('u',0)}")
 
 def bucket_table(c):
     t = c.groupby("lifetime_2024").agg(users=("ident","count"),
