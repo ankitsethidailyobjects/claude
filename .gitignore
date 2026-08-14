@@ -8,3 +8,6 @@ data/
 # Scratch / temp
 scratch/
 *.tmp
+
+# Generated analysis outputs (regenerable)
+analysis/out/
