@@ -11,3 +11,7 @@ scratch/
 
 # Generated analysis outputs (regenerable)
 analysis/out/
+
+# Segmentation data outputs (identity-level; keep out of git)
+analysis/seg/
+*.log
