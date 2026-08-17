@@ -1,0 +1,84 @@
+cohort,dimension,bucket,users,ret_1m,ret_1q,ret_1y
+O1 (New),ALL,(all),743386,1.5,3.2,8.5
+O1 (New),Activity,Active,48192,4.6,9.0,19.4
+O1 (New),Activity,Lapsed,97759,3.0,6.3,15.6
+O1 (New),Activity,Dormant,597435,1.0,2.2,6.4
+O1 (New),Value,VIP,2088,3.0,6.3,16.9
+O1 (New),Value,High,44804,2.5,5.3,13.5
+O1 (New),Value,Mid,199613,1.8,3.8,10.2
+O1 (New),Value,Low,496881,1.3,2.7,7.3
+O1 (New),Affinity,Tech,539100,1.6,3.4,9.0
+O1 (New),Affinity,Designer/Bags,131396,1.5,3.2,8.6
+O1 (New),Affinity,Mixed,72890,0.8,1.5,4.4
+O1 (New),SubCategory,Designer Cases,220462,1.5,3.3,8.9
+O1 (New),SubCategory,Watch Straps,123666,1.6,3.4,8.4
+O1 (New),SubCategory,Mobile Accessories,49708,0.1,0.2,1.3
+O1 (New),SubCategory,Sale,45772,0.2,0.3,1.2
+O1 (New),SubCategory,Wireless Charger,30761,3.7,7.3,17.3
+O1 (New),SubCategory,Bags And Sleeves,29603,0.4,0.7,3.1
+O2,ALL,(all),174936,3.3,6.9,17.4
+O2,Activity,Active,17572,8.0,15.3,32.4
+O2,Activity,Lapsed,33916,5.2,11.1,26.7
+O2,Activity,Dormant,123448,2.0,4.6,12.7
+O2,Value,VIP,5520,5.5,10.8,25.4
+O2,Value,High,49299,4.0,8.5,21.0
+O2,Value,Mid,90004,3.1,6.6,16.5
+O2,Value,Low,30113,2.2,4.8,12.5
+O2,Affinity,Tech,123251,3.3,7.2,18.0
+O2,Affinity,Designer/Bags,25241,2.8,5.9,14.8
+O2,Affinity,Mixed,26444,3.4,6.7,16.7
+O2,SubCategory,Designer Cases,45751,2.9,6.6,16.9
+O2,SubCategory,Watch Straps,33633,3.0,6.7,16.3
+O2,SubCategory,Wireless Charger,14314,6.2,11.9,27.4
+O2,SubCategory,Sale,7207,0.4,0.9,3.3
+O2,SubCategory,Bags And Sleeves,7018,1.0,2.4,7.7
+O2,SubCategory,Organisers,6906,4.1,8.6,22.1
+Power Users,ALL,(all),38518,12.4,24.3,48.3
+Power Users,Activity,Active,11755,18.3,34.2,61.8
+Power Users,Activity,Lapsed,13417,13.0,25.9,52.6
+Power Users,Activity,Dormant,13346,6.5,14.0,32.1
+Power Users,Value,VIP,33249,12.4,24.4,48.7
+Power Users,Value,High,5265,12.3,23.5,46.1
+Power Users,Affinity,Tech,28551,12.5,24.9,49.1
+Power Users,Affinity,Designer/Bags,2216,10.0,18.6,38.4
+Power Users,Affinity,Mixed,7751,12.5,23.7,48.5
+Power Users,SubCategory,Wireless Charger,10795,15.0,28.4,53.6
+Power Users,SubCategory,Watch Straps,7146,11.0,22.5,46.0
+Power Users,SubCategory,Designer Cases,6675,12.3,26.3,51.6
+Power Users,SubCategory,Messenger Bags,1947,12.7,22.5,47.0
+Power Users,SubCategory,Organisers,1870,10.7,21.9,45.3
+Power Users,SubCategory,Desks,1588,10.7,21.4,45.8
+Deal Seekers,ALL,(all),42270,5.9,12.1,28.7
+Deal Seekers,Activity,Active,4923,11.2,21.7,45.6
+Deal Seekers,Activity,Lapsed,11025,8.0,16.1,37.9
+Deal Seekers,Activity,Dormant,26322,4.1,8.6,21.7
+Deal Seekers,Value,VIP,8765,6.7,13.3,32.7
+Deal Seekers,Value,High,24548,6.2,12.9,30.1
+Deal Seekers,Value,Mid,7331,5.1,10.2,24.0
+Deal Seekers,Value,Low,1626,1.3,2.8,8.4
+Deal Seekers,Affinity,Tech,28963,5.9,12.3,29.2
+Deal Seekers,Affinity,Designer/Bags,4932,5.2,9.8,23.3
+Deal Seekers,Affinity,Mixed,8375,6.5,13.0,30.5
+Deal Seekers,SubCategory,Watch Straps,11050,5.3,11.0,25.7
+Deal Seekers,SubCategory,Designer Cases,7423,6.3,13.7,32.5
+Deal Seekers,SubCategory,Wireless Charger,5729,8.0,15.5,35.8
+Deal Seekers,SubCategory,Messenger Bags,2548,5.9,12.0,30.6
+Deal Seekers,SubCategory,Organisers,1941,6.0,13.0,32.5
+Deal Seekers,SubCategory,Backpacks,1928,7.5,13.4,30.2
+Light Users,ALL,(all),62349,4.9,10.3,24.8
+Light Users,Activity,Active,8425,10.1,19.9,42.3
+Light Users,Activity,Lapsed,13850,7.3,15.5,35.5
+Light Users,Activity,Dormant,40074,2.9,6.5,17.4
+Light Users,Value,VIP,3459,5.6,10.5,26.9
+Light Users,Value,High,35295,5.4,11.6,27.4
+Light Users,Value,Mid,22480,4.0,8.7,21.0
+Light Users,Value,Low,1115,1.6,2.9,8.8
+Light Users,Affinity,Tech,46547,5.0,10.8,25.9
+Light Users,Affinity,Designer/Bags,5337,3.6,6.5,15.8
+Light Users,Affinity,Mixed,10465,5.0,10.3,24.2
+Light Users,SubCategory,Designer Cases,22191,4.8,10.7,25.8
+Light Users,SubCategory,Watch Straps,10395,5.2,10.8,25.6
+Light Users,SubCategory,Wireless Charger,3658,8.8,17.9,37.7
+Light Users,SubCategory,Watch Accessories,3564,2.4,6.2,17.3
+Light Users,SubCategory,Bags And Sleeves,3510,1.9,4.2,11.8
+Light Users,SubCategory,Sale,2688,1.1,1.8,5.7
