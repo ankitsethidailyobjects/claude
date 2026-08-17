@@ -1,163 +1,154 @@
-# DailyObjects — Doubling CRM Revenue in 2 Quarters
+# DailyObjects — Doubling CRM Revenue in 2 Quarters (v2, click-through basis)
 
-**A data-backed baseline, problem-statement map, and sized roadmap — built entirely from live MoEngage data.**
+**Data-backed baseline, problem map, sized roadmap, and retention program — built from live MoEngage pulls.**
 
-Prepared: 2026-08-13 · Horizon: next 2 quarters · Scope: all owned messaging (Push, Email, SMS, WhatsApp, RCS, In-App)
+Prepared 2026-08-13 · Horizon: next 2 quarters · CRM = all owned messaging (Push, Email, SMS, WhatsApp, RCS, In-App)
+Attribution basis: **CLICK-THROUGH** (`metric_click`), per stakeholder decision. View-through shown only for reference.
 
 ---
 
 ## 0. TL;DR
 
-- **Where we are:** Measured CRM revenue is **≈ ₹10.4M / month** from **Push (~₹5.2M) + Email (~₹5.0M)** — but that is **not the full picture**. **WhatsApp is a large, previously-unmeasured third channel** (~725K sends/month, 3.6% CTR on delivered), so true CRM revenue is **materially higher than ₹10.4M** once WhatsApp is attributed. SMS is operational-only; RCS lives only inside flows.
-- **The 2x is a conversion + retention story, not a reach problem.** We already reach 600k–1.2M weekly active users; only **8–13k/week purchase** (1–2%), and only **1 in 8 purchasers buys again the next week**.
-- **The prize is real and over-subscribed.** Bottom-up, we've identified **~₹11–15M/month of incremental surface** — more than the **+₹10.4M** needed to double. The constraint is execution capacity and de-duplication, not finding opportunity.
-- **Step zero is a blocker:** there are **no dynamic lifecycle segments** in the workspace (all 55 are stale static import lists) and **retention was mis-measured**. Both must be fixed before a compounding program can run — and both are cheap.
+- **CRM click-through revenue ≈ ₹23.8L / month.** Split: **Journeys ₹15.7L (66%)**, Standalone campaigns ₹8.1L (34%).
+- **WhatsApp is the #1 channel (~54% of CT revenue)** — overwhelmingly inside journeys. The earlier "Push+Email duopoly" read was wrong on both counts.
+- **Attribution matters enormously:** click-through is ~13× smaller than view-through. This doc uses the stricter click-through number throughout; pick one basis before quoting a board figure.
+- **Retention is the core problem:** only **~10% of buyers repurchase the next month**, ~5% by month 3. Engagement retention is no better. No repeat-purchase habit is forming.
+- **More lifecycle infra exists than first thought** (checkout/payment-recovery journeys are live and top-earning), but the **biggest gap — an automated 2nd-purchase program and dynamic lifecycle segments — is still missing.**
 
 ---
 
-## 1. Baseline — where we are today
+## 1. Revenue baseline (click-through, last 30 days)
 
-### 1.1 CRM revenue by channel (last 30 days)
+### 1.1 By source
 
-| Channel | Campaigns | Sent | Deliv% | CTR% | Conversions | Revenue (view-through) | Note |
-|---|---|---|---|---|---|---|---|
-| **Push** | 20 | 2,160,968 | 73.5%¹ | 1.39% | ~1,920 (est) | **~₹5.2M** (3/20 sampled) | measured |
-| **Email** | 8 | 798,965 | 99.7% | 0.71% | 1,362 | **₹5.04M** (full census) | measured |
-| **WhatsApp** | 44 | **724,671** | 47.6%² | **3.6%**² | not in stats API³ | **material, not yet attributed³** | **big gap** |
-| **SMS** | 2 | ~4,262 | mixed | n/a | — | ₹0 (operational recalls) | not marketing |
-| **RCS** | 0 standalone⁴ | — | — | — | — | flows only | — |
-| **In-App** | 0 | — | — | — | — | — | unused |
+| Source | CT revenue | Share | Conversions |
+|---|---|---|---|
+| **Journeys** (42 active flows) | **₹15.68L** | 66% | 549 |
+| **Standalone** (29 push/email + 44 WhatsApp) | **₹8.08L** | 34% | 172 |
+| **Total CRM (click-through)** | **₹23.77L** | 100% | 721 |
 
-**Measured CRM revenue (Push+Email): ≈ ₹10.1–10.7M/mo. True total is higher** once WhatsApp (below) is attributed.
+### 1.2 By channel × source (click-through)
 
-¹ Push "delivery" = impression render rate. **26% of push never renders** (Android ~67% vs iOS ~76%) — a reachability/opt-in ceiling.
-² WhatsApp: 724,671 sent → 345,283 delivered (**47.6%** — the WhatsApp-reachability/opt-in ceiling) → 149,770 read (43% of delivered) → **12,411 clicks (3.6% of delivered, ~2.5× push)**. 44 standalone campaigns in 30d: a full cross-sell/upsell grid + RNB win-back (100K+ sends at 2.5–4% CTR) + transactional order-delay sends (26–33% CTR).
-³ WhatsApp campaigns are enumerable via **unfiltered** `get_campaign_meta`/`search_campaigns` (the channel *filter* only accepts PUSH/EMAIL/SMS — that's what hid them earlier). `get_campaign_stats` returns WhatsApp engagement but **not revenue** — attribution needs the detailed-stats endpoint. Sizing WhatsApp's ₹ is the top measurement to-do.
-⁴ RCS exists only as a fallback node inside flows (on WhatsApp-delivery-failure); no standalone RCS campaigns in the 90d window.
-
-> **Attribution note (decide before quoting a public baseline):** figures above use **view-through** (impression) attribution — MoEngage's default. **Click-through revenue is ~13× lower** (Email: ₹5.04M view-through vs ₹0.38M click-through). Pick one basis and standardize. For *relative* 2x goals the basis largely cancels; for a board number it does not.
-
-### 1.2 Retention — the core weakness
-
-Weekly cohort retention (config that works: `retention_type: "last"`; `"first"` returns false zeros — an analytics fix to standardize):
-
-| Weeks after first action | W1 | W4 | W8 | W12 |
+| Channel | In journeys | Standalone | **Total** | Share |
 |---|---|---|---|---|
-| **Repeat-purchase** retention | 12.2% | 7.6% | 3.5% | 0.6% |
-| **App-open (engagement)** retention | 26.5% | 13.6% | 7.1% | 1.7% |
+| **WhatsApp** | ₹11.45L | ₹1.28L | **₹12.73L** | ~54% |
+| **Push** | ₹1.43L | ₹3.01L | **₹4.44L** | ~19% |
+| **Email** | ₹0 | ₹3.79L | **₹3.79L** | ~16% |
+| **SMS** | ₹1.02L | ₹0 | **₹1.02L** | ~4% |
+| Journey tail (flows 11–42, not split) | ₹1.81L | — | ₹1.81L | ~8% |
+| **RCS** | not measurable¹ | none | — | — |
 
-**Engagement retention is ~2× purchase retention at every week.** That gap = a large pool of users who keep opening the app/site but don't re-buy — the exact audience a repeat-purchase CRM program is built to convert.
+¹ RCS is not a queryable channel in this MoEngage workspace (valid: EMAIL/SMS/PUSH/WHATSAPP/IN_APP/ONSITE/CONNECTOR/CARDS/FB_AUDIENCE/GOOGLE_ADS). Flows contain RCS fallback nodes, but the analytics API won't isolate RCS revenue.
 
-### 1.3 The purchase funnel (last 30 days)
+**Reads:** Email earns click-through revenue **only as standalone broadcasts** (₹0 in-journey). SMS earns **only inside journeys**. WhatsApp earns across both and leads overall.
 
-| Step | Users | Step conversion | Users lost |
-|---|---|---|---|
-| Viewed cart | 212,795 | — | — |
-| Began checkout | 69,244 | **32.5%** | **143,551** |
-| Purchased | 31,051 | 44.8% | 38,193 |
-
-End-to-end cart→purchase = **14.6%**. The **cart→checkout leak (143.5k users/month)** is the single largest intervention surface; checkout→purchase loses another 38k high-intent users.
-
-### 1.4 Structural state of the CRM stack
-
-| Capability | Status today |
-|---|---|
-| Dynamic lifecycle / RFM segments | **None** — all 55 segments are static one-off import lists |
-| Retention measurement | Was broken (mis-configured); now fixed — needs to be operationalized |
-| Live marketing channels | **3 (Push, Email, WhatsApp)** — WhatsApp is heavily used (725K sends/mo) but was invisible in prior reporting; SMS = operational recalls only |
-| WhatsApp revenue attribution | **Not captured** — engagement is measured, revenue is not; the channel's ₹ contribution is currently invisible to reporting |
-| Attribution standard | Undefined (view-through vs click-through differ ~13×) |
+> Reference: view-through revenue is ~13× higher (e.g. standalone email ₹3.79L click-through vs ~₹50L view-through). The gap is because most purchases attribute to an impression, not a click.
 
 ---
 
-## 2. Problem statements (ranked)
+## 2. Trend
 
-Each maps to a lever in **CRM Revenue = Reach × Deliverability × Engagement × Conversion × AOV × Frequency**.
+### 2.1 Journeys — weekly CT revenue (reliable segment, all 15 revenue flows reporting)
 
-| # | Problem statement | Lever | Type |
-|---|---|---|---|
-| **P1** | **No lifecycle segmentation or repeat-purchase program.** Repeat-purchase retention halves to ~7.6% by W4; engagement retention is 2× purchase retention (large un-monetized "opens-but-doesn't-rebuy" pool). Nothing targets it. | Frequency / Retention | Structural (foundational) |
-| **P2** | **Cart abandonment is under-captured.** 143.5k users/month drop cart→checkout. The flagship Abandoned-Cart flow reaches them push-first and **silently drops ~46% of push sends** on `abandonedcart product-set unmatched`. | Conversion / Deliverability | Leak + optimization |
-| **P3** | **No checkout / payment-failure recovery.** 38k/month high-intent users abandon post-checkout-start; `payment-failed` / `rzp_checkout_abandoned` events exist but no recovery journey fires on them. | Conversion | New program |
-| **P4** | **Email is under-sent and has deliverability drag.** Drives ₹5.0M from 8 sends, but cadence collapsed from ~23/mo to 8/mo; ~9% of attempts throttled at send; bimodal opens (largest broadcasts open 10–12% vs 26–28%). | Frequency / Deliverability | Quick win |
-| **P5** | **WhatsApp runs blind; SMS/RCS/In-App idle.** WhatsApp is already a major channel (725K sends/mo, 3.6% CTR, 100K+ win-back sends) but its **revenue is unattributed**, so it can't be optimized or scaled on purpose — and it wastes sends (e.g. a 25,219-send campaign delivered 0). Its delivery ceiling is only 47.6%. Meanwhile SMS is operational-only and RCS/In-App are unused. | Reach / Mix / Measurement | Structural |
-| **P6** | **Push reachability ceiling.** 26% of push never renders (Android ~67%). Opt-in/token health caps the largest channel's ROI. | Deliverability | Optimization |
-| **P7** | **Measurement gaps.** Retention `retention_type` mis-set, WhatsApp API blind spot, no standard attribution basis — leadership can't trust a single baseline number. | (Enablement) | Prerequisite |
-
----
-
-## 3. Size of the prize
-
-Conservative, bottom-up. AOV ≈ **₹2,500** (observed on the Abandoned-Cart flow). Ranges reflect recovery-rate assumptions; **the sum deliberately exceeds the +₹10.4M needed to 2x** — because opportunities overlap (a user can be in cart *and* checkout *and* lifecycle audiences) and view-through attribution is generous. Realistic net capture is a fraction of the gross; the point is there is **more than enough identified surface to double**.
-
-| # | Opportunity | Sizing logic | Monthly incremental (mid) |
-|---|---|---|---|
-| P2 | **Cart abandonment program** (fix 46% push failure + add Email/WhatsApp arms) | 143.5k abandoners × ~1.5% incremental recovery × ₹2,500 | **~₹3.0M** (range 2.5–3.6M) |
-| P3 | **Checkout + payment-failure recovery** (new trigger on high-intent) | 38k abandoners × ~3% × ₹2,500 | **~₹2.5M** (range 1.9–3.8M) |
-| P1 | **Repeat-purchase / lifecycle program** (win-back, replenishment, cross-sell) | Close part of the 2× engagement-vs-purchase retention gap; ramps over the 2 quarters | **~₹2.5M** (range 2.0–4.0M) |
-| P4 | **Email re-ramp + deliverability fix** (restore cadence, fix throttle/opens) | +8–12 quality sends/mo at ~half marginal efficiency (~₹300k each) | **~₹2.0M** (range 1.5–2.5M) |
-| P5 | **WhatsApp attribution + scale** (measure the ₹ it already earns, kill wasted sends, scale win-back/transactional templates that hit 3–33% CTR) | Already 725K sends/mo at 3.6% CTR, unattributed; formalizing + scaling the proven RNB/order-late templates | **~₹1.5M** (range 1.0–2.5M) |
-| P6 | **Push reachability + AC-flow render fix** | Lift render 73.5%→85% at constant CTR + recover flow push | **~₹1.0M** (range 0.8–1.2M) |
-| | **Total identified surface** | | **≈ ₹12.5M / mo** (range 9.7–17.1M) |
-
-**2x math:** Baseline **₹10.4M/mo → target ₹20.8M/mo** = **+₹10.4M/mo** needed. Identified gross surface **≈ ₹12.5M/mo (mid)**. Even at ~55–65% net realization after overlap/attribution discounting, the target is reachable — but only if P1/P7 foundations are built early so the retention and lifecycle prizes have time to compound within the window.
-
----
-
-## 4. Roadmap — sequenced across 2 quarters
-
-Ordered so foundations unblock the compounding prizes, and quick wins fund momentum.
-
-### Quarter 1 — Foundations + leak-fixes (fast, high-confidence)
-
-| Wk | Workstream | Problem | Prize unlocked |
-|---|---|---|---|
-| 1–2 | **Fix measurement (P7):** standardize `retention_type: "last"`; pick attribution basis; open a WhatsApp measurement path | P7 | Trustworthy baseline |
-| 1–3 | **Build dynamic lifecycle/RFM segments (P1):** new / active / dormant / churn-risk / high-value — replace static lists | P1 | Targeting for every program below |
-| 2–4 | **Fix Abandoned-Cart flow (P2):** resolve `product-set unmatched` personalization (recover ~46% of push); add an Email arm | P2 | ~₹3.0M/mo |
-| 3–6 | **Re-ramp Email (P4):** restore ~20+/mo cadence; fix 9% send throttle; A/B the bimodal-open broadcasts | P4 | ~₹2.0M/mo |
-| 4–6 | **Launch checkout/payment-failure recovery (P3)** on `begin_checkout` / `payment-failed` / `rzp_checkout_abandoned` | P3 | ~₹2.5M/mo |
-
-### Quarter 2 — Structural bets (compounding)
-
-| Wk | Workstream | Problem | Prize unlocked |
-|---|---|---|---|
-| 7–10 | **Repeat-purchase lifecycle program (P1):** win-back (dormant), replenishment (post-purchase timing), cross-sell (category affinity) on the new segments | P1 | ~₹2.5M/mo, compounding |
-| 8–11 | **Attribute + scale WhatsApp (P5):** stand up WhatsApp revenue attribution (detailed-stats/warehouse), fix the 0-delivered leak, scale proven win-back/order-late/cart templates | P5 | ~₹1.5M/mo |
-| 9–12 | **Push reachability program (P6):** opt-in prompts, token hygiene, Android render diagnosis | P6 | ~₹1.0M/mo |
-| 10–13 | **Cross-sell journey expansion:** extend the existing category cross-sell flows to more segments; retire fatigued late-stage nodes | P1/P2 | Incremental |
-
----
-
-## 5. Baseline → target scorecard
-
-The single table to track the program against.
-
-| Metric | Now | 2-Quarter target |
+| Week ending | CT revenue | Conversions |
 |---|---|---|
-| **CRM revenue / month** (view-through) | ₹10.4M | **₹20.8M** |
-| Repeat-purchase retention (W4) | 7.6% | 12–15% |
-| Cart → checkout conversion | 32.5% | 45%+ |
-| Checkout → purchase conversion | 44.8% | 55%+ |
-| Email cadence (sends/mo) | 8 | 20+ |
-| Active dynamic lifecycle segments | 0 | 8–12 |
-| Live marketing channels | 3 (Push, Email, WhatsApp) | 4+ (add SMS marketing) |
-| WhatsApp revenue attributed | No | Yes (in baseline & dashboards) |
-| Abandoned-Cart flow push render | ~54% (46% fail) | 90%+ |
-| Push impression-render rate | 73.5% | 85%+ |
+| Jul 11 | ₹1.97L | 64 |
+| Jul 18 | ₹2.86L | 98 |
+| Jul 25 | ₹3.20L | 113 |
+| Aug 01 | ₹3.29L | 128 |
+| Aug 08 | **₹3.53L** | 109 |
+| Aug 15 (partial to 08-13) | ₹2.60L | 102 |
+
+**Journey CRM revenue is growing ~+80% over five weeks.** (Weeks before Jul 5 are undercounted by coverage ramp, not shown as reliable.)
+
+> **Data limitation:** MoEngage's flow-analytics API only serves recent history (anchored to "now", version-dependent depth ~6–13 weeks). A true 6-month monthly journey series is **not retrievable via this API** — use a warehouse/dashboard export for long-range history.
+
+### 2.2 Standalone — send cadence by month (complete enumeration, 419 campaigns)
+
+| Month | Push | Email | WhatsApp | SMS | Total |
+|---|---|---|---|---|---|
+| Feb | 8 | 1 | 3 | 0 | 12 |
+| Mar | 40 | 19 | 42 | 2 | 103 |
+| Apr | 19 | 1 | 13 | 1 | 34 |
+| May | 23 | 15 | 27 | 3 | 68 |
+| Jun | 22 | 19 | 30 | 3 | 74 |
+| Jul | 25 | 27 | 45 | 1 | 98 |
+| Aug* | 10 | 4 | 16 | 0 | 30 |
+| **Total** | **147** | **86** | **176** | **10** | **419** |
+
+**WhatsApp is the most-sent standalone channel every month.** *(Standalone monthly *revenue* by channel is pending — the 419-campaign detailed sweep was interrupted by the account session limit; to be backfilled.)*
 
 ---
 
-## 6. Method & caveats (for the analytics team)
+## 3. Retention baseline (monthly cohorts, user-level)
 
-- **All figures pulled live from MoEngage** via the connected MCP server (flows, campaigns, funnel, retention, segments) on 2026-08-13.
-- **Sampling:** Push revenue extrapolated from 3/20 campaigns (engagement full-census); Email revenue full-census; campaign leak-scan capped at 62 campaigns (page limits noted). Per-journey revenue ranking is being finalized (Section 7, appended).
-- **Attribution:** view-through unless stated; click-through floor is ~13× lower — standardize before publishing a baseline.
-- **Channel enumeration:** the channel *filter* only accepts PUSH/EMAIL/SMS, which originally hid WhatsApp. WhatsApp is fully enumerable via **unfiltered** `get_campaign_meta`/`search_campaigns` (filter client-side on `channel`) — 44 standalone WhatsApp campaigns (30d) are now captured with engagement stats. Remaining blind spot: **WhatsApp revenue** (engagement is available, revenue needs the detailed-stats endpoint). RCS has no standalone campaigns (flows only); In-App unused.
-- **Retention config:** use `retention_type: "last"`; `"first"` returns spurious all-zeros in this workspace.
+Config that works: `run_retention_analysis` with `retention_type="last"` (`"first"` returns spurious zeros).
+
+**Repeat-purchase retention** (bought again N months after first purchase):
+
+| Cohort | Buyers | M1 | M2 | M3 | M4 | M5 |
+|---|---|---|---|---|---|---|
+| Feb 2026 | 16,692 | 20.2% | 11.4% | 9.4% | 6.5% | 3.8% |
+| Mar 2026 | 107,627 | 9.9% | 8.0% | 5.2% | 3.2% | 0.8% |
+| Apr 2026 | 29,980 | 11.4% | 7.0% | 4.2% | — | — |
+| May 2026 | 39,496 | 8.5% | 4.7% | — | — | — |
+| **Typical** | — | **~10%** | **~6.5%** | **~5%** | ~4% | ~2% |
+
+**Engagement (app-open) retention** ≈ 10% M1 → ~3–5% M3 — i.e. purchasers are no stickier than casual app-openers.
+
+**Purchase funnel (30d):** viewed cart 212,795 → began checkout 69,244 (**32.5%**) → purchased 31,051 (**14.6% end-to-end**). Biggest leak: cart→checkout (143.5k users lost/mo).
+
+**Diagnosis:** ~1.2–3.4M monthly actives, only 8–108k monthly buyers (1–2%), and only ~10% of buyers return next month. Severe leaky bucket; the 2x lever is repeat-purchase + conversion of existing traffic, not acquisition.
 
 ---
 
-## 7. Appendix — Journey portfolio *(finalizing)*
+## 4. Problem statements (ranked)
 
-Full per-journey table (all 25+ active flows: entries, drops, conversions, revenue, 6-week trend) is being compiled and will be appended here. Worked example already validated — **Abandoned Cart3** (last 30d): 166,482 entries, 46 drops, 186 click-attributed conversions, **₹482,447 revenue**, 1.42% CVR — with the 46% push personalization failure quantified in P2.
+| # | Problem | Lever | Type |
+|---|---|---|---|
+| **P1** | **No repeat-purchase habit / no 2nd-purchase program.** ~90% of first-time buyers don't return M1. | Retention | Structural (biggest) |
+| **P2** | **Cart abandonment under-captured.** 143.5k/mo drop cart→checkout; flagship flow drops ~46% of push on `product-set unmatched`. | Conversion / Deliverability | Leak + optimize |
+| **P3** | **Win-back is manual.** RNB WhatsApp earns ₹0.9L+ CT/mo but runs as batch sends, not a triggered dormancy journey. | Frequency | Automate |
+| **P4** | **No dynamic lifecycle segments.** All 55 segments are static import lists — nothing to trigger repeatable programs on. | Enablement | Prerequisite |
+| **P5** | **WhatsApp runs under-instrumented & leaks.** #1 channel, but a 25,219-send campaign delivered 0, and an in-journey WA node delivered 0/35,453 (template error). | Reach / Ops | Fix + scale |
+| **P6** | **Push reachability ceiling.** ~26% of push never renders (Android worst). | Deliverability | Optimize |
+| **P7** | **Measurement gaps.** Attribution basis undefined (13× swing); flow history shallow; RCS unmeasurable; retention config was wrong. | Enablement | Prerequisite |
+
+---
+
+## 5. What's already set up (mapped to lifecycle)
+
+| Stage | Live in MoEngage | Health |
+|---|---|---|
+| Cart abandonment | Abandoned Cart3 (top journey earner), Abandoned Cart post Day-2, Nitro variants | ✅ strong (1 WA node delivers 0 — fix) |
+| **Checkout / payment recovery** | Begin_checkout2, Payment_Proceeded2, Payment Failed, Begin checkout post Day-2 | ✅ **live & top-earning** |
+| Cross-sell / upsell | Extensive WhatsApp + FB_AUDIENCE grid by category; cross-sell flows | ✅ broad |
+| Win-back (lapsed) | RNB WhatsApp campaigns | ⚠️ manual batch, not triggered |
+| Loyalty | Redeem Points, Nectar Coins Expiry | ✅ present |
+| **2nd-purchase / repeat activation** | Nothing | ❌ biggest gap |
+| Lifecycle segmentation | 55 static import lists | ❌ no dynamic RFM |
+
+---
+
+## 6. Top buckets to focus + next steps
+
+**Top buckets (by leverage):** ①  First-time buyers → 2nd purchase (steepest cliff, biggest population); ②  Recently-lapsed buyers (win-back — already proven via RNB WhatsApp); ③  Cart/checkout/payment abandoners (already strong — optimize); ④  Engaged non-buyers (volume play, later).
+
+**Do next (sequenced):**
+1. **Build dynamic RFM / lifecycle segments** (P4) — prerequisite for everything.
+2. **Launch an automated 2nd-purchase journey** triggered on first `purchase_moeg` (bucket ①, the biggest structural lever).
+3. **Automate win-back** — convert manual RNB WhatsApp into a dormancy-triggered journey (bucket ②).
+4. **Fix delivery leaks** — the 0-delivered WhatsApp nodes (real money to dead ends).
+5. **Operationalize monthly cohort retention** (M1/M3 repeat-purchase) as the north-star KPI, using `retention_type="last"`.
+6. **Pick an attribution standard** (click vs view) before publishing a baseline.
+
+---
+
+## 7. Method & caveats
+
+- All figures from live MoEngage pulls (2026-08-13). Attribution = click-through (`metric_click`) unless noted.
+- WhatsApp revenue via `get_detailed_campaign_stats` (engagement-only endpoints lack revenue). Standalone WhatsApp enumerated via *unfiltered* `get_campaign_meta` (channel filter rejects WhatsApp).
+- Journey vs standalone are attributed independently — a user touched by both is counted in both; no net-dedup possible.
+- Flow-analytics: 90-day window cap per call; shallow history (see §2.1); `fields=summary` silently strips output (omit it).
+- RCS not a queryable channel here. Retention: `retention_type="last"` required.
+- **Open data item:** standalone monthly revenue-by-channel (419-campaign detailed sweep) — interrupted by account session limit; backfill after reset.
