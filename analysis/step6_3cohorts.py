@@ -106,6 +106,8 @@ pf["activity_state"]=pd.cut(pf["days_since_last"],[-1,90,270,10**9],labels=["Act
 pf[["identity","cohort","cat_affinity","tech_score","bags_score","value_tier","activity_state",
     "lifetime_orders","gmv","aov","pct_disc","eff_disc","event_share","days_since_last"]].to_csv(f"{SEG}/mapping_3cohort.csv",index=False)
 profile(pf).to_csv(f"{SEG}/profile_3cohort_prod.csv"); profile(df_).to_csv(f"{SEG}/profile_3cohort_dev.csv")
+pf[["identity","cohort"]].to_csv(f"{SEG}/labels_prod.csv",index=False)
+df_[["identity","cohort"]].to_csv(f"{SEG}/labels_dev.csv",index=False)
 print("\n=== category affinity (PROD) ==="); print(pf["cat_affinity"].value_counts().to_string())
 print("\n=== cohort x affinity (PROD) ==="); print(pd.crosstab(pf["cohort"],pf["cat_affinity"]).reindex(["Power Users","Deal Seekers","Light Users"]).to_string())
 print("wrote mapping_3cohort.csv")
