@@ -65,6 +65,19 @@ Two methods converge: (a) COGS grand-total net rev 247.9M ÷ ~3 months (ad-spend
 ## 8. Deliverable
 `DailyObjects_July2026_PnL_New_vs_Repeat.xlsx` — tabs: **Drivers & Sources** (yellow = editable inputs), **P&L — New vs Repeat** (live formulas to CM2), **COGS Reference**, **Method & Caveats**.
 
+## 8b. GA4 calibration of ad-spend split (added)
+GA4 India acct `273672074`, July, `new_vs_returning` × `source`/`medium` × `purchase_revenue`/`transactions` (Windsor).
+- Site-wide: New = 41% of purchase revenue / 45% of transactions; Returning 59% / 55%. (GA4 new/returning is **session-based**, not first-purchase — differs from DMR.)
+- Paid channel observed mix (by revenue): **Meta `facebook instagram/paid` = 45% new / 55% returning**; **Google `google/cpc` = 57% new / 43% returning**.
+- GA4-based spend split: New media ₹1.70 Cr, Repeat media ₹1.88 Cr (+CRM).
+
+**KEY FINDING — attribution flips the story (same margins, same totals, blended CM2 = +2.9% either way):**
+| Scenario | New CM2 | Repeat CM2 |
+|---|---:|---:|
+| Intent-based (Meta prospecting=new) | −13% | +19% |
+| GA4 last-click (observed) | +5.6% | +0.2% |
+GA4 last-click understates new-media (Meta upper-funnel credit goes to Google Brand/Direct on final click; "visited-before" buyers counted as returning). Intent ≈ ceiling on new-media, GA4 ≈ floor. Realistic: New CM2 −13%→+6%, Repeat 0%→+19%. New xlsx tab: **Attribution Scenarios**.
+
 ## 9. Open items / next steps
 1. Replace scale anchor + split ratios with **full-month DMR pivot** (see §3).
 2. Get **actual Moengage CRM cost** (invoice).

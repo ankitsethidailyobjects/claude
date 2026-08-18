@@ -1,233 +1,220 @@
 import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, numbers
-from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
-wb = openpyxl.Workbook()
+# ============================== INPUTS / CONSTANTS ==============================
+NETREV      = 83_000_000        # July total net revenue (ex-GST, post-returns) — SCALE ANCHOR (estimate)
+NEW_SHARE   = 0.506             # new-user share of net revenue (July-31 DMR sample)
+AOV_NEW     = 2602
+AOV_REP     = 3111
+NG          = 0.7477            # Net Rev / Gross Rev  (COGS file)
+COGS_R      = 0.4483            # Net COGS / Net Rev
+FUL_R       = 0.0914            # Fulfilment / Net Rev
+CM1_R       = 1 - COGS_R - FUL_R  # 0.4603
+CRM         = 500_000
 
-# ---------- styles ----------
-H1   = Font(bold=True, size=15, color="FFFFFF")
-H2   = Font(bold=True, size=12, color="1F3864")
-BOLD = Font(bold=True)
-ITAL = Font(italic=True, size=9, color="666666")
-WHITE= Font(bold=True, color="FFFFFF")
-navy = PatternFill("solid", fgColor="1F3864")
-blue = PatternFill("solid", fgColor="2E5496")
-lblue= PatternFill("solid", fgColor="D9E1F2")
-yell = PatternFill("solid", fgColor="FFF2CC")   # editable input
-grey = PatternFill("solid", fgColor="F2F2F2")
-green= PatternFill("solid", fgColor="E2EFDA")
-red  = PatternFill("solid", fgColor="FCE4D6")
-thin = Side(style="thin", color="BFBFBF")
-box  = Border(left=thin,right=thin,top=thin,bottom=thin)
-RS = "#,##0"; PCT="0.0%"; PCT0="0%"; RS2="#,##0.0"
+# Marketing actuals (July)
+META        = 26_659_664
+GOOGLE      = 8_641_852
+META_PROSP  = 16_956_520
+META_RETARG = 9_703_144
+G_PMAX      = 8_152_672
+G_BRAND     = 489_181
 
-def cell(ws,c,v,font=None,fill=None,fmt=None,align=None,border=True):
-    x=ws[c]; x.value=v
+# GA4 observed paid mix (July, India acct)
+META_NEW_GA4 = 0.453
+GOOG_NEW_GA4 = 0.569
+
+# ---- segment revenue / margins (attribution-independent) ----
+def seg(nr, aov):
+    gross = nr / NG
+    return dict(nr=nr, gross=gross, orders=gross/aov,
+                cogs=nr*COGS_R, pm=nr*(1-COGS_R), ful=nr*FUL_R, cm1=nr*CM1_R)
+N = seg(NETREV*NEW_SHARE, AOV_NEW)
+R = seg(NETREV*(1-NEW_SHARE), AOV_REP)
+
+# ---- marketing allocation, two scenarios ----
+# Intent-based
+int_new = META_PROSP + META_RETARG*0.20 + G_PMAX*0.70 + G_BRAND*0.40
+int_rep = META_RETARG*0.80 + G_PMAX*0.30 + G_BRAND*0.60 + CRM
+# GA4 last-click
+ga_new  = META*META_NEW_GA4 + GOOGLE*GOOG_NEW_GA4
+ga_rep  = META*(1-META_NEW_GA4) + GOOGLE*(1-GOOG_NEW_GA4) + CRM
+
+def cm2(cm1, media): return cm1 - media
+scen = {
+ "Intent": dict(nm=int_new, rm=int_rep,
+                cn=cm2(N['cm1'], int_new), cr=cm2(R['cm1'], int_rep)),
+ "GA4":    dict(nm=ga_new, rm=ga_rep,
+                cn=cm2(N['cm1'], ga_new), cr=cm2(R['cm1'], ga_rep)),
+}
+
+# ============================== STYLES ==============================
+H1=Font(bold=True,size=14,color="FFFFFF"); H2=Font(bold=True,size=12,color="1F3864")
+BOLD=Font(bold=True); WHITE=Font(bold=True,color="FFFFFF"); ITAL=Font(italic=True,size=9,color="666666")
+navy=PatternFill("solid",fgColor="1F3864"); blue=PatternFill("solid",fgColor="2E5496")
+lblue=PatternFill("solid",fgColor="D9E1F2"); yell=PatternFill("solid",fgColor="FFF2CC")
+grey=PatternFill("solid",fgColor="F2F2F2"); green=PatternFill("solid",fgColor="E2EFDA"); red=PatternFill("solid",fgColor="FCE4D6")
+thin=Side(style="thin",color="BFBFBF"); box=Border(left=thin,right=thin,top=thin,bottom=thin)
+RS="#,##0"; PCT="0.0%"
+
+def C(ws,addr,v,font=None,fill=None,fmt=None,al=None,bd=True):
+    x=ws[addr]; x.value=v
     if font:x.font=font
     if fill:x.fill=fill
     if fmt:x.number_format=fmt
-    if align:
-        h="left" if align=="wrap" else align
-        x.alignment=Alignment(horizontal=h,vertical="center",wrap_text=(align=="wrap"))
-    if border:x.border=box
+    if al: x.alignment=Alignment(horizontal=("left" if al=="wrap" else al),vertical="center",wrap_text=(al=="wrap"))
+    if bd:x.border=box
     return x
 
-# ============================================================= INPUTS/DRIVERS sheet
-ws = wb.active; ws.title="Drivers & Sources"
-ws.sheet_view.showGridLines=False
-for col,w in {"A":2,"B":42,"C":16,"D":16,"E":16,"F":40}.items(): ws.column_dimensions[col].width=w
-ws.merge_cells("B2:F2"); cell(ws,"B2","DailyObjects · July 2026 · D2C P&L — New vs Repeat (CM2 model)",H1,navy,align="left",border=False)
-ws.merge_cells("B3:F3"); cell(ws,"B3","Driver-based model. Yellow cells are editable inputs — change them and the P&L tab recalculates. Directional v1 (see notes).",ITAL,border=False)
+wb=openpyxl.Workbook()
+
+# ============================== P&L (values) ==============================
+p=wb.active; p.title="P&L — New vs Repeat"; p.sheet_view.showGridLines=False
+for c,w in {"A":2,"B":36,"C":15,"D":15,"E":15,"F":10}.items(): p.column_dimensions[c].width=w
+p.merge_cells("B2:F2"); C(p,"B2","DailyObjects · July 2026 · D2C P&L to CM2 — New vs Repeat",H1,navy,al="left",bd=False)
+p.merge_cells("B3:F3"); C(p,"B3","₹. Margins from COGS file; segment mix from July-31 DMR sample; media = July actuals. CM2 shown under BOTH attribution lenses.",ITAL,al="left",bd=False)
 
 r=5
-cell(ws,f"B{r}","KEY DRIVERS (editable)",WHITE,blue,align="left"); cell(ws,f"C{r}","Value",WHITE,blue,align="center"); cell(ws,f"D{r}","",WHITE,blue); cell(ws,f"E{r}","",WHITE,blue); cell(ws,f"F{r}","Source / logic",WHITE,blue,align="left")
-drivers=[
- ("July TOTAL net revenue (ex-GST, post-returns) ₹", 83000000, RS, "SCALE ANCHOR — estimate. Two methods converge ~₹8.3 Cr: (a) COGS grand-total ÷ ~3 months; (b) July paid media ₹3.53 Cr ÷ 43% ad-to-rev. REPLACE with DMR actual."),
- ("New-user share of net revenue %", 0.506, PCT, "July-31 DMR sample (realized orders). Repeat = 1 − this."),
- ("AOV — New user (gross ₹/order)", 2602, RS, "July-31 DMR sample."),
- ("AOV — Repeat user (gross ₹/order)", 3111, RS, "July-31 DMR sample."),
- ("Net Revenue ÷ Gross Revenue", 0.7477, "0.0000", "COGS file grand total: 247.9M/331.6M (removes ~13% returns + GST)."),
- ("Net COGS % of net revenue", 0.4483, PCT, "COGS file grand total: 111.14M/247.9M."),
- ("Fulfilment cost % of net revenue", 0.0914, PCT, "COGS file grand total: 22.65M/247.9M."),
-]
-rows={}
-for i,(lbl,val,fmt,src) in enumerate(drivers):
-    rr=r+1+i
-    cell(ws,f"B{rr}",lbl,align="left")
-    cell(ws,f"C{rr}",val,BOLD,yell,fmt,"center")
-    cell(ws,f"D{rr}","",fill=grey); cell(ws,f"E{rr}","",fill=grey)
-    cell(ws,f"F{rr}",src,ITAL,align="wrap")
-    rows[lbl]=rr
-# capture cell refs
-D_NETREV=f"'Drivers & Sources'!C{rows[drivers[0][0]]}"
-D_NEWSH =f"'Drivers & Sources'!C{rows[drivers[1][0]]}"
-D_AOVN  =f"'Drivers & Sources'!C{rows[drivers[2][0]]}"
-D_AOVR  =f"'Drivers & Sources'!C{rows[drivers[3][0]]}"
-D_NG    =f"'Drivers & Sources'!C{rows[drivers[4][0]]}"
-D_COGS  =f"'Drivers & Sources'!C{rows[drivers[5][0]]}"
-D_FUL   =f"'Drivers & Sources'!C{rows[drivers[6][0]]}"
+for c,t,a in [("B","P&L line","left"),("C","New user","center"),("D","Repeat user","center"),("E","Total","center"),("F","% NR","center")]:
+    C(p,f"{c}{r}",t,WHITE,blue,al=a)
+def row(r,label,nv,rv,fill=None,bold=False,pct=True,indent=True,money=True):
+    f=BOLD if bold else None
+    C(p,f"B{r}",("   " if indent else "")+label,f,fill,al="left")
+    C(p,f"C{r}",round(nv),f,fill,RS if money else "#,##0",al="right")
+    C(p,f"D{r}",round(rv),f,fill,RS if money else "#,##0",al="right")
+    C(p,f"E{r}",round(nv+rv),f,fill,RS if money else "#,##0",al="right")
+    C(p,f"F{r}",(nv+rv)/NETREV if pct else None,f,fill,PCT if pct else None,al="center")
+r=6
+row(r,"Net Revenue (ex-GST, post-returns)",N['nr'],R['nr'],lblue,True); r+=1
+row(r,"Gross revenue (memo, incl GST+returns)",N['gross'],R['gross'],grey); r+=1
+row(r,"Orders (derived = gross ÷ AOV)",N['orders'],R['orders'],grey,pct=False,money=False); r+=1
+row(r,"Less: Net COGS (44.8%)",-N['cogs'],-R['cogs']); r+=1
+row(r,"= Product Margin",N['pm'],R['pm'],green,True); r+=1
+row(r,"Less: Fulfilment / logistics (9.1%)",-N['ful'],-R['ful']); r+=1
+row(r,"= CM1 (post-fulfilment)",N['cm1'],R['cm1'],green,True); CM1ROW=r; r+=2
 
-r=rows[drivers[-1][0]]+2
-cell(ws,f"B{r}","MARKETING ACTUALS — July 2026 (₹)",WHITE,blue,align="left")
-cell(ws,f"C{r}","Total spend",WHITE,blue,align="center"); cell(ws,f"D{r}","% to New",WHITE,blue,align="center"); cell(ws,f"E{r}","% to Repeat",WHITE,blue,align="center"); cell(ws,f"F{r}","Source / allocation logic",WHITE,blue,align="left")
-mk=[
- ("Meta — Prospecting / Category / Influencer", 16956520, 1.00, 0.00, "Windsor Meta; non-DPA/non-cross-sell campaigns. Pure acquisition → New."),
- ("Meta — Retargeting / DPA / Cross-sell",       9703144, 0.20, 0.80, "Windsor Meta; DPA_Max_Value, DPA_PDP_Views, Cross_Sell_*. Mostly returning audiences."),
- ("Google — PMax (Search+Display+Video)",        8152672, 0.70, 0.30, "Windsor Google Ads. Acquisition-heavy but captures some returning."),
- ("Google — Brand Search",                        489181, 0.40, 0.60, "Windsor Google Ads. Brand keywords skew to existing-intent/returning."),
- ("CRM — Moengage (platform + comms)",            500000, 0.00, 1.00, "PLACEHOLDER — not in API (broadcast push ≈ free). Put actual Moengage invoice. → Repeat."),
-]
-mkrows={}
-r0=r+1
-for i,(lbl,spend,pn,pr,src) in enumerate(mk):
-    rr=r0+i
-    cell(ws,f"B{rr}",lbl,align="left")
-    cell(ws,f"C{rr}",spend,BOLD,yell,RS,"center")
-    cell(ws,f"D{rr}",pn,None,yell,PCT0,"center")
-    cell(ws,f"E{rr}",pr,None,yell,PCT0,"center")
-    cell(ws,f"F{rr}",src,ITAL,align="wrap")
-    mkrows[lbl]=rr
-tot_r=r0+len(mk)
-cell(ws,f"B{tot_r}","TOTAL paid media + CRM",BOLD,lblue,align="left")
-cell(ws,f"C{tot_r}",f"=SUM(C{r0}:C{tot_r-1})",BOLD,lblue,RS,"center")
-cell(ws,f"D{tot_r}",None,None,lblue); cell(ws,f"E{tot_r}",None,None,lblue); cell(ws,f"F{tot_r}",None,None,lblue)
-# new/repeat media sums (SUMPRODUCT of spend*pct)
-NEWMEDIA=f"SUMPRODUCT('Drivers & Sources'!C{r0}:C{tot_r-1},'Drivers & Sources'!D{r0}:D{tot_r-1})"
-REPMEDIA=f"SUMPRODUCT('Drivers & Sources'!C{r0}:C{tot_r-1},'Drivers & Sources'!E{r0}:E{tot_r-1})"
+# --- CM2 under both scenarios ---
+C(p,f"B{r}","CM2 — by marketing-attribution lens",WHITE,blue,al="left")
+for c in "CDE": C(p,f"{c}{r}",{"C":"New","D":"Repeat","E":"Total"}[c],WHITE,blue,al="center")
+C(p,f"F{r}","% NR",WHITE,blue,al="center"); r+=1
+for key,nm_lbl,fill in [("Intent","Intent-based (Meta prospecting = New)",red),("GA4","GA4 last-click (observed)",green)]:
+    s=scen[key]
+    C(p,f"B{r}",f"   Marketing (Meta+Google+CRM) — {nm_lbl}",None,None,al="left")
+    C(p,f"C{r}",-round(s['nm']),None,None,RS,al="right"); C(p,f"D{r}",-round(s['rm']),None,None,RS,al="right")
+    C(p,f"E{r}",-round(s['nm']+s['rm']),None,None,RS,al="right"); C(p,f"F{r}",None); r+=1
+    C(p,f"B{r}",f"   = CM2 — {key}",BOLD,fill,al="left")
+    C(p,f"C{r}",round(s['cn']),BOLD,fill,RS,al="right"); C(p,f"D{r}",round(s['cr']),BOLD,fill,RS,al="right")
+    C(p,f"E{r}",round(s['cn']+s['cr']),BOLD,fill,RS,al="right")
+    C(p,f"F{r}",(s['cn']+s['cr'])/NETREV,BOLD,fill,PCT,al="center"); r+=1
+    C(p,f"B{r}",f"      CM2 % of net revenue",ITAL,None,al="left")
+    C(p,f"C{r}",s['cn']/N['nr'],ITAL,None,PCT,al="center"); C(p,f"D{r}",s['cr']/R['nr'],ITAL,None,PCT,al="center")
+    C(p,f"E{r}",(s['cn']+s['cr'])/NETREV,ITAL,None,PCT,al="center"); C(p,f"F{r}",None); r+=1
+r+=1
 
-# ============================================================= P&L sheet
-p = wb.create_sheet("P&L — New vs Repeat")
-p.sheet_view.showGridLines=False
-for col,w in {"A":2,"B":34,"C":16,"D":16,"E":16,"F":11}.items(): p.column_dimensions[col].width=w
-p.merge_cells("B2:F2"); cell(p,"B2","July 2026 — D2C P&L to CM2 · New vs Repeat User",H1,navy,align="left",border=False)
-p.merge_cells("B3:F3"); cell(p,"B3","₹, unless noted. Structural margins from COGS file; segment mix from July-31 DMR sample; media = July actuals.",ITAL,border=False)
+# --- unit economics memo ---
+C(p,f"B{r}","MEMO — per order (₹)",WHITE,blue,al="left")
+for c in "CDE": C(p,f"{c}{r}",{"C":"New","D":"Repeat","E":"Blended"}[c],WHITE,blue,al="center")
+C(p,f"F{r}","",WHITE,blue); r+=1
+tot_ord=N['orders']+R['orders']
+C(p,f"B{r}","   Net revenue / order",None,None,al="left")
+C(p,f"C{r}",round(N['nr']/N['orders']),None,None,RS,al="right");C(p,f"D{r}",round(R['nr']/R['orders']),None,None,RS,al="right");C(p,f"E{r}",round(NETREV/tot_ord),None,None,RS,al="right");C(p,f"F{r}","",bd=False); r+=1
+C(p,f"B{r}","   CM1 / order",None,None,al="left")
+C(p,f"C{r}",round(N['cm1']/N['orders']),None,None,RS,al="right");C(p,f"D{r}",round(R['cm1']/R['orders']),None,None,RS,al="right");C(p,f"E{r}",round((N['cm1']+R['cm1'])/tot_ord),None,None,RS,al="right");C(p,f"F{r}","",bd=False); r+=1
+for key,lbl in [("Intent","Intent"),("GA4","GA4")]:
+    s=scen[key]
+    C(p,f"B{r}",f"   Marketing / order — {lbl}",None,None,al="left")
+    C(p,f"C{r}",round(s['nm']/N['orders']),None,None,RS,al="right");C(p,f"D{r}",round(s['rm']/R['orders']),None,None,RS,al="right");C(p,f"E{r}",round((s['nm']+s['rm'])/tot_ord),None,None,RS,al="right");C(p,f"F{r}","",bd=False); r+=1
+    C(p,f"B{r}",f"   CM2 / order — {lbl}",BOLD,None,al="left")
+    C(p,f"C{r}",round(s['cn']/N['orders']),BOLD,None,RS,al="right");C(p,f"D{r}",round(s['cr']/R['orders']),BOLD,None,RS,al="right");C(p,f"E{r}",round((s['cn']+s['cr'])/tot_ord),BOLD,None,RS,al="right");C(p,f"F{r}","",bd=False); r+=1
+r+=1
+C(p,f"B{r}","Same margins & spend; only how media splits New/Repeat differs. Blended CM2 identical (~+2.9%).",ITAL,bd=False); r+=1
+C(p,f"B{r}","Intent-based ≈ ceiling on new-media (Meta=acquisition); GA4 last-click ≈ floor (credits final click). Truth between.",ITAL,bd=False)
 
-hr=5
-for c,t,al in [("B","P&L line","left"),("C","New user","center"),("D","Repeat user","center"),("E","Total","center"),("F","% net rev","center")]:
-    cell(p,f"{c}{hr}",t,WHITE,blue,align=al)
-
-def prow(r,label,new_f,rep_f,fill=None,fmt=RS,pctcol=True,bold=False,indent=True):
-    fnt=BOLD if bold else None
-    cell(p,f"B{r}",("   " if indent else "")+label,fnt,fill,align="left")
-    cell(p,f"C{r}",new_f,fnt,fill,fmt,"right")
-    cell(p,f"D{r}",rep_f,fnt,fill,fmt,"right")
-    cell(p,f"E{r}",f"=C{r}+D{r}",fnt,fill,fmt,"right")
-    if pctcol:
-        cell(p,f"F{r}",f"=IFERROR(E{r}/$E${NETREV_R},\"\")",fnt,fill,PCT,"center")
-    else:
-        cell(p,f"F{r}","",fnt,fill)
-    return r
-
-# Net revenue row
-NETREV_R=6
-cell(p,f"B{NETREV_R}","Net Revenue (ex-GST, post-returns)",BOLD,lblue,align="left")
-cell(p,f"C{NETREV_R}",f"={D_NETREV}*{D_NEWSH}",BOLD,lblue,RS,"right")
-cell(p,f"D{NETREV_R}",f"={D_NETREV}*(1-{D_NEWSH})",BOLD,lblue,RS,"right")
-cell(p,f"E{NETREV_R}",f"=C{NETREV_R}+D{NETREV_R}",BOLD,lblue,RS,"right")
-cell(p,f"F{NETREV_R}","100%",BOLD,lblue,None,"center")
-
-r=7
-prow(r,"Gross revenue (memo, incl GST+returns)",f"=C{NETREV_R}/{D_NG}",f"=D{NETREV_R}/{D_NG}",grey,RS,True); GROSS_R=r; r+=1
-prow(r,"Orders (derived = gross ÷ AOV)",f"=C{GROSS_R}/{D_AOVN}",f"=D{GROSS_R}/{D_AOVR}",grey,RS,False); ORD_R=r; r+=1
-prow(r,"Less: Net COGS",f"=-C{NETREV_R}*{D_COGS}",f"=-D{NETREV_R}*{D_COGS}",None,RS,True); r+=1
-PM_R=r; cell(p,f"B{r}","= Product Margin",BOLD,green,align="left")
-cell(p,f"C{r}",f"=C{NETREV_R}+C{r-1}",BOLD,green,RS,"right"); cell(p,f"D{r}",f"=D{NETREV_R}+D{r-1}",BOLD,green,RS,"right")
-cell(p,f"E{r}",f"=C{r}+D{r}",BOLD,green,RS,"right"); cell(p,f"F{r}",f"=E{r}/E{NETREV_R}",BOLD,green,PCT,"center"); r+=1
-prow(r,"Less: Fulfilment / logistics",f"=-C{NETREV_R}*{D_FUL}",f"=-D{NETREV_R}*{D_FUL}",None,RS,True); r+=1
-CM1_R=r; cell(p,f"B{r}","= CM1 (post-fulfilment)",BOLD,green,align="left")
-cell(p,f"C{r}",f"=C{PM_R}+C{r-1}",BOLD,green,RS,"right"); cell(p,f"D{r}",f"=D{PM_R}+D{r-1}",BOLD,green,RS,"right")
-cell(p,f"E{r}",f"=C{r}+D{r}",BOLD,green,RS,"right"); cell(p,f"F{r}",f"=E{r}/E{NETREV_R}",BOLD,green,PCT,"center"); r+=1
-# marketing
-prow(r,"Less: Performance media (Meta+Google)",
-     f"=-({NEWMEDIA}-'Drivers & Sources'!C{mkrows[mk[4][0]]}*'Drivers & Sources'!D{mkrows[mk[4][0]]})",
-     f"=-({REPMEDIA}-'Drivers & Sources'!C{mkrows[mk[4][0]]}*'Drivers & Sources'!E{mkrows[mk[4][0]]})",
-     None,RS,True); MED_R=r; r+=1
-prow(r,"Less: CRM (Moengage)",
-     f"=-'Drivers & Sources'!C{mkrows[mk[4][0]]}*'Drivers & Sources'!D{mkrows[mk[4][0]]}",
-     f"=-'Drivers & Sources'!C{mkrows[mk[4][0]]}*'Drivers & Sources'!E{mkrows[mk[4][0]]}",
-     None,RS,True); CRM_R=r; r+=1
-CM2_R=r; cell(p,f"B{r}","= CM2 (post-marketing)",WHITE,navy,align="left")
-cell(p,f"C{r}",f"=C{CM1_R}+C{MED_R}+C{CRM_R}",WHITE,navy,RS,"right")
-cell(p,f"D{r}",f"=D{CM1_R}+D{MED_R}+D{CRM_R}",WHITE,navy,RS,"right")
-cell(p,f"E{r}",f"=C{r}+D{r}",WHITE,navy,RS,"right")
-cell(p,f"F{r}",f"=E{r}/E{NETREV_R}",WHITE,navy,PCT,"center"); r+=2
-
-# memo metrics
-cell(p,f"B{r}","MEMO — unit economics",WHITE,blue,align="left")
-cell(p,f"C{r}","New",WHITE,blue,align="center");cell(p,f"D{r}","Repeat",WHITE,blue,align="center");cell(p,f"E{r}","Blended",WHITE,blue,align="center");cell(p,f"F{r}","",WHITE,blue); r+=1
-cell(p,f"B{r}","Marketing per order (CAC / retention ₹)",align="left")
-cell(p,f"C{r}",f"=-(C{MED_R}+C{CRM_R})/C{ORD_R}",None,None,RS,"right")
-cell(p,f"D{r}",f"=-(D{MED_R}+D{CRM_R})/D{ORD_R}",None,None,RS,"right")
-cell(p,f"E{r}",f"=-(E{MED_R}+E{CRM_R})/E{ORD_R}",None,None,RS,"right"); cell(p,f"F{r}","",border=False); r+=1
-cell(p,f"B{r}","CM1 per order ₹",align="left")
-for cc in "CDE": cell(p,f"{cc}{r}",f"={cc}{CM1_R}/{cc}{ORD_R}",None,None,RS,"right")
-cell(p,f"F{r}","",border=False); r+=1
-cell(p,f"B{r}","CM2 per order ₹",BOLD,align="left")
-for cc in "CDE": cell(p,f"{cc}{r}",f"={cc}{CM2_R}/{cc}{ORD_R}",BOLD,None,RS,"right")
-cell(p,f"F{r}","",border=False); r+=2
-
-cell(p,f"B{r}","Read: New users are typically CM2-negative (acquisition cost > first-order contribution); repeat users",ITAL,border=False); r+=1
-cell(p,f"B{r}","are strongly CM2-positive. Blended CM2 should tie to the COGS file's ~2.6%. LTV justifies new-user loss.",ITAL,border=False)
-
-# ============================================================= COGS reference
-cr = wb.create_sheet("COGS Reference")
-cr.sheet_view.showGridLines=False
-for col,w in {"A":2,"B":26,"C":15,"D":15,"E":13,"F":13}.items(): cr.column_dimensions[col].width=w
-cell(cr,"B2","COGS / CM file — grand total (all months, all platforms)",H2,border=False)
-cell(cr,"B3","Source: Web_Updated_cogs_CMFile.xlsx · Sheet2 pivot (Grand Total row). Ratios drive the P&L.",ITAL,border=False)
-gt=[("Revenue",331557725),("Return Sales",43246094),("Net Sales",288311631),("Net Revenue",247899469),
-    ("Net COGS",111138979),("Product Margin",136760490),("Est. fulfilment cost",22651338),
-    ("CM1",114109152),("CM2",6509793),("Ad Spends",107599359),("QTY",207715)]
-rr=5
-cell(cr,f"B{rr}","Metric",WHITE,blue,align="left");cell(cr,f"C{rr}","Value ₹",WHITE,blue,align="center");cell(cr,f"D{rr}","% of Net Rev",WHITE,blue,align="center"); rr+=1
-nrv=247899469
-for lbl,val in gt:
-    cell(cr,f"B{rr}",lbl,align="left"); cell(cr,f"C{rr}",val,None,None,RS,"right")
-    if lbl not in ("QTY",): cell(cr,f"D{rr}",val/nrv,None,None,PCT,"center")
-    else: cell(cr,f"D{rr}","",border=True)
-    rr+=1
-rr+=1
-cell(cr,f"B{rr}","Derived ratios used in model",H2,border=False); rr+=1
-for lbl,val,fmt in [("Net Rev ÷ Gross Rev",0.7477,"0.0000"),("Net COGS % of Net Rev",0.4483,PCT),
-    ("Product Margin % of Net Rev",0.5517,PCT),("Fulfilment % of Net Rev",0.0914,PCT),
-    ("CM1 % of Net Rev",0.4603,PCT),("CM2 % of Net Rev (blended actual)",0.0263,PCT)]:
-    cell(cr,f"B{rr}",lbl,align="left"); cell(cr,f"C{rr}",val,BOLD,grey,fmt,"center"); rr+=1
-
-# ============================================================= Method & caveats
-mt = wb.create_sheet("Method & Caveats")
-mt.sheet_view.showGridLines=False
-mt.column_dimensions["B"].width=110
-cell(mt,"B2","Method, sources & caveats",H1,navy,align="left",border=False)
-notes=[
- "PURPOSE — July 2026 D2C P&L to CM2, split New vs Repeat users. Built as a driver model so actuals can be dropped in.",
- "",
- "DATA SOURCES",
- "• Structural margins (COGS%, Product Margin%, Fulfilment%, CM1/CM2%) — Web_Updated_cogs_CMFile.xlsx, Sheet2 grand total (all-month blend).",
- "• New-vs-Repeat mix (rev share, AOV, coupon rate, category mix) — july_DMR_unmasked.csv, 'New User' flag (TRUE=new / FALSE=repeat).",
- "• Meta & Google spend — Windsor.ai (facebook + google_ads), July 2026 actuals, by campaign.",
- "• CRM — Moengage (broadcast push ≈ zero marginal cost; platform fee is an input, not API-exposed).",
- "",
- "KEY CAVEAT — the July DMR is 47MB and cannot be fully aggregated through available tools (10MB download cap; text",
- "extraction truncates to only July-31 rows as the file is date-sorted). So the new/repeat SPLIT ratios (rev share 50.6/49.4,",
- "AOV ₹2,602/₹3,111, coupon rates) come from the JULY-31 SAMPLE (816 realized orders) — directionally sound but 1 day,",
- "month-end. The TOTAL SCALE (₹8.3 Cr net rev) is an estimate. Both are yellow inputs — replace with full-month DMR actuals.",
- "",
- "TO FINALISE (makes every number exact): a July DMR pivot — Rows: New User × Category; Values: Sum of Product Grand",
- "Total(FF), Sum of Order Discount + Product Discount, Sum of Qty, Distinct Order No. — split by Last Status (to separate",
- "delivered / returned / cancelled). Drop that in and the model is final.",
- "",
- "MARKETING TRIANGULATION — Meta split into prospecting (→New) vs DPA/retargeting/cross-sell (→mostly Repeat);",
- "Google PMax mostly acquisition, Brand Search mostly returning; CRM → Repeat. All allocation %s are editable inputs.",
- "",
- "COUPONS — Product Grand Total(FF) is already net of coupon, so discounts are captured ABOVE CM1 (in net revenue).",
- "They are NOT re-subtracted in CM2. Sample discount intensity: New ~19% / Repeat ~26% of realized revenue.",
- "",
- "VALIDATION — bottom-up blended CM2 (~2–3% of net rev) ties to the COGS file's blended CM2 of 2.6%, a good cross-check.",
+# ============================== DRIVERS ==============================
+d=wb.create_sheet("Drivers & Sources"); d.sheet_view.showGridLines=False
+for c,w in {"A":2,"B":44,"C":16,"D":46}.items(): d.column_dimensions[c].width=w
+C(d,"B2","Drivers & sources (edit these, then recompute)",H1,navy,al="left",bd=False)
+rows=[("KEY DRIVERS","",""),
+ ("July TOTAL net revenue ₹",NETREV,"SCALE ANCHOR (estimate). COGS grand-total ÷ ~3 mo AND July media ÷ 43% both ≈ ₹8.3 Cr. Replace with DMR actual."),
+ ("New-user share of net revenue",NEW_SHARE,"July-31 DMR sample (realized orders)."),
+ ("AOV New ₹",AOV_NEW,"July-31 DMR sample."),
+ ("AOV Repeat ₹",AOV_REP,"July-31 DMR sample."),
+ ("Net Rev ÷ Gross Rev",NG,"COGS file grand total 247.9M/331.6M."),
+ ("Net COGS % of Net Rev",COGS_R,"COGS file 111.14M/247.9M."),
+ ("Fulfilment % of Net Rev",FUL_R,"COGS file 22.65M/247.9M."),
+ ("CM1 % of Net Rev (derived)",CM1_R,"= 1 − COGS% − Fulfilment%."),
+ ("MARKETING ACTUALS (July)","",""),
+ ("Meta total ₹",META,"Windsor facebook. Prospecting ₹1.70 Cr + DPA/retarget ₹0.97 Cr."),
+ ("Google total ₹",GOOGLE,"Windsor google_ads. PMax ₹0.82 Cr + Brand ₹0.05 Cr."),
+ ("CRM (Moengage) ₹",CRM,"PLACEHOLDER — no rupee API (broadcast push≈free). Use invoice. →Repeat."),
+ ("ATTRIBUTION SPLITS","",""),
+ ("Meta new% — GA4 observed",META_NEW_GA4,"GA4 facebook instagram/paid: 45% new / 55% ret."),
+ ("Google new% — GA4 observed",GOOG_NEW_GA4,"GA4 google/cpc: 57% new / 43% ret."),
 ]
 rr=4
+for lbl,val,src in rows:
+    if val=="":
+        C(d,f"B{rr}",lbl,WHITE,blue,al="left"); C(d,f"C{rr}","",fill=blue); C(d,f"D{rr}","",WHITE,blue,al="left")
+    else:
+        fmt=PCT if (isinstance(val,float) and val<1.5) else RS
+        C(d,f"B{rr}",lbl,al="left"); C(d,f"C{rr}",val,BOLD,yell,fmt,al="right"); C(d,f"D{rr}",src,ITAL,al="wrap")
+    rr+=1
+
+# ============================== COGS REFERENCE ==============================
+cr=wb.create_sheet("COGS Reference"); cr.sheet_view.showGridLines=False
+for c,w in {"A":2,"B":26,"C":15,"D":14}.items(): cr.column_dimensions[c].width=w
+C(cr,"B2","COGS/CM file — grand total (all months, all platforms)",H2,bd=False)
+C(cr,"B3","Source: Web_Updated_cogs_CMFile.xlsx · Sheet2 pivot. Ratios drive the P&L.",ITAL,bd=False)
+gt=[("Revenue",331557725),("Return Sales",43246094),("Net Sales",288311631),("Net Revenue",247899469),
+    ("Net COGS",111138979),("Product Margin",136760490),("Fulfilment cost",22651338),("CM1",114109152),
+    ("CM2",6509793),("Ad Spends",107599359),("QTY",207715)]
+rr=5; C(cr,f"B{rr}","Metric",WHITE,blue,al="left");C(cr,f"C{rr}","Value ₹",WHITE,blue,al="center");C(cr,f"D{rr}","% Net Rev",WHITE,blue,al="center");rr+=1
+for l,v in gt:
+    C(cr,f"B{rr}",l,al="left"); C(cr,f"C{rr}",v,None,None,RS,al="right")
+    C(cr,f"D{rr}",(v/247899469 if l!="QTY" else None),None,None,PCT if l!="QTY" else None,al="center"); rr+=1
+
+# ============================== GA4 REFERENCE ==============================
+g=wb.create_sheet("GA4 Attribution"); g.sheet_view.showGridLines=False
+for c,w in {"A":2,"B":34,"C":14,"D":14,"E":16}.items(): g.column_dimensions[c].width=w
+C(g,"B2","GA4 July — new vs returning (India acct 273672074)",H2,bd=False)
+C(g,"B3","Session/last-click attribution. 'Returning'=visited before (NOT first-purchase). Windsor GA4.",ITAL,bd=False)
+rr=5
+C(g,f"B{rr}","Site-wide",WHITE,blue,al="left");C(g,f"C{rr}","Purch. rev ₹",WHITE,blue,al="center");C(g,f"D{rr}","Transactions",WHITE,blue,al="center");C(g,f"E{rr}","% of rev",WHITE,blue,al="center");rr+=1
+for l,rev,tx in [("New",44232456,19035),("Returning",62674937,23288)]:
+    C(g,f"B{rr}",l,al="left");C(g,f"C{rr}",rev,None,None,RS,al="right");C(g,f"D{rr}",tx,None,None,RS,al="right");C(g,f"E{rr}",rev/106907393,None,None,PCT,al="center");rr+=1
+rr+=1
+C(g,f"B{rr}","Paid channel mix (revenue)",WHITE,blue,al="left");C(g,f"C{rr}","New",WHITE,blue,al="center");C(g,f"D{rr}","Returning",WHITE,blue,al="center");C(g,f"E{rr}","",WHITE,blue);rr+=1
+for l,nn,rrv in [("Meta — facebook instagram/paid",7977144,9636900),("Google — google/cpc",19815460,14986129)]:
+    tot=nn+rrv
+    C(g,f"B{rr}",l,al="left");C(g,f"C{rr}",nn/tot,None,grey,PCT,al="center");C(g,f"D{rr}",rrv/tot,None,grey,PCT,al="center");C(g,f"E{rr}","",bd=False);rr+=1
+rr+=1
+C(g,f"B{rr}","→ Meta spend splits 45/55; Google splits 57/43 → these feed the GA4 scenario in the P&L tab.",ITAL,bd=False)
+
+# ============================== METHOD ==============================
+m=wb.create_sheet("Method & Caveats"); m.sheet_view.showGridLines=False
+m.column_dimensions["B"].width=112
+notes=["METHOD & CAVEATS","",
+ "Structural margins (COGS%, PM%, Fulfilment%, CM1/CM2%) — COGS file Sheet2 grand total (all-month blend).",
+ "New-vs-Repeat mix (rev share, AOV) — july_DMR_unmasked.csv 'New User' flag, JULY-31 SAMPLE (816 realized orders).",
+ "Meta & Google spend — Windsor.ai actuals, July. CRM — Moengage (no rupee API; placeholder).",
+ "",
+ "CONSTRAINT: 47MB DMR can't be fully aggregated (10MB download cap; text read truncates to July-31). So split ratios",
+ "and the ₹8.3 Cr scale are directional. Replace with a full-month DMR pivot (New User × Category × Last Status →",
+ "Σ Product Grand Total(FF), Σ discount, Σ Qty, distinct Order No.) to finalise exact numbers.",
+ "",
+ "ATTRIBUTION: New-vs-repeat SPEND split shown two ways. Intent-based = campaign type (prospecting→New, DPA→Repeat).",
+ "GA4 last-click = each paid channel's observed new/returning purchase mix. They disagree on who's profitable because",
+ "GA4 credits the final click (understating Meta's upper-funnel new-user role). Intent≈ceiling, GA4≈floor; truth between.",
+ "",
+ "COUPONS: Product Grand Total(FF) is already net of coupon → discounts sit ABOVE CM1 (in net revenue), NOT re-subtracted",
+ "at CM2. Sample discount intensity: New ~19% / Repeat ~26% of realized revenue.",
+ "",
+ "VALIDATION: bottom-up blended CM2 (~+2.9%) ties to COGS file blended CM2 (2.6%).",]
+rr=3
 for n in notes:
-    f=BOLD if (n.isupper() and n) or n.startswith(("DATA","KEY","TO ","MARKETING","COUPONS","VALIDATION","PURPOSE")) else ITAL
-    cell(mt,f"B{rr}",n,f,border=False); rr+=1
+    f=H1 if n=="METHOD & CAVEATS" else (BOLD if n[:9] in ("CONSTRAIN","ATTRIBUTI","COUPONS:","VALIDATIO") else ITAL)
+    fl=navy if n=="METHOD & CAVEATS" else None; fo=Font(bold=True,size=14,color="FFFFFF") if n=="METHOD & CAVEATS" else f
+    C(m,f"B{rr}",n,fo,fl,bd=False); rr+=1
 
 path="/home/user/claude/out/DailyObjects_July2026_PnL_New_vs_Repeat.xlsx"
 wb.save(path)
