@@ -1,0 +1,4 @@
+# raw source pulled from Google Drive (business inputs, not our work product)
+raw/
+# transient logs
+agg/batch.log
