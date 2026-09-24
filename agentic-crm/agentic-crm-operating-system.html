@@ -1,0 +1,785 @@
+<title>Agentic CRM Operating System</title>
+<meta name="description" content="A tested MoEngage MCP capability audit and a staged operating model for running DailyObjects' CRM with Claude." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=IBM+Plex+Sans:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#eceef1; --surface:#ffffff; --surface-2:#f6f7f9; --sunk:#e7e9 ec;
+  --ink:#171a20; --ink-2:#3d444e; --muted:#697280; --faint:#9aa2ad;
+  --hair:#d9dce1; --hair-2:#e8eaee;
+  --accent:#3442c4; --accent-soft:#e5e7fb; --accent-ink:#2530a3;
+  --copper:#b4632f;
+  --good:#2c7a55; --good-bg:#e2f0e8;
+  --warn:#9a6a17; --warn-bg:#f6ecd6;
+  --info:#2a5fac; --info-bg:#e0e9f6;
+  --bad:#b23a26; --bad-bg:#f6e0da;
+  --unk:#69737f; --unk-bg:#e8eaed;
+  --shadow:0 1px 2px rgba(20,24,32,.05),0 8px 24px -14px rgba(20,24,32,.28);
+  --maxw:1180px; --readw:70ch;
+  --f-disp:"Fraunces",Georgia,serif;
+  --f-body:"IBM Plex Sans",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+:root{--sunk:#e7e9ec;}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0e1014; --surface:#171a20; --surface-2:#1c2027; --sunk:#0b0d11;
+    --ink:#eef0f3; --ink-2:#c3c9d2; --muted:#8b95a2; --faint:#5f6874;
+    --hair:#2a2f38; --hair-2:#232830;
+    --accent:#8b96f2; --accent-soft:#242a52; --accent-ink:#aeb6f7;
+    --copper:#d98a54;
+    --good:#66c39a; --good-bg:#12291f;
+    --warn:#d6a955; --warn-bg:#2b220f;
+    --info:#7fb0ee; --info-bg:#122236;
+    --bad:#e0836e; --bad-bg:#2e150f;
+    --unk:#9aa4b0; --unk-bg:#1e232b;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0e1014; --surface:#171a20; --surface-2:#1c2027; --sunk:#0b0d11;
+  --ink:#eef0f3; --ink-2:#c3c9d2; --muted:#8b95a2; --faint:#5f6874;
+  --hair:#2a2f38; --hair-2:#232830;
+  --accent:#8b96f2; --accent-soft:#242a52; --accent-ink:#aeb6f7;
+  --copper:#d98a54;
+  --good:#66c39a; --good-bg:#12291f;
+  --warn:#d6a955; --warn-bg:#2b220f;
+  --info:#7fb0ee; --info-bg:#122236;
+  --bad:#e0836e; --bad-bg:#2e150f;
+  --unk:#9aa4b0; --unk-bg:#1e232b;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -16px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--f-disp);font-weight:560;text-wrap:balance;line-height:1.12;letter-spacing:-.01em}
+p{margin:0 0 .9em}
+a{color:var(--accent-ink);text-underline-offset:2px}
+code,.mono{font-family:var(--f-mono);font-size:.86em}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--paper) 88%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--hair)}
+.topbar-in{max-width:var(--maxw);margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:14px}
+.brand{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.brand b{color:var(--ink);font-weight:600}
+.topbar .spacer{flex:1}
+.tgl{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--surface);border:1px solid var(--hair);color:var(--ink-2);
+  padding:6px 11px;border-radius:999px;cursor:pointer}
+.tgl:hover{border-color:var(--accent)}
+
+/* layout */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px;
+  display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px;align-items:start}
+nav.toc{position:sticky;top:76px;align-self:start;padding:22px 0;max-height:calc(100vh - 88px);overflow:auto;
+  border-right:1px solid var(--hair-2)}
+nav.toc ol{list-style:none;margin:0;padding:0 14px 0 0;counter-reset:s}
+nav.toc a{display:block;text-decoration:none;color:var(--muted);font-size:13px;line-height:1.35;
+  padding:5px 0 5px 30px;position:relative;border-radius:4px}
+nav.toc li{counter-increment:s}
+nav.toc a::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:5px;
+  font-family:var(--f-mono);font-size:10px;color:var(--faint)}
+nav.toc a:hover{color:var(--ink)}
+nav.toc a.on{color:var(--accent-ink);font-weight:600}
+main{padding:30px 0 90px;min-width:0}
+@media (max-width:920px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  nav.toc{display:none}
+  main{padding-top:16px}
+}
+
+/* hero */
+.hero{padding:34px 0 26px;border-bottom:1px solid var(--hair)}
+.eyebrow{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--copper);margin:0 0 14px}
+.hero h1{font-size:clamp(2.1rem,4.6vw,3.35rem);margin:0 0 .35em;max-width:16ch}
+.hero .lede{font-size:1.12rem;color:var(--ink-2);max-width:64ch;margin:0}
+.hero .sub{font-size:.95rem;color:var(--muted);max-width:66ch;margin:.9em 0 0}
+
+.verdicts{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--hair);
+  border:1px solid var(--hair);border-radius:12px;overflow:hidden;margin:26px 0 4px}
+.verdict{background:var(--surface);padding:16px 16px 15px}
+.verdict .k{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.verdict .v{font-family:var(--f-disp);font-size:1.5rem;margin:6px 0 3px;line-height:1.05}
+.verdict .d{font-size:12px;color:var(--muted);line-height:1.4}
+@media (max-width:720px){.verdicts{grid-template-columns:repeat(2,1fr)}}
+
+section{padding:38px 0;border-bottom:1px solid var(--hair-2);scroll-margin-top:74px}
+section>.shead{display:flex;gap:14px;align-items:baseline;margin:0 0 18px}
+.snum{font-family:var(--f-mono);font-size:12px;color:var(--accent);border:1px solid var(--accent-soft);
+  background:var(--accent-soft);color:var(--accent-ink);padding:3px 8px;border-radius:6px;white-space:nowrap}
+.shead h2{font-size:1.72rem;margin:0}
+.lead-in{color:var(--ink-2);max-width:var(--readw)}
+section p,section li{max-width:var(--readw)}
+h3{font-size:1.2rem;margin:1.6em 0 .5em}
+h4{font-size:1rem;margin:1.3em 0 .4em;font-family:var(--f-body);font-weight:650;letter-spacing:0}
+
+/* callouts */
+.note{border:1px solid var(--hair);border-left:3px solid var(--accent);background:var(--surface);
+  border-radius:8px;padding:14px 16px;margin:16px 0;max-width:var(--readw)}
+.note.tested{border-left-color:var(--good)}
+.note.warnb{border-left-color:var(--warn)}
+.note.bad{border-left-color:var(--bad)}
+.note .nt{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 6px}
+.note p:last-child{margin-bottom:0}
+
+/* pills / tags */
+.pill{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-mono);font-size:10.5px;
+  letter-spacing:.03em;padding:2px 7px;border-radius:5px;white-space:nowrap;font-weight:500}
+.p-good{background:var(--good-bg);color:var(--good)}
+.p-warn{background:var(--warn-bg);color:var(--warn)}
+.p-info{background:var(--info-bg);color:var(--info)}
+.p-bad{background:var(--bad-bg);color:var(--bad)}
+.p-unk{background:var(--unk-bg);color:var(--unk)}
+.tst{display:inline-block;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.06em;
+  padding:1px 5px;border-radius:4px;text-transform:uppercase;vertical-align:middle}
+.tst.live{background:var(--good-bg);color:var(--good)}
+.tst.asm{background:var(--unk-bg);color:var(--unk)}
+
+/* tables */
+.twrap{overflow-x:auto;margin:16px 0;border:1px solid var(--hair);border-radius:10px;max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--surface)}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--hair-2);vertical-align:top}
+thead th{background:var(--surface-2);font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted);font-weight:600;position:sticky;top:0}
+tbody tr:last-child td{border-bottom:none}
+td .mono{color:var(--ink-2)}
+tbody tr:hover{background:var(--surface-2)}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+caption{caption-side:bottom;font-size:11.5px;color:var(--muted);padding:8px 4px;text-align:left}
+
+/* matrix legend */
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:6px 0 4px;font-size:12.5px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+/* card grids */
+.grid{display:grid;gap:14px;margin:16px 0}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:760px){.g2,.g3{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--hair);border-radius:10px;padding:15px 16px}
+.card h4{margin:0 0 .3em}
+.card p{font-size:13.5px;color:var(--ink-2);margin:0}
+.card .role{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--copper)}
+
+/* flow / diagram */
+.flow{display:flex;flex-direction:column;gap:0;margin:18px 0;max-width:640px}
+.flow .step{background:var(--surface);border:1px solid var(--hair);border-radius:9px;padding:11px 14px}
+.flow .step .st{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);}
+.flow .step .sd{font-size:13px;color:var(--ink-2)}
+.flow .step b{font-size:14.5px;color:var(--ink)}
+.flow .arw{align-self:center;color:var(--faint);font-size:15px;line-height:1;padding:5px 0}
+
+/* stacked architecture diagram */
+.stack{display:flex;flex-direction:column;gap:0;margin:18px 0;border:1px solid var(--hair);
+  border-radius:12px;overflow:hidden;background:var(--hair)}
+.layerbox{background:var(--surface);padding:13px 16px;display:flex;gap:12px;align-items:flex-start}
+.layerbox+.layerbox{border-top:2px solid var(--paper)}
+.layerbox .ln{font-family:var(--f-mono);font-size:10px;color:var(--faint);min-width:54px;padding-top:3px}
+.layerbox .lc b{font-size:14.5px}
+.layerbox .lc .m{font-size:12.5px;color:var(--muted)}
+.layerbox.hl{background:var(--accent-soft)}
+.layerbox.hl .lc b{color:var(--accent-ink)}
+.dirn{text-align:center;font-family:var(--f-mono);font-size:10px;color:var(--faint);padding:4px}
+
+/* ladder */
+.ladder{display:flex;flex-direction:column;gap:8px;margin:16px 0}
+.rung{display:grid;grid-template-columns:64px 1fr;gap:14px;background:var(--surface);
+  border:1px solid var(--hair);border-radius:10px;padding:13px 15px;align-items:start}
+.rung .lv{font-family:var(--f-disp);font-size:1.9rem;color:var(--accent);line-height:1;text-align:center}
+.rung .lv small{display:block;font-family:var(--f-mono);font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:4px}
+.rung h4{margin:0 0 .25em}
+.rung .meta{font-size:12.5px;color:var(--muted);margin-top:6px}
+.rung.here{border-color:var(--accent);border-width:2px;box-shadow:var(--shadow)}
+.rung.here .lv{color:var(--copper)}
+.badge-here{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--copper);color:#fff;padding:2px 7px;border-radius:5px;margin-left:8px;vertical-align:middle}
+
+/* definition list rows */
+.spec{display:grid;grid-template-columns:180px 1fr;gap:1px;background:var(--hair);border:1px solid var(--hair);
+  border-radius:10px;overflow:hidden;margin:14px 0;font-size:13.5px}
+.spec dt{background:var(--surface-2);padding:9px 12px;font-family:var(--f-mono);font-size:11.5px;color:var(--ink-2)}
+.spec dd{background:var(--surface);padding:9px 12px;margin:0;color:var(--ink-2)}
+@media (max-width:600px){.spec{grid-template-columns:1fr}.spec dt{border-top:1px solid var(--hair)}}
+
+ul.tight{padding-left:1.15em;margin:.4em 0}
+ul.tight li{margin:.28em 0}
+.kicker{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--copper);margin:0 0 6px}
+.two-col{columns:2;column-gap:34px}
+.two-col li{break-inside:avoid}
+@media (max-width:700px){.two-col{columns:1}}
+hr.soft{border:none;border-top:1px solid var(--hair-2);margin:26px 0}
+.footer{max-width:var(--maxw);margin:0 auto;padding:26px 22px 60px;color:var(--muted);font-size:12.5px}
+.footer .mono{color:var(--ink-2)}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+strong{color:var(--ink);font-weight:650}
+.metricline{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+</style>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <span class="brand"><b>DailyObjects</b> · CRM Operating System</span>
+    <span class="spacer"></span>
+    <button class="tgl" id="tgl" aria-label="Toggle colour theme">Theme</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="Contents">
+    <ol id="tocList">
+      <li><a href="#s1">Executive recommendation</a></li>
+      <li><a href="#s2">MoEngage MCP capability audit</a></li>
+      <li><a href="#s3">Agentic CRM architecture</a></li>
+      <li><a href="#s4">Data architecture</a></li>
+      <li><a href="#s5">Agent architecture</a></li>
+      <li><a href="#s6">CRM Constitution</a></li>
+      <li><a href="#s7">Autonomy framework &amp; access models</a></li>
+      <li><a href="#s8">Human vs Claude matrix</a></li>
+      <li><a href="#s9">Manual-but-agentic model</a></li>
+      <li><a href="#s10">Campaign Build Sheet</a></li>
+      <li><a href="#s11">Experiment &amp; Learning DB</a></li>
+      <li><a href="#s12">Operating cadence</a></li>
+      <li><a href="#s13">30/60/90 roadmap</a></li>
+      <li><a href="#s14">Target architecture</a></li>
+      <li><a href="#s15">Risks &amp; failure modes</a></li>
+      <li><a href="#s16">Final recommendation</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <div class="hero">
+      <p class="eyebrow">Tested audit &amp; staged operating model</p>
+      <h1>An Agentic CRM Operating System for DailyObjects</h1>
+      <p class="lede">A grounded design for progressively handing CRM intelligence, planning and (some) execution to Claude — built on what the MoEngage MCP connection can <em>actually</em> do today, not what MoEngage theoretically supports.</p>
+      <p class="sub">Findings below are drawn from ~15 live MCP calls against your production workspace on 2 Sep 2026 (RFM segments, live push campaigns, Meta/Google/GA4 connectors). Every capability is marked <span class="tst live">Tested</span> or <span class="tst asm">Assumed</span>.</p>
+
+      <div class="verdicts">
+        <div class="verdict">
+          <div class="k">Operate now at</div>
+          <div class="v">Level 2</div>
+          <div class="d">Claude analyses &amp; specs; humans build &amp; publish in MoEngage.</div>
+        </div>
+        <div class="verdict">
+          <div class="k">Target in 90 days</div>
+          <div class="v">Level 3</div>
+          <div class="d">Claude builds drafts for template campaigns; human approves &amp; publishes.</div>
+        </div>
+        <div class="verdict">
+          <div class="k">MCP analytics engine</div>
+          <div class="v" style="color:var(--bad)">Unreliable</div>
+          <div class="d">Behaviour analysis failed twice, opaquely. Don't make it the analytical layer.</div>
+        </div>
+        <div class="verdict">
+          <div class="k">Send / activate via MCP</div>
+          <div class="v" style="color:var(--info)">Not possible</div>
+          <div class="d">Publishing is dashboard-only. The platform already enforces a human at send.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1 -->
+    <section id="s1">
+      <div class="shead"><span class="snum">01</span><h2>Executive recommendation</h2></div>
+      <p class="lead-in">One page. The rest of the document is the evidence and the build.</p>
+
+      <div class="note">
+        <p class="nt">The core decision, reframed</p>
+        <p>You asked whether Claude should get execution access. The audit answers part of it for you: <strong>the MoEngage MCP cannot publish or send a campaign at all</strong> — drafts are created via API but published only from the MoEngage dashboard <span class="tst live">Tested</span>. So the real design space is not "should Claude send?" but "how far into <em>building</em> the campaign should Claude go before a human presses publish?" That is a gift: the platform enforces human-in-the-loop at the riskiest step by construction.</p>
+      </div>
+
+      <p>Build an <strong>Agentic CRM in two separable halves — intelligence and execution — and never conflate them.</strong> Claude's intelligence can run far ahead of its execution rights without any architectural rework, which is exactly the property you asked for.</p>
+
+      <ol class="tight">
+        <li><strong>Operate at Autonomy Level 2 today.</strong> Claude analyses performance, detects opportunities, sizes audiences, writes copy, and emits a fully-specified <em>Campaign Build Sheet</em>. A CRM operator executes it in MoEngage. This needs <em>zero engineering</em> and can start this week.</li>
+        <li><strong>Do not rely on the MoEngage MCP as your analytical data layer.</strong> Reads for <em>campaign stats, revenue attribution, delivery, and segment sizing are reliable</em> <span class="tst live">Tested</span>; the <em>free-form analytics engine (behaviour / funnel / retention) is not</em> — it returned <span class="mono">"Query execution failed"</span> with no reason on two valid queries <span class="tst live">Tested</span>. Historical, cross-domain analysis must come from a warehouse.</li>
+        <li><strong>Build a CRM Intelligence Layer (warehouse-backed) as the source of truth</strong> for orders, margins, inventory, returns, COD behaviour, acquisition source and LTV. MoEngage holds none of these reliably; it should be treated as an <em>execution + engagement-measurement</em> system, not an analytics database.</li>
+        <li><strong>Give Claude scoped write access to create <em>drafts</em> and test-sends — not publish — as the Level-3 step,</strong> gated to a fixed library of pre-approved campaign templates. This is safe precisely because publish stays manual.</li>
+        <li><strong>Keep discounting, brand voice sign-off, and any first-of-its-kind campaign permanently human.</strong> Automate the repetitive, reversible, well-measured 80%; keep judgment calls human.</li>
+      </ol>
+
+      <p><strong>What to build first (30 days):</strong> the Build Sheet template + the Experiment &amp; Learning database + a daily read-only performance brief. <strong>What not to build yet:</strong> anything that lets Claude publish or send; any autonomous budget/discount decisioning. <strong>The one MCP problem to escalate to MoEngage:</strong> the opaque failure of the analytics query engine.</p>
+    </section>
+
+    <!-- 2 -->
+    <section id="s2">
+      <div class="shead"><span class="snum">02</span><h2>Current MoEngage MCP capability audit</h2></div>
+      <p class="lead-in">Classified against the tools, permissions and responses actually observed in your workspace — not MoEngage's published feature set. Representative calls were run live; results are marked accordingly.</p>
+
+      <div class="legend" aria-hidden="true">
+        <span><i class="dot" style="background:var(--good)"></i> A — Reliable via MCP</span>
+        <span><i class="dot" style="background:var(--warn)"></i> B — Supported but constrained/unreliable</span>
+        <span><i class="dot" style="background:var(--info)"></i> C — Needs another API/data source</span>
+        <span><i class="dot" style="background:var(--bad)"></i> D — Not supported</span>
+        <span><i class="dot" style="background:var(--unk)"></i> E — Unknown / needs testing</span>
+      </div>
+
+      <div class="twrap">
+        <table>
+          <thead><tr><th>Capability</th><th>Class</th><th>Evidence</th><th>Tool / source</th><th>Key constraint or failure mode</th></tr></thead>
+          <tbody>
+            <tr><td>Read user/customer profiles</td><td><span class="pill p-warn">B</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">get_recent_query_users</td><td>PII masked by role (Admin/Manager/User); sample only, not full export.</td></tr>
+            <tr><td>Read user attributes (catalog)</td><td><span class="pill p-good">A</span></td><td><span class="tst live">Tested</span></td><td class="mono">find_user_attributes</td><td>76 attributes; LTV = <span class="mono">t_rev</span>. Must use internal name, not display name.</td></tr>
+            <tr><td>Read per-user event timeline</td><td><span class="pill p-warn">B</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">get_user_events</td><td><strong>30-day lookback max</strong>; needs a uid; cursor-paginated. No long history.</td></tr>
+            <tr><td>Query arbitrary events (trend/agg)</td><td><span class="pill p-bad">D</span></td><td><span class="tst live">Tested</span></td><td class="mono">run_behavior_analysis</td><td><strong>Failed twice:</strong> valid, schema-checked payloads returned <span class="mono">"Query execution failed"</span>, no field-level reason. Effectively unusable now.</td></tr>
+            <tr><td>Funnel / retention / user-property analysis</td><td><span class="pill p-warn">B</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">run_funnel/retention/user_analysis</td><td>Same engine as behaviour analysis → expect the same opaque failures. Payloads are complex.</td></tr>
+            <tr><td>Read historical orders / revenue</td><td><span class="pill p-info">C</span></td><td><span class="tst live">Tested</span></td><td class="mono">warehouse / campaign goals</td><td>Only <em>attributed</em> revenue on campaigns is reliable. Raw order history is not a MoEngage object — must come from your DB/warehouse.</td></tr>
+            <tr><td>Read cohorts / segments</td><td><span class="pill p-good">A</span></td><td><span class="tst live">Tested</span></td><td class="mono">list_segments · get_segment</td><td>50 segments incl. RFM (Champions, Loyal, Can't Lose Them). RFM/Analytics segment logic returns as a <em>prose description</em>, not an editable filter tree.</td></tr>
+            <tr><td>Create cohorts / segments</td><td><span class="pill p-warn">B</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">create_custom_segment · create_recent_query</td><td>Filter-based only. Names not validated at create → a wrong attribute name silently fails later in the count job. Validate first.</td></tr>
+            <tr><td>Size audience + channel reachability</td><td><span class="pill p-good">A</span></td><td><span class="tst live">Tested</span></td><td class="mono">start_segment_count · poll</td><td>Champions HPS4 = <strong>61,004 users</strong>; push 13,979 / WhatsApp 59,089 / email 52,552 / SMS 59,089. Async (poll ~ &lt;30s).</td></tr>
+            <tr><td>Read campaign performance</td><td><span class="pill p-good">A</span></td><td><span class="tst live">Tested</span></td><td class="mono">get_campaign_stats</td><td><strong>≤30-day date range.</strong> <span class="mono">campaign_name/channel/type</span> often return <span class="mono">null</span> — cross-reference metadata.</td></tr>
+            <tr><td>Conversions / revenue attribution</td><td><span class="pill p-good">A</span></td><td><span class="tst live">Tested</span></td><td class="mono">get_detailed_campaign_stats</td><td>Full CVR / revenue / AOV / ARPU by view-through, click, default; per-variation &amp; per-platform. (Prebuzz-1: ₹69,327 attributed.)</td></tr>
+            <tr><td>Delivery metrics</td><td><span class="pill p-good">A</span></td><td><span class="tst live">Tested</span></td><td class="mono">get_delivery_stats · get_campaign_stats</td><td>Delivery funnel, send/delivery failures, device split. (Prebuzz-1 delivery 69.6%.)</td></tr>
+            <tr><td>Channel-level performance</td><td><span class="pill p-warn">B</span></td><td><span class="tst live">Tested</span></td><td class="mono">per-campaign stats (roll-up)</td><td>Available per campaign/flow channel; <strong>no cross-campaign channel roll-up</strong> — you must aggregate yourself.</td></tr>
+            <tr><td>Message-level performance</td><td><span class="pill p-good">A</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">get_click_performance</td><td>Per-URL clicks; URLs may surface as internal link IDs (e.g. "Link #9").</td></tr>
+            <tr><td>Flow / journey performance</td><td><span class="pill p-good">A</span></td><td><span class="tst live">Tested</span></td><td class="mono">get_flow_analytics · get_flow_channel_analytics</td><td>Trip lifecycle, drops, per-node stats. Empty conversion block ≠ zero — must match attribution model.</td></tr>
+            <tr><td>Retrieve campaign creative / content</td><td><span class="pill p-good">A</span></td><td><span class="tst live">Tested</span></td><td class="mono">get_campaign · search_campaigns</td><td>Full title/body/image/deeplink/UTM/goals returned. EMAIL HTML inlined → responses can be very large.</td></tr>
+            <tr><td>Retrieve campaign configuration</td><td><span class="pill p-good">A</span></td><td><span class="tst live">Tested</span></td><td class="mono">get_campaign · get_campaign_meta</td><td>Complete v5 body: segmentation, control group, scheduling, delivery controls.</td></tr>
+            <tr><td>Create campaigns (as DRAFT)</td><td><span class="pill p-warn">B</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">create_campaign_draft</td><td>PUSH/EMAIL only (SMS behind a flag; WhatsApp read-only). Draft only. Workspace-bound values can't be invented.</td></tr>
+            <tr><td>Edit campaigns</td><td><span class="pill p-warn">B</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">patch_campaign_components</td><td>Component-level; each component must be complete. Server silently normalises some fields — read back &amp; diff.</td></tr>
+            <tr><td>Duplicate campaigns</td><td><span class="pill p-info">C</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">get_campaign → create_campaign_draft</td><td>No native "duplicate" — replay a donor body into a new draft (strip <span class="mono">CustomJinja</span> for EMAIL).</td></tr>
+            <tr><td>Schedule campaigns</td><td><span class="pill p-warn">B</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">scheduling_details (on draft)</td><td>Schedule is set <em>in the draft</em> but only takes effect once a human <strong>publishes from the dashboard</strong>.</td></tr>
+            <tr><td>Pause / Resume campaigns</td><td><span class="pill p-warn">B</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">update_campaign_status</td><td><strong>PERIODIC campaigns only.</strong> Not applicable to one-time sends.</td></tr>
+            <tr><td>Stop campaigns</td><td><span class="pill p-warn">B</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">update_campaign_status (STOP)</td><td>Works on live campaigns but <strong>IRREVERSIBLE</strong>. The one genuinely destructive write.</td></tr>
+            <tr><td>Activate / publish / trigger campaigns</td><td><span class="pill p-bad">D</span></td><td><span class="tst live">Tested</span></td><td class="mono">— (none)</td><td><strong>No publish/send tool exists.</strong> Confirmed in tool descriptions: "publishing happens outside this MCP." Trigger campaigns fire on events, not on demand.</td></tr>
+            <tr><td>Create / edit flows &amp; journeys</td><td><span class="pill p-bad">D</span></td><td><span class="tst live">Tested</span></td><td class="mono">search_flows/get_flow read-only</td><td>Flows are <strong>readable only</strong>. No create/edit flow tool. Journey building stays fully manual.</td></tr>
+            <tr><td>Change segmentation (on a draft)</td><td><span class="pill p-warn">B</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">patch_campaign_components</td><td>Single flat filter group; nested (A AND B) OR (C AND D) must be a pre-built segment.</td></tr>
+            <tr><td>Create personalised messages</td><td><span class="pill p-good">A</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">content tools · create_personalization_preview</td><td>Jinja personalisation supported; preview renders tokens. Preview is a spot-check, not a test suite.</td></tr>
+            <tr><td>Run A/B tests</td><td><span class="pill p-warn">B</span></td><td><span class="tst live">Tested</span></td><td class="mono">variation stats + draft variants</td><td>Reading A/B results works (per-variation, chance-of-beating-all). Setting up variants is draft-only; still needs manual publish.</td></tr>
+            <tr><td>Change channel allocation</td><td><span class="pill p-bad">D</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">— (per-channel campaigns)</td><td>No cross-channel orchestration/allocation primitive; each channel is a separate campaign/flow node.</td></tr>
+            <tr><td>Change send time</td><td><span class="pill p-warn">B</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">scheduling_details (draft)</td><td>Editable on draft; effective only after manual publish.</td></tr>
+            <tr><td>Export raw data</td><td><span class="pill p-info">C</span></td><td><span class="tst asm">Assumed</span></td><td class="mono">warehouse / MoEngage S3 exports</td><td>No bulk raw export tool in MCP. Use MoEngage data exports → warehouse.</td></tr>
+            <tr><td>Access campaign costs (media spend)</td><td><span class="pill p-info">C</span></td><td><span class="tst live">Tested</span></td><td class="mono">Windsor.ai → Meta/Google Ads</td><td>Not in MoEngage. Spend/impressions/clicks available via Windsor (Meta &amp; Google Ads connected). CRM channel <em>cost</em> (SMS/WhatsApp) needs vendor billing.</td></tr>
+            <tr><td>Acquisition source / Meta-Google attribution</td><td><span class="pill p-info">C</span></td><td><span class="tst live">Tested</span></td><td class="mono">Windsor.ai · GA4</td><td>GA4 + Meta + Google Ads + Search Console connected via Windsor; not a MoEngage capability.</td></tr>
+            <tr><td>Product catalogue</td><td><span class="pill p-warn">B</span></td><td><span class="tst live">Tested</span></td><td class="mono">list_catalogs</td><td>4 catalogues exist but all File-type and <strong>last update = ERROR</strong>. Stale/unreliable — source catalogue from your PIM/warehouse.</td></tr>
+          </tbody>
+        </table>
+        <caption>Capability matrix — DailyObjects MoEngage workspace, 2 Sep 2026. "Tested" = a representative call was executed live this session; "Assumed" = the tool exists with a documented contract but was not exercised (often to avoid mutating production).</caption>
+      </div>
+
+      <h3>Why Claude sometimes "can't retrieve MoEngage data"</h3>
+      <p>Your instinct is right, and the failure is specific rather than random. The retrieval problems cluster into a small number of causes:</p>
+      <div class="grid g2">
+        <div class="card"><span class="role">Failure class 1</span><h4>The analytics engine fails opaquely</h4><p>Behaviour/funnel/retention queries pass client-side validation, reach the backend, get a request ID, then return <span class="mono">"Query execution failed"</span> with no field named. Nothing tells Claude what to fix, so it looks like "Claude can't access it." <strong>This is the biggest single cause and it's server-side.</strong></p></div>
+        <div class="card"><span class="role">Failure class 2</span><h4>Name resolution is silent</h4><p>Segment/query filters accept a wrong attribute or event name at create time and only fail later in an async count job — <em>with no reason</em>. Display names vs internal names (<span class="mono">City</span> vs <span class="mono">moe_city</span>, <span class="mono">LTV</span> vs <span class="mono">t_rev</span>) are a constant trap.</p></div>
+        <div class="card"><span class="role">Failure class 3</span><h4>Hard windows &amp; sizes</h4><p>All stats capped at <strong>30 days</strong>; per-user events capped at <strong>30 days</strong>; EMAIL bodies inline huge HTML that blows the context window; large results get truncated to a file. Long-range or bulk questions simply can't be answered in one call.</p></div>
+        <div class="card"><span class="role">Failure class 4</span><h4>Partial / normalised responses</h4><p><span class="mono">campaign_name/channel</span> come back <span class="mono">null</span>; phantom all-zero variation rows appear; a draft's schedule reads back normalised. The data is <em>there</em> but shaped in ways that look like gaps unless you know them.</p></div>
+      </div>
+      <div class="note bad"><p class="nt">Escalate to MoEngage</p><p>The class-1 analytics-engine failure is the one worth a support ticket. Everything else is worked around by architecture (below). It is also the strongest reason not to make the MCP your analytical brain.</p></div>
+    </section>
+
+    <!-- 3 -->
+    <section id="s3">
+      <div class="shead"><span class="snum">03</span><h2>Agentic CRM architecture</h2></div>
+      <p class="lead-in">Seven layers. The load-bearing idea: <strong>intelligence sits on a warehouse, execution sits on MoEngage, and a guardrail layer sits between them.</strong> Permissions can rise through the execution layer without touching anything above it.</p>
+
+      <div class="stack">
+        <div class="layerbox"><span class="ln">L1</span><div class="lc"><b>Customer &amp; Commerce Data</b><div class="m">Orders, SKUs, margins, inventory, returns, COD/prepaid, payment behaviour, acquisition source, CS tickets, loyalty, campaign-exposure history + MoEngage events.</div></div></div>
+        <div class="layerbox"><span class="ln">L2</span><div class="lc"><b>CRM Intelligence Layer (warehouse + feature store)</b><div class="m">A modelled, query-fast source of truth. RFM, LTV, propensities, replenishment clocks, discount-dependence, category affinity — computed here, not in MoEngage.</div></div></div>
+        <div class="layerbox hl"><span class="ln">L3</span><div class="lc"><b>Claude Analytical Agents</b><div class="m">Performance, Behaviour, Opportunity, Experimentation + specialists. Read L2; read MoEngage <em>outcomes</em> via MCP for measurement.</div></div></div>
+        <div class="layerbox hl"><span class="ln">L4</span><div class="lc"><b>CRM Decision Engine</b><div class="m">Turns opportunities into concrete interventions: who × what × when × channel × offer × message, with an impact estimate.</div></div></div>
+        <div class="layerbox"><span class="ln">L5</span><div class="lc"><b>Guardrails / CRM Constitution</b><div class="m">Deterministic policy checks: contact caps, discount rules, suppression, brand voice, experiment rules. Nothing passes without clearing this layer.</div></div></div>
+        <div class="layerbox"><span class="ln">L6</span><div class="lc"><b>Action Queue + Human Approval</b><div class="m">Build Sheets and (later) drafts queue here with priority, impact and approval state. Auto-approve lane opens only for pre-cleared template classes.</div></div></div>
+        <div class="layerbox"><span class="ln">L7</span><div class="lc"><b>MoEngage Execution + Measurement</b><div class="m">Segments, drafts, campaigns, flows. Human publishes. Outcomes flow back to L1/L2 and into the Learning DB.</div></div></div>
+        <div class="dirn">↑ learnings feed back to L2 &amp; the Learning DB ↑</div>
+      </div>
+      <p>The key architectural commitment: <strong>MoEngage is L7 only.</strong> Treating it as L1/L2 (the current default) is what produces the reliability pain — you are asking an engagement platform to be a data warehouse over an unreliable query API.</p>
+    </section>
+
+    <!-- 4 -->
+    <section id="s4">
+      <div class="shead"><span class="snum">04</span><h2>Data architecture</h2></div>
+      <p class="lead-in">Three candidate topologies. The question underneath: is it a mistake to rely on MCP as the primary analytical data layer? <strong>Yes — and the audit proves it.</strong></p>
+
+      <div class="twrap">
+        <table>
+          <thead><tr><th>Dimension</th><th>Arch 1 · Claude→MCP→MoEngage</th><th>Arch 2 · MoEngage→Warehouse→Claude</th><th>Arch 3 · Warehouse + MoEngage → Intelligence DB → Claude → MoEngage</th></tr></thead>
+          <tbody>
+            <tr><td>Reliability</td><td><span class="pill p-bad">Low</span> analytics engine fails opaquely</td><td><span class="pill p-good">High</span></td><td><span class="pill p-good">High</span></td></tr>
+            <tr><td>Latency (interactive)</td><td>Medium (async polls, 30s counts)</td><td>Low</td><td>Low (pre-computed features)</td></tr>
+            <tr><td>Historical analysis</td><td><span class="pill p-bad">Capped at 30 days</span></td><td><span class="pill p-good">Unlimited</span></td><td><span class="pill p-good">Unlimited</span></td></tr>
+            <tr><td>Query flexibility</td><td>Low (fixed tools, opaque errors)</td><td>High (SQL)</td><td>High (SQL + semantic layer)</td></tr>
+            <tr><td>Cross-domain (orders, margin, inventory)</td><td><span class="pill p-bad">Absent</span></td><td>High</td><td><span class="pill p-good">Native</span></td></tr>
+            <tr><td>Cost</td><td>Low</td><td>Medium</td><td>Medium-high</td></tr>
+            <tr><td>Implementation effort</td><td>None</td><td>Medium (ETL)</td><td>High (ETL + feature/semantic layer)</td></tr>
+            <tr><td>Autonomy potential</td><td>Low (can't trust its own inputs)</td><td>Medium</td><td><span class="pill p-good">High</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note tested"><p class="nt">Recommendation</p><p><strong>Target Architecture 3; start as a thin version of Architecture 2.</strong> Use the MoEngage MCP for what it's reliably good at — reading campaign/flow outcomes, sizing segments, creating drafts. Use a warehouse (you likely already have MoEngage S3/event exports + your order DB) as the analytical brain. Over time, precompute a CRM feature/intelligence table (RFM, LTV, propensities, replenishment due-dates) so Claude reads decision-ready features instead of recomputing them per session.</p></div>
+
+      <h4>What lives where</h4>
+      <div class="twrap"><table>
+        <thead><tr><th>Stays in MoEngage</th><th>Comes from Warehouse / BI</th><th>Claude queries directly (MCP)</th></tr></thead>
+        <tbody><tr>
+          <td>Reachability &amp; channel tokens · campaign/flow config &amp; creatives · delivery &amp; attributed-conversion stats · live segment membership · subscription/opt-in state</td>
+          <td>Orders &amp; revenue history · margins · inventory · returns/cancellations · COD vs prepaid · discount history · acquisition source (Windsor/GA4) · LTV &amp; RFM · CS &amp; loyalty · campaign-exposure log</td>
+          <td>Segment sizes &amp; reachability · campaign &amp; flow performance for measurement · creative retrieval · draft creation · A/B read-back</td>
+        </tr></tbody>
+      </table></div>
+      <p><strong>Should you build an intermediate CRM intelligence database rather than repeatedly querying MoEngage? Yes.</strong> It removes the 30-day ceiling, the opaque failures, and the display-vs-internal-name traps in one move, and it's the only way to answer cross-domain questions ("which discount cannibalises full-price O2 buyers?") at all.</p>
+    </section>
+
+    <!-- 5 -->
+    <section id="s5">
+      <div class="shead"><span class="snum">05</span><h2>Agent architecture</h2></div>
+      <p class="lead-in">Specialised agents, each with a narrow remit, a defined data source, and a defined output. They are prompts + tool scopes + memory — not separate models.</p>
+
+      <div class="grid g2">
+        <div class="card"><span class="role">Analytical</span><h4>CRM Performance Agent</h4><p>Revenue, CRM-attributed revenue, CTR/CVR, delivery, unsubs, channel &amp; cohort performance, incrementality vs control, cannibalisation. Reads warehouse + MCP campaign/flow stats. Emits the daily/weekly scorecard &amp; anomaly flags.</p></div>
+        <div class="card"><span class="role">Analytical</span><h4>Customer Behaviour Agent</h4><p>Shifts in purchase frequency, repeat rate, category migration, product affinity, inter-order time, browse/cart behaviour, lapsing, discount dependence, high-LTV emergence. Reads warehouse feature store.</p></div>
+        <div class="card"><span class="role">Decisioning</span><h4>Opportunity Detection Agent</h4><p>Ranks actionable cohorts: likely repurchasers, replenishment-due, browse/cart abandoners, cross-sell, lapsers, at-risk, price-drop &amp; back-in-stock matches. Outputs a scored opportunity backlog with revenue-at-stake.</p></div>
+        <div class="card"><span class="role">Governance</span><h4>Experimentation Agent</h4><p>Owns hypothesis, control/treatment, expected impact, success metric, duration, significance, result, learning. Guards against un-powered tests and reading noise as signal. Writes to the Learning DB.</p></div>
+      </div>
+
+      <h4>Additional agents you'll need</h4>
+      <div class="grid g3">
+        <div class="card"><h4>Copy &amp; Creative Brief Agent</h4><p>Generates on-brand copy + creative briefs within the brand guardrails; runs personalisation previews. Never ships without brand-voice check.</p></div>
+        <div class="card"><h4>Guardrail / Policy Agent</h4><p>Deterministic. Applies the CRM Constitution to every proposed action: caps, suppression, discount limits, margin floors. A hard gate, not an LLM opinion.</p></div>
+        <div class="card"><h4>Audience Builder Agent</h4><p>Resolves cohort logic → validated MoEngage segment (name-resolution + deep-validate + count) so downstream execution never hits silent failures.</p></div>
+        <div class="card"><h4>Channel &amp; Timing Agent</h4><p>Picks channel by reachability + fatigue + cost + past cohort response; picks send time. Uses the reachability gap (e.g. push 23% vs WhatsApp 97% for Champions).</p></div>
+        <div class="card"><h4>Inventory &amp; Margin Agent</h4><p>Injects commercial reality: what's overstocked, what's low-margin, what must not be discounted. Sources from warehouse; vetoes offers that break margin floors.</p></div>
+        <div class="card"><h4>Orchestrator</h4><p>Runs the daily loop, sequences the agents, assembles the Action Plan &amp; Build Sheets, manages the Action Queue and memory.</p></div>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section id="s6">
+      <div class="shead"><span class="snum">06</span><h2>The CRM Constitution</h2></div>
+      <p class="lead-in">Persistent, versioned business rules Claude operates <em>against</em> — so decisions are bounded and auditable, not improvised each day. Stored as machine-readable policy the Guardrail Agent enforces deterministically. Numbers below are placeholders to ratify with the team.</p>
+
+      <h3>Contact policy</h3>
+      <ul class="tight two-col">
+        <li>Max <strong>1</strong> promotional contact / user / day across all channels.</li>
+        <li>Max <strong>3</strong> WhatsApp / user / week; max <strong>2</strong> push / day; email uncapped but fatigue-scored.</li>
+        <li>Channel priority default: <strong>WhatsApp → Push → Email → SMS</strong>, overridden by reachability + cost + cohort response.</li>
+        <li>Fatigue suppression: no promo to a user who received ≥N messages with zero opens in M days.</li>
+        <li>Hard suppression lists always excluded (the <span class="mono">excl do</span> segment is already applied on live pushes — good).</li>
+        <li>Transactional &amp; service messages never counted against promo caps.</li>
+        <li>Quiet hours: no messages 10pm–8am local unless user-triggered.</li>
+      </ul>
+
+      <h3>Commercial policy</h3>
+      <ul class="tight two-col">
+        <li>Discounts allowed only for defined triggers (lapsing, cart recovery, clearance) — never as a default lever.</li>
+        <li>Max discount <strong>X%</strong>; any deeper offer requires human sign-off.</li>
+        <li>Margin floor per SKU/category must be respected after discount — Inventory &amp; Margin Agent veto.</li>
+        <li>Full-price-first: high-intent &amp; recent buyers get non-discount messaging by default.</li>
+        <li>Discount-sensitive cohorts get fewer, deliberately-spaced offers to avoid training discount-waiting.</li>
+        <li>Inventory-aware: prioritise overstock/ageing SKUs for promo; protect scarce/hero SKUs.</li>
+        <li>No stacking of automated offers with active site-wide sales without human review.</li>
+      </ul>
+
+      <h3>Customer-lifecycle policy</h3>
+      <div class="twrap"><table>
+        <thead><tr><th>Segment</th><th>Default posture</th><th>Discount stance</th></tr></thead>
+        <tbody>
+          <tr><td>New / pre-first-purchase</td><td>Educate, build trust, first-order nudge</td><td>Welcome offer allowed, once</td></tr>
+          <tr><td>O1 (one order)</td><td>Drive O2 fast; category cross-sell; replenishment</td><td>Modest, time-boxed</td></tr>
+          <tr><td>O2</td><td>Habit-building; affinity cross-sell</td><td>Selective</td></tr>
+          <tr><td>O3+ / Champions</td><td>Recognition, early access, VIP; protect from discount training</td><td>Rare; full-price first</td></tr>
+          <tr><td>High-LTV</td><td>White-glove, human-reviewed, low frequency, high relevance</td><td>Human decision</td></tr>
+          <tr><td>Lapsers</td><td>Win-back ladder, escalating incentive</td><td>Allowed, escalating</td></tr>
+          <tr><td>Dormant</td><td>Reactivation or sunset; suppress if unresponsive</td><td>Strong but capped</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="grid g2">
+        <div class="card"><span class="role">Brand policy</span><h4>Voice &amp; creative guardrails</h4><p>Approved tone (DailyObjects: witty, premium, design-led — see live copy "Just spotted 🔭"); banned language &amp; claims list; required structure (hook · value · single CTA); emoji usage rules; deeplink &amp; UTM conventions (<span class="mono">utm_source/medium/campaign</span>) enforced. No creative ships without a brand-voice check.</p></div>
+        <div class="card"><span class="role">Experimentation policy</span><h4>Test discipline</h4><p>Every non-trivial change needs a hypothesis + control group; minimum sample &amp; power defined before launch; fixed test period; a single primary KPI + guardrail secondaries; significance threshold pre-registered; roll-out only after a win holds. No peeking-and-shipping.</p></div>
+      </div>
+
+      <h3>Safety &amp; governance policy</h3>
+      <ul class="tight">
+        <li><strong>Irreversible actions require explicit human approval</strong> — the MCP <span class="mono">STOP</span> is irreversible; treat it that way.</li>
+        <li>Every proposed action carries an audience-size sanity bound; a campaign above <strong>Y</strong> recipients always needs human approval regardless of template.</li>
+        <li>All actions logged with rationale, data snapshot, and policy-version for audit.</li>
+        <li>Data-quality gate: if inputs are stale/failed (e.g. catalogue ERROR, analytics query failure), Claude flags and holds rather than guessing.</li>
+      </ul>
+    </section>
+
+    <!-- 7 -->
+    <section id="s7">
+      <div class="shead"><span class="snum">07</span><h2>Autonomy framework &amp; execution-access models</h2></div>
+      <p class="lead-in">A 0–5 ladder you can climb without re-architecting. The autonomy lives in the execution layer (L6/L7); the intelligence layers don't change as you climb.</p>
+
+      <div class="ladder">
+        <div class="rung"><div class="lv">0<small>Manual</small></div><div><h4>Human analysis + human execution</h4><p>Today's baseline for most decisions. Claude not in the loop. Infra: none. Risk: slow, inconsistent, low learning velocity.</p></div></div>
+        <div class="rung"><div class="lv">1<small>Analyse</small></div><div><h4>Claude analysis</h4><p>Claude reads performance &amp; behaviour, produces the scorecard &amp; anomaly flags. Human decides everything. Infra: read access + brief. Risk: near-zero.</p></div></div>
+        <div class="rung here"><div class="lv">2<small>Now</small></div><div><h4>Claude recommendations + human execution <span class="badge-here">Operate here</span></h4><p>Claude emits fully-specified Build Sheets; operator builds &amp; publishes in MoEngage. Infra: Build Sheet + Learning DB + read MCP. Risk: low (human builds); main risk is bad recommendations → mitigated by measurement.</p><div class="meta">Prereq to advance: a warehouse-backed intelligence layer + a track record of accurate impact estimates.</div></div></div>
+        <div class="rung"><div class="lv">3<small>90-day</small></div><div><h4>Claude builds drafts + human approves &amp; publishes</h4><p>Claude uses <span class="mono">create_campaign_draft</span>/<span class="mono">patch</span> for pre-approved templates; human reviews the draft &amp; publishes (publish is dashboard-only anyway). Infra: scoped write creds, template library, approval queue, read-back diffing. Risk: medium (bad draft) — bounded by mandatory human publish.</p><div class="meta">Prereq: reliable draft creation with read-back validation; brand &amp; guardrail checks automated; approval UI.</div></div></div>
+        <div class="rung"><div class="lv">4<small>Later</small></div><div><h4>Claude executes low-risk campaigns semi-autonomously</h4><p>For a whitelist of small, reversible, well-measured template classes (e.g. cart recovery under a size cap), auto-approval + a human check on <span class="mono">STOP</span>/pause. Still bounded by the publish constraint unless a send API is added. Risk: medium-high.</p><div class="meta">Prereq: months of clean Level-3 audit trail; automated post-send anomaly detection + rollback playbook.</div></div></div>
+        <div class="rung"><div class="lv">5<small>Aspirational</small></div><div><h4>Claude manages CRM within economic/customer guardrails</h4><p>Autonomous decisioning, execution, optimisation, pausing &amp; reallocation inside the Constitution; humans supervise exceptions. Requires a send/activation API MoEngage does not expose today. Risk: high — reserve for the mature, proven subset only.</p></div></div>
+      </div>
+
+      <h3>Execution-access models (A–D) compared</h3>
+      <div class="twrap"><table>
+        <thead><tr><th>Criterion</th><th>A · Intelligence only</th><th>B · Execution-ready copilot</th><th>C · Human-approval agent</th><th>D · Fully autonomous</th></tr></thead>
+        <tbody>
+          <tr><td>Maps to level</td><td>1</td><td>2</td><td>3</td><td>4–5</td></tr>
+          <tr><td>Revenue impact</td><td>Low-med</td><td><strong>Med-high</strong></td><td><strong>High</strong></td><td>High (if it works)</td></tr>
+          <tr><td>Operational efficiency</td><td>Low</td><td>High</td><td><strong>Very high</strong></td><td>Very high</td></tr>
+          <tr><td>Error risk</td><td>Very low</td><td>Low</td><td>Medium</td><td>High</td></tr>
+          <tr><td>Commercial risk</td><td>Very low</td><td>Low</td><td>Medium</td><td>High</td></tr>
+          <tr><td>Customer-experience risk</td><td>Very low</td><td>Low</td><td>Low-med</td><td>Med-high</td></tr>
+          <tr><td>Hallucination risk</td><td>Contained (advice only)</td><td>Contained (human builds)</td><td>Bounded by approval</td><td>Live &amp; unbounded</td></tr>
+          <tr><td>MCP-reliability exposure</td><td>Low</td><td>Low</td><td>Medium (draft/read-back)</td><td>High</td></tr>
+          <tr><td>Data-quality exposure</td><td>Med</td><td>Med</td><td>Med</td><td>High</td></tr>
+          <tr><td>Reversibility</td><td>Total</td><td>Total</td><td>High (draft stage)</td><td>Low once sent</td></tr>
+          <tr><td>Auditability</td><td>High</td><td>High</td><td><strong>High</strong></td><td>Needs heavy tooling</td></tr>
+          <tr><td>Governance load</td><td>Light</td><td>Light</td><td>Medium</td><td>Heavy</td></tr>
+          <tr><td>Engineering effort</td><td>None</td><td>Low</td><td>Medium</td><td>High (+ send API)</td></tr>
+        </tbody>
+      </table></div>
+      <div class="note"><p class="nt">Recommended progression</p><p><strong>A → B now → C within 90 days for templates → C-wide → a narrow, earned D later.</strong> Full autonomy is not inherently superior: its incremental revenue over a disciplined Model C is small, while its risk profile is far worse. Model C captures most of the value at a fraction of the risk — and MoEngage's publish constraint means you sit at C safely by default.</p></div>
+    </section>
+
+    <!-- 8 -->
+    <section id="s8">
+      <div class="shead"><span class="snum">08</span><h2>Human vs Claude responsibility matrix</h2></div>
+      <div class="twrap"><table>
+        <thead><tr><th>Activity</th><th>Claude</th><th>Human</th><th>MoEngage</th></tr></thead>
+        <tbody>
+          <tr><td>Performance monitoring &amp; anomaly detection</td><td><span class="pill p-good">Owns</span></td><td>Reviews</td><td>Source of outcome data</td></tr>
+          <tr><td>Opportunity detection &amp; prioritisation</td><td><span class="pill p-good">Owns</span></td><td>Reviews backlog</td><td>—</td></tr>
+          <tr><td>Cohort logic &amp; audience sizing</td><td><span class="pill p-good">Owns</span> (validate + count)</td><td>Approves novel cohorts</td><td>Segment store + count</td></tr>
+          <tr><td>Copy &amp; creative brief</td><td>Drafts</td><td><span class="pill p-info">Approves voice</span></td><td>Renders/personalises</td></tr>
+          <tr><td>Offer / discount decision</td><td>Proposes within limits</td><td><span class="pill p-bad">Owns</span></td><td>—</td></tr>
+          <tr><td>Channel &amp; send-time selection</td><td><span class="pill p-good">Owns</span></td><td>Spot-checks</td><td>Reachability</td></tr>
+          <tr><td>Campaign build (draft)</td><td>L3: builds · L2: specs</td><td>Reviews</td><td>Holds the draft</td></tr>
+          <tr><td>Publish / activate / send</td><td><span class="pill p-bad">Never (can't)</span></td><td><span class="pill p-bad">Owns</span></td><td>Dashboard publish</td></tr>
+          <tr><td>Experiment design &amp; readout</td><td><span class="pill p-good">Owns</span></td><td>Approves rollout</td><td>Variation stats</td></tr>
+          <tr><td>Pause / Stop live campaign</td><td>Recommends</td><td><span class="pill p-bad">Approves (STOP irreversible)</span></td><td>Executes state change</td></tr>
+          <tr><td>Budget / spend reallocation</td><td>Analyses (via Windsor)</td><td><span class="pill p-bad">Owns</span></td><td>—</td></tr>
+          <tr><td>Learning capture</td><td><span class="pill p-good">Owns</span></td><td>Curates</td><td>—</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 9 -->
+    <section id="s9">
+      <div class="shead"><span class="snum">09</span><h2>Manual-but-agentic operating model</h2></div>
+      <p class="lead-in">This is the most important near-term section, because it's the model you can run <em>today</em> and because MoEngage forces manual publish regardless. The goal: strip nearly all strategic decision-making out of the operator's day. The operator becomes a builder, not a planner.</p>
+
+      <div class="flow">
+        <div class="step"><span class="st">Claude</span><b>Emits ranked Build Sheets</b><div class="sd">Each is a complete spec — nothing left to decide.</div></div>
+        <div class="arw">↓</div>
+        <div class="step"><span class="st">Operator</span><b>Builds in MoEngage from the sheet</b><div class="sd">Segment logic, content, schedule, control group, UTM — all copied field-for-field.</div></div>
+        <div class="arw">↓</div>
+        <div class="step"><span class="st">Operator</span><b>Test-send &amp; publish</b><div class="sd">Claude can trigger a test-send via MCP; operator eyeballs &amp; publishes.</div></div>
+        <div class="arw">↓</div>
+        <div class="step"><span class="st">Claude</span><b>Measures &amp; writes the learning</b><div class="sd">Reads stats via MCP, compares to expected uplift, updates the Learning DB.</div></div>
+      </div>
+
+      <p>To make this near-zero-decision, the Build Sheet must map <strong>one-to-one onto the fields the operator sees while creating the campaign</strong> — the MoEngage Campaign Build Sheet (Section 10). Where possible Claude also pre-creates &amp; validates the <em>segment</em> via MCP (which is reliable) and hands over its ID, so the operator doesn't rebuild audience logic by hand. That single step removes the most error-prone part of manual execution.</p>
+      <div class="note tested"><p class="nt">What agentic-but-manual buys you</p><p>Speed of experimentation and learning velocity rise sharply (the operator ships more, faster, consistently), while safety and reversibility stay maximal (a human still builds &amp; publishes). It is the highest value-to-risk ratio available right now — and it's the natural home given the publish constraint.</p></div>
+    </section>
+
+    <!-- 10 -->
+    <section id="s10">
+      <div class="shead"><span class="snum">10</span><h2>MoEngage Campaign Build Sheet</h2></div>
+      <p class="lead-in">The operational template. Fields are grouped to mirror the MoEngage create-campaign flow so an operator fills top-to-bottom. Claude produces one per intervention; values shown are a worked example (Champions replenishment).</p>
+
+      <dl class="spec">
+        <dt>campaign_id</dt><dd>CRM-2026-0912-CHMP-REPL-01 <span class="metricline">(Claude-assigned; maps to MoEngage name)</span></dd>
+        <dt>date / send_time</dt><dd>2026-09-12 · 11:00 IST (Asia/Kolkata)</dd>
+        <dt>objective</dt><dd>Drive replenishment repurchase from Champions before predicted next-order date</dd>
+        <dt>priority</dt><dd>P1 · revenue-at-stake ≈ ₹X</dd>
+        <dt>segment (name)</dt><dd>Champions HPS4 <span class="metricline">(cs_id 6a97c15be38d06360dec59db — pre-created &amp; validated by Claude)</span></dd>
+        <dt>exact segment logic</dt><dd>RFM Champions, recency App/Site Opened, monetary = purchase.value, window 2025-01-01→now</dd>
+        <dt>exclusions</dt><dd><span class="mono">excl do</span> suppression list; anyone contacted in last 24h; active cart-recovery flow members</dd>
+        <dt>estimated audience</dt><dd>61,004 users · reachable: WhatsApp 59,089 / email 52,552 / push 13,979</dd>
+        <dt>channel</dt><dd>WhatsApp primary (reachability + Champions tolerance), email fallback</dd>
+        <dt>campaign vs flow</dt><dd>One-time campaign (not a flow node)</dd>
+        <dt>trigger / delay</dt><dd>Scheduled one-time (n/a for triggered)</dd>
+        <dt>frequency cap</dt><dd>Counts toward weekly WhatsApp cap (3); honour global caps</dd>
+        <dt>offer</dt><dd>None (full-price-first for Champions) — recognition + relevance only</dd>
+        <dt>product / category</dt><dd>Replenishable accessories in user's affinity category</dd>
+        <dt>landing page</dt><dd>dailyobjects.com category deeplink · UTM source=whatsapp medium=do_wa campaign=chmp_repl</dd>
+        <dt>message + CTA</dt><dd>"Time for a refresh?" · personalised category · CTA "Shop your picks"</dd>
+        <dt>personalisation vars</dt><dd><span class="mono">{{UserAttribute[u_fn]}}</span>, top affinity category, last-bought SKU class</dd>
+        <dt>A/B test</dt><dd>Copy A vs B, 50/50; primary KPI = CVR to purchase within 36h</dd>
+        <dt>control group</dt><dd>10% holdout for incrementality</dd>
+        <dt>success metric / baseline / uplift</dt><dd>CVR; baseline 0.04 impression-CVR (from Prebuzz-1); target +30% incremental</dd>
+        <dt>conversion goal</dt><dd><span class="mono">purchase_moeg</span>, revenue attr <span class="mono">value</span>, 36h window (matches live config)</dd>
+        <dt>owner / approval status</dt><dd>Operator: ___ · Status: ☐ Draft ☐ Approved ☐ Live</dd>
+        <dt>MoEngage setup instructions</dt><dd>Step-by-step: pick channel → paste segment ID → paste content → set schedule → set control group → set goal → test-send → publish</dd>
+      </dl>
+      <p>Because these fields are exactly the MoEngage create-campaign fields, the Build Sheet doubles as the Level-3 <em>draft payload</em>: when Claude gets write access, the same object is submitted to <span class="mono">create_campaign_draft</span> instead of handed to an operator — <strong>no rework to climb the ladder.</strong></p>
+    </section>
+
+    <!-- 11 -->
+    <section id="s11">
+      <div class="shead"><span class="snum">11</span><h2>CRM Experiment &amp; Learning Database</h2></div>
+      <p class="lead-in">The agent's memory. Without it, Claude re-derives everything each session and never compounds. Structured so Claude can answer "what works for O1?", "which offers are incremental vs cannibalising?", "how often can O3+ tolerate WhatsApp?".</p>
+
+      <p class="kicker">Chain of record</p>
+      <div class="flow" style="max-width:none">
+        <div class="step"><b>Campaign → Hypothesis → Cohort → Message → Offer → Result → Interpretation → Learning → Future Rule</b><div class="sd">Every experiment walks this chain; the Future Rule feeds back into the Constitution &amp; the Decision Engine.</div></div>
+      </div>
+
+      <div class="twrap"><table>
+        <thead><tr><th>Table</th><th>Key fields</th><th>Answers</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">experiments</td><td>id, hypothesis, cohort_ref, channel, offer_type, control_pct, primary_kpi, sample_size, power, start/end, status</td><td>What's tested / untested; test discipline</td></tr>
+          <tr><td class="mono">results</td><td>experiment_id, treatment_kpi, control_kpi, uplift, incremental_revenue, significance, cannibalisation_flag</td><td>Incremental vs cannibalising; what won</td></tr>
+          <tr><td class="mono">learnings</td><td>id, experiment_id, statement, confidence, scope(segment/category/channel), created, supersedes</td><td>Durable "what works for X"</td></tr>
+          <tr><td class="mono">rules</td><td>id, learning_ref, policy_area, rule_text, active, version</td><td>What became Constitution policy</td></tr>
+          <tr><td class="mono">cohort_response</td><td>segment, channel, send_time, open/ctr/cvr, fatigue_score, tolerance</td><td>Send-time &amp; WhatsApp tolerance by cohort</td></tr>
+          <tr><td class="mono">offer_ledger</td><td>offer, segment, incrementality, margin_impact, discount_dependence_delta</td><td>Which users should get discounts</td></tr>
+          <tr><td class="mono">category_affinity</td><td>from_category, to_category, cross_sell_rate, lift</td><td>Which categories cross-sell into each other</td></tr>
+          <tr><td class="mono">campaign_registry</td><td>id, template, cohort, result_ref, repeat_outcome</td><td>Which campaigns repeatedly fail</td></tr>
+        </tbody>
+      </table></div>
+      <p>Persist this in the warehouse (or a lightweight store Claude reads each session). It's the single highest-leverage thing to build after the Build Sheet — it's what turns a clever assistant into a compounding operating system.</p>
+    </section>
+
+    <!-- 12 -->
+    <section id="s12">
+      <div class="shead"><span class="snum">12</span><h2>Daily / weekly / monthly operating cadence</h2></div>
+      <div class="grid g3">
+        <div class="card"><span class="role">Every morning</span><h4>Daily CRM Action Plan</h4><p><strong>Evaluate yesterday:</strong> revenue, CRM-attributed revenue, channel &amp; campaign performance, anomalies. <strong>Scan opportunities:</strong> high-intent, lapsers, replenishment-due, cross-sell. <strong>Context:</strong> inventory, launches, promos, revenue-gap vs target. <strong>Output:</strong> ranked P1/P2/P3 interventions, each with WHO · WHY · WHAT · CHANNEL · WHEN · OFFER · EXPECTED IMPACT · EXECUTION (a Build Sheet). Then measure prior interventions.</p></div>
+        <div class="card"><span class="role">Weekly</span><h4>Portfolio &amp; experiment review</h4><p>Cohort migration (O1→O2 rates), channel mix &amp; fatigue, experiment readouts &amp; new hypotheses, calendar for launches/sales, incrementality vs control across the week, refresh RFM segments.</p></div>
+        <div class="card"><span class="role">Monthly</span><h4>Strategy &amp; Constitution review</h4><p>LTV &amp; retention curves, discount-dependence trend, learning-DB consolidation into new rules, Constitution version bump, autonomy-ladder readiness check, roadmap re-plan.</p></div>
+      </div>
+      <div class="note"><p class="nt">Anti-pattern to avoid</p><p>Don't ask Claude to run the free-form analytics engine live each morning — it fails opaquely. Feed the daily brief from warehouse tables + the reliable MCP campaign/segment reads.</p></div>
+    </section>
+
+    <!-- 13 -->
+    <section id="s13">
+      <div class="shead"><span class="snum">13</span><h2>30 / 60 / 90-day roadmap</h2></div>
+      <div class="grid g3">
+        <div class="card"><span class="role">Days 0–30 · No/low engineering</span><h4>Prove the loop at Level 2</h4><ul class="tight">
+          <li>Adopt the Build Sheet template.</li>
+          <li>Stand up the Learning DB (even a sheet/Notion to start).</li>
+          <li>Daily brief from reliable MCP reads + existing exports.</li>
+          <li>Claude pre-creates &amp; validates segments via MCP.</li>
+          <li>Run 3–5 template experiments with control groups.</li>
+        </ul></div>
+        <div class="card"><span class="role">Days 30–60 · Light engineering</span><h4>Build the intelligence layer</h4><ul class="tight">
+          <li>Pipe MoEngage exports + order DB → warehouse.</li>
+          <li>Model RFM/LTV/propensity/replenishment features.</li>
+          <li>Wire Windsor spend/GA4 for cost &amp; source.</li>
+          <li>Automate guardrail + brand-voice checks.</li>
+          <li>Formalise the Constitution v1 (ratify the numbers).</li>
+        </ul></div>
+        <div class="card"><span class="role">Days 60–90 · Medium engineering</span><h4>Move to Level 3 for templates</h4><ul class="tight">
+          <li>Scoped MCP write creds (draft + test-send only).</li>
+          <li>Template library → <span class="mono">create_campaign_draft</span> with read-back validation.</li>
+          <li>Approval queue UI; human publishes.</li>
+          <li>Post-send anomaly detection.</li>
+          <li>Decide, with data, whether any template class earns Level 4.</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- 14 -->
+    <section id="s14">
+      <div class="shead"><span class="snum">14</span><h2>Target architecture</h2></div>
+      <p class="lead-in">Your proposed flow, improved: the data layer is split from MoEngage; a guardrail gate is mandatory; and the loop closes into both the warehouse and the Learning DB.</p>
+      <div class="stack">
+        <div class="layerbox"><span class="ln">in</span><div class="lc"><b>Customer + Commerce Data</b><div class="m">Orders · SKU/margin/inventory · returns · COD · acquisition (Windsor/GA4) · CS · loyalty · MoEngage events &amp; exposure</div></div></div>
+        <div class="dirn">↓</div>
+        <div class="layerbox"><span class="ln"></span><div class="lc"><b>CRM Data / Intelligence Layer</b><div class="m">Warehouse + feature store + Learning DB · RFM/LTV/propensity/replenishment · the analytical source of truth</div></div></div>
+        <div class="dirn">↓</div>
+        <div class="layerbox hl"><span class="ln"></span><div class="lc"><b>Claude Agents → CRM Decision Engine</b><div class="m">Performance · Behaviour · Opportunity · Experimentation · Copy · Channel/Timing · Inventory-Margin · Orchestrator</div></div></div>
+        <div class="dirn">↓</div>
+        <div class="layerbox"><span class="ln"></span><div class="lc"><b>Guardrails (CRM Constitution)</b><div class="m">Deterministic policy gate — caps, discounts, margin floors, suppression, brand voice, experiment rules</div></div></div>
+        <div class="dirn">↓</div>
+        <div class="layerbox"><span class="ln"></span><div class="lc"><b>Action Queue → Human Approval / Auto-approval lane</b><div class="m">Build Sheets (L2) or validated drafts (L3), prioritised with impact + approval state</div></div></div>
+        <div class="dirn">↓</div>
+        <div class="layerbox"><span class="ln">out</span><div class="lc"><b>MoEngage — build, publish (human), send → Customer</b><div class="m">Segments · drafts · campaigns · flows · reachability · delivery</div></div></div>
+        <div class="dirn">↓ results (delivery, conversion, revenue) via reliable MCP reads + exports ↓</div>
+        <div class="layerbox"><span class="ln">loop</span><div class="lc"><b>Results → Learning DB → back into Intelligence Layer &amp; Claude</b><div class="m">Incrementality, cannibalisation, cohort response → new rules → better next decision</div></div></div>
+      </div>
+    </section>
+
+    <!-- 15 -->
+    <section id="s15">
+      <div class="shead"><span class="snum">15</span><h2>Risks &amp; failure modes</h2></div>
+      <div class="twrap"><table>
+        <thead><tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td>MCP analytics engine fails opaquely mid-decision</td><td><span class="pill p-bad">High</span></td><td>Med</td><td>Warehouse is the analytical layer; MCP only for outcomes. Fail-closed: hold, don't guess.</td></tr>
+          <tr><td>Silent name-resolution failure → wrong/empty audience</td><td><span class="pill p-warn">Med</span></td><td>High</td><td>Always resolve internal names + deep-validate + count before use (Audience Builder Agent).</td></tr>
+          <tr><td>Stale/incorrect data (catalogue ERROR, 30-day cap)</td><td><span class="pill p-warn">Med</span></td><td>Med</td><td>Data-quality gate; catalogue from PIM/warehouse, not MoEngage.</td></tr>
+          <tr><td>Hallucinated metric or over-confident impact estimate</td><td><span class="pill p-warn">Med</span></td><td>Med</td><td>All numbers cite a source + timestamp; control groups make claims falsifiable.</td></tr>
+          <tr><td>Irreversible STOP or over-contact / fatigue</td><td>Low</td><td>High</td><td>Human approval for STOP; Constitution caps enforced deterministically.</td></tr>
+          <tr><td>Discount training / margin erosion</td><td><span class="pill p-warn">Med</span></td><td>High</td><td>Full-price-first policy; margin floors; offer-ledger incrementality tracking.</td></tr>
+          <tr><td>Over-automation outruns trust</td><td>Med</td><td>Med</td><td>Climb the ladder on evidence; each level needs a clean audit trail before the next.</td></tr>
+          <tr><td>Context-window blowups (EMAIL HTML, big results)</td><td>Med</td><td>Low</td><td>Prefer metadata reads; small page sizes; summarise in sub-agents.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 16 -->
+    <section id="s16">
+      <div class="shead"><span class="snum">16</span><h2>Final recommendation</h2></div>
+      <p class="lead-in">Direct answers to your 13 questions, then the operating level and the conditions to advance.</p>
+      <div class="twrap"><table>
+        <thead><tr><th>#</th><th>Question</th><th>Answer</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Build immediately</td><td>Build Sheet + Learning DB + daily brief (Level 2). No engineering.</td></tr>
+          <tr><td>2</td><td>Don't build yet</td><td>Anything that sends/activates; autonomous discount/budget decisioning.</td></tr>
+          <tr><td>3</td><td>Write access to MoEngage?</td><td>Yes — scoped to <em>drafts + test-sends</em>, at Level 3, for templates only.</td></tr>
+          <tr><td>4</td><td>Send / activation access?</td><td>No — and the MCP can't grant it anyway. Keep publish human indefinitely.</td></tr>
+          <tr><td>5</td><td>Safe to automate</td><td>Analysis, opportunity detection, audience building/sizing, copy drafting, measurement, learning capture.</td></tr>
+          <tr><td>6</td><td>Permanent human approval</td><td>Publish/send, discount depth, brand-voice sign-off, STOP, novel campaigns, large audiences.</td></tr>
+          <tr><td>7</td><td>Info that lives outside MoEngage</td><td>Orders, margin, inventory, returns, COD, LTV/RFM, acquisition source, the Learning DB.</td></tr>
+          <tr><td>8</td><td>Infrastructure to build</td><td>Warehouse + feature store, Learning DB, guardrail engine, approval queue.</td></tr>
+          <tr><td>9</td><td>MCP problems to solve</td><td>Escalate the analytics-engine opaque failure; standardise name-resolution; handle 30-day caps.</td></tr>
+          <tr><td>10</td><td>Achievable with no engineering</td><td>Level 2 end-to-end: recommend → operator builds → Claude measures.</td></tr>
+          <tr><td>11</td><td>Lightweight engineering</td><td>Warehouse pipes, feature modelling, guardrail + brand-voice automation.</td></tr>
+          <tr><td>12</td><td>Significant engineering</td><td>Draft-write integration + read-back validation, approval UI, post-send anomaly detection.</td></tr>
+          <tr><td>13</td><td>30/60/90</td><td>Prove Level 2 → build intelligence layer → move templates to Level 3 (Section 13).</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="note tested">
+        <p class="nt">Operate here, now</p>
+        <p><strong>Run at Autonomy Level 2 (Model B) today.</strong> Claude is the analyst, strategist and specifier; humans build and publish. This needs no engineering and captures most of the near-term revenue and learning-velocity upside at near-zero risk.</p>
+      </div>
+      <div class="note">
+        <p class="nt">Conditions to move to Level 3</p>
+        <p>Advance to Claude-builds-drafts only when <strong>all</strong> hold: (1) a warehouse-backed intelligence layer is live and trusted; (2) Claude's impact estimates have a validated track record against control groups; (3) guardrail + brand-voice checks are automated and deterministic; (4) an approval queue with read-back diffing exists; (5) a template library is defined and each template has passed manual runs. Level 4+ requires months of clean Level-3 audit trail — and Level 5 additionally requires a send API MoEngage does not expose today.</p>
+      </div>
+      <p style="max-width:var(--readw)">Design once, climb forever: the intelligence layers (data → agents → decision engine → guardrails) never change as you raise permissions. Only the execution layer's access widens — which is exactly the property that lets you become more autonomous without redesigning the system each time.</p>
+    </section>
+  </main>
+</div>
+
+<div class="footer">
+  <p><span class="mono">Method:</span> Grounded in ~15 live MoEngage &amp; Windsor MCP calls against the DailyObjects workspace on 2 Sep 2026. Capabilities are marked <span class="tst live">Tested</span> (executed live) or <span class="tst asm">Assumed</span> (documented tool contract, not exercised). Constitution numbers are placeholders for the team to ratify.</p>
+  <p><span class="mono">Scope note:</span> No production state was mutated — all writes (drafts, sends, segments) were left untested by design. The single opaque failure documented (behaviour analysis) is a read, run twice.</p>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('tgl');
+  function cur(){var t=root.getAttribute('data-theme'); if(t)return t;
+    return window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';}
+  btn.addEventListener('click',function(){
+    var n=cur()==='dark'?'light':'dark'; root.setAttribute('data-theme',n);
+    try{localStorage.setItem('crm-theme',n);}catch(e){}
+  });
+  try{var s=localStorage.getItem('crm-theme'); if(s)root.setAttribute('data-theme',s);}catch(e){}
+
+  // scrollspy
+  var links=[].slice.call(document.querySelectorAll('nav.toc a'));
+  var map={}; links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+  var obs=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){
+      links.forEach(function(l){l.classList.remove('on');});
+      var a=map[e.target.id]; if(a)a.classList.add('on');
+    }});
+  },{rootMargin:'-45% 0px -50% 0px'});
+  document.querySelectorAll('section[id]').forEach(function(s){obs.observe(s);});
+})();
+</script>
