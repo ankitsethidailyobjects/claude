@@ -1,0 +1,176 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1920px;background:#f6f7f9;font-family:"Lato","Helvetica Neue",Arial,sans-serif;color:#14213d;padding:40px 48px}
+.eyebrow{display:flex;align-items:center;gap:12px;letter-spacing:.32em;font-weight:700;font-size:15px;color:#1f9e89}
+.eyebrow i{width:22px;height:22px;background:#1f9e89;display:inline-block}
+h1{font-size:40px;margin:10px 0 4px;letter-spacing:-.01em}
+.sub{font-size:17px;color:#4a5568;font-style:italic;margin-bottom:22px}
+.wrap{display:grid;grid-template-columns:1fr 330px;gap:18px}
+.layer{display:grid;grid-template-columns:150px 1fr;gap:12px;margin-bottom:12px;align-items:stretch}
+.lbl{border-radius:8px;padding:12px;font-weight:800;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;display:flex;flex-direction:column;justify-content:center;color:#fff}
+.lbl small{font-weight:400;letter-spacing:0;text-transform:none;font-size:12px;opacity:.85;margin-top:6px;line-height:1.35}
+.row{display:grid;gap:10px}
+.box{background:#fff;border:1px solid #d9dee5;border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.35}
+.box b{display:block;font-size:14.5px;margin-bottom:3px}
+.box span{color:#5a6577}
+.c5{grid-template-columns:repeat(5,1fr)}.c6{grid-template-columns:repeat(6,1fr)}.c4{grid-template-columns:repeat(4,1fr)}.c7{grid-template-columns:repeat(7,1fr)}
+.users .lbl{background:#5a6577}
+.edge .lbl{background:#334155}
+.edge .box{background:#eef1f5}
+.mod{display:grid;grid-template-columns:1fr 1.15fr;gap:12px}
+.panel{border-radius:10px;padding:12px;}
+.p2p{background:#e7f5f2;border:2px solid #1f9e89}
+.ia{background:#e8ecf6;border:2px solid #0f1f4b}
+.ph{font-weight:800;letter-spacing:.18em;font-size:13px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.p2p .ph{color:#137565}.ia .ph{color:#0f1f4b}
+.tag{font-size:10.5px;letter-spacing:.06em;padding:3px 8px;border-radius:20px;font-weight:800;color:#fff}
+.t1{background:#1f9e89}.t2{background:#e08a1e}.t3{background:#5a6577}.t4{background:#0f1f4b}
+.p2p .box{border-top:4px solid #1f9e89}
+.ia .chev{background:#0f1f4b;color:#fff;border:none;clip-path:polygon(0 0,92% 0,100% 50%,92% 100%,0 100%,6% 50%);padding:10px 22px 10px 20px}
+.ia .chev:first-child{clip-path:polygon(0 0,92% 0,100% 50%,92% 100%,0 100%)}
+.ia .chev span{color:#c9d3ec}.ia .chev b{color:#fff}
+.num{font-size:11px;font-weight:800;color:#7fd3c4;letter-spacing:.1em}
+.p2p .num{color:#1f9e89}
+.core .lbl{background:#1f9e89}
+.ai .lbl{background:#7c3aed}
+.ai .box{border-left:4px solid #7c3aed}
+.plat .lbl{background:#0f1f4b}
+.data .lbl{background:#14213d}
+.data .box{background:#14213d;color:#fff;border:none}.data .box span{color:#b8c2d6}
+.gate{background:#fff7e6!important;border:2px solid #e08a1e!important}
+.side .panel{background:#fff;border:1px solid #d9dee5;margin-bottom:12px}
+.side h3{font-size:13px;letter-spacing:.18em;font-weight:800;margin-bottom:8px}
+.side ul{list-style:none;font-size:13px;line-height:1.4}
+.side li{padding:6px 0;border-bottom:1px dashed #e2e6ec}
+.side li:last-child{border:none}
+.side li b{display:block;font-size:13.5px}
+.side li span{color:#5a6577}
+.int h3{color:#1f9e89}.sec h3{color:#b42318}.ops h3{color:#334155}
+.bottom{display:grid;grid-template-columns:1fr 1fr 1fr 1.6fr;gap:12px;margin-top:6px}
+.pr{background:#fff;border:2px solid #1f9e89;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.4}
+.pr b{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:4px}
+.pr b:before{content:"";width:12px;height:12px;border-radius:50%;background:#1f9e89}
+.pr span{color:#5a6577}
+.road{background:#0f1f4b;color:#fff;border-radius:10px;padding:12px 14px;font-size:12.5px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.road div b{display:block;color:#7fd3c4;font-size:12px;letter-spacing:.1em;margin-bottom:3px}
+.road div{line-height:1.4;color:#dbe2f0}
+.road h4{grid-column:1/-1;font-size:12px;letter-spacing:.2em;color:#fff}
+.foot{margin-top:14px;font-size:12px;color:#7a8597;display:flex;justify-content:space-between}
+.flow{font-size:12px;color:#5a6577;text-align:center;margin:-4px 0 8px 162px;letter-spacing:.06em}
+</style></head><body>
+<div class="eyebrow"><i></i>REFERENCE ARCHITECTURE</div>
+<h1>Controls &amp; Internal Audit Platform — DailyObjects</h1>
+<div class="sub">One platform, two modules: PO-to-payment invoice controls and an AI-native audit operating system, sharing an AI layer, workflow engine and immutable audit trail.</div>
+
+<div class="wrap"><div>
+
+<div class="layer users"><div class="lbl">Users &amp; Channels</div>
+<div class="row c5">
+ <div class="box"><b>Vendor Portal</b><span>Vendors: onboarding, PO view, invoice upload, payment status</span></div>
+ <div class="box"><b>Finance / AP Console</b><span>AP team: exception queues, approvals, payment release</span></div>
+ <div class="box"><b>Audit Workspace</b><span>Internal auditors: plan, RCM, fieldwork, review &amp; sign-off</span></div>
+ <div class="box"><b>Auditee Inbox</b><span>Process owners: answer queries, upload evidence, CAPA updates (web, email, Slack)</span></div>
+ <div class="box"><b>Leadership Dashboards</b><span>CFO / Audit Committee: risk heatmap, open ATRs, P2P leakage</span></div>
+</div></div>
+
+<div class="layer edge"><div class="lbl">Access Edge</div>
+<div class="row c5">
+ <div class="box"><b>API Gateway + WAF</b><span>Rate limits, versioned REST APIs</span></div>
+ <div class="box"><b>SSO (Google Workspace)</b><span>Staff login, MFA enforced</span></div>
+ <div class="box"><b>Vendor Auth</b><span>Email/mobile OTP, per-vendor tenancy</span></div>
+ <div class="box"><b>RBAC + ABAC</b><span>Role, entity, location, segregation of duties</span></div>
+ <div class="box"><b>Maker–Checker Policies</b><span>Who can approve what, above which limits</span></div>
+</div></div>
+
+<div class="layer core"><div class="lbl">Business Modules<small>Domain services, each with its own API and data schema</small></div>
+<div class="mod">
+ <div class="panel p2p"><div class="ph">INVOICE CONTROLS · PO TO PAYMENT</div>
+  <div class="row" style="grid-template-columns:1fr 1fr">
+   <div class="box"><div class="num">01</div><b>Vendor Onboarding &amp; KYC</b><span>GSTIN, PAN, MSME, bank penny-drop, document checks</span></div>
+   <div class="box"><div class="num">02</div><b>PO Visibility</b><span>PO + GRN sync from ERP/WMS, line-level open qty</span></div>
+   <div class="box"><div class="num">03</div><b>Invoice Ingestion</b><span>Upload / email-in, OCR, IRN-QR verify, map to PO lines</span></div>
+   <div class="box"><div class="num">04</div><b>Validation &amp; Exceptions</b><span>2/3-way match, GST &amp; HSN checks, duplicates, tolerances</span></div>
+   <div class="box" style="grid-column:1/-1"><div class="num">05</div><b>Payment Status &amp; Advice</b><span>Posting to ERP, UTR from bank, TDS, remittance advice pushed to vendor</span></div>
+  </div></div>
+ <div class="panel ia"><div class="ph">INTERNAL AUDIT · AUDIT OPERATING SYSTEM</div>
+  <div class="row" style="grid-template-columns:1fr 1fr 1fr">
+   <div class="box chev"><div class="num">01</div><b>Charter &amp; Audit Universe</b><span>Entities, processes, owners</span></div>
+   <div class="box chev"><div class="num">02</div><b>Risk Assessment &amp; Plan</b><span>Risk scoring, annual plan</span></div>
+   <div class="box chev"><div class="num">03</div><b>RCM &amp; Work Programme</b><span>Risks, controls, test steps</span></div>
+   <div class="box chev"><div class="num">04</div><b>Requests, Queries &amp; Obs.</b><span>PBC tracker, evidence, findings</span></div>
+   <div class="box chev"><div class="num">05</div><b>Audit Report</b><span>Drafted, reviewed, versioned</span></div>
+   <div class="box chev"><div class="num">06</div><b>CAPA / ATR Tracking</b><span>Owners, due dates, closure proof</span></div>
+  </div>
+  <div style="font-size:12px;color:#0f1f4b;margin-top:8px"><b>Link:</b> P2P exceptions &amp; control failures flow into the audit module as test evidence and observations — continuous auditing.</div>
+ </div>
+</div></div>
+
+<div class="layer ai"><div class="lbl">AI Layer<small>"AI drafts, auditors approve"</small></div>
+<div class="row c6">
+ <div class="box"><b>Document AI</b><span>OCR + layout extraction for invoices, POs, contracts, policies</span></div>
+ <div class="box"><b>LLM Orchestrator</b><span>Claude API, prompt library per task, structured JSON outputs</span></div>
+ <div class="box"><b>RAG + Citations</b><span>Retrieve from evidence vault; every sentence carries a source ID</span></div>
+ <div class="box"><b>Drafting Agents</b><span>Risk register, RCM, test steps, observations, report, ATR nudges</span></div>
+ <div class="box"><b>Guardrails</b><span>PII masking, citation check, confidence score, no-source = no-claim</span></div>
+ <div class="box gate"><b>Human Approval Gate</b><span>AI output stays "Draft" until a named reviewer signs off</span></div>
+</div></div>
+
+<div class="layer plat"><div class="lbl">Platform Services</div>
+<div class="row c6">
+ <div class="box"><b>Workflow Engine</b><span>Temporal / Camunda: approvals, SLAs, escalations</span></div>
+ <div class="box"><b>Rules Engine</b><span>Configurable match tolerances, GST &amp; policy rules</span></div>
+ <div class="box"><b>Audit Trail Service</b><span>Append-only, hash-chained log of every change &amp; approval</span></div>
+ <div class="box"><b>Notifications</b><span>Email, Slack, WhatsApp; reminders &amp; digests</span></div>
+ <div class="box"><b>Search</b><span>Full-text across POs, invoices, evidence, findings</span></div>
+ <div class="box"><b>Jobs &amp; Event Bus</b><span>Kafka / SQS; ERP syncs, schedules, retries</span></div>
+</div></div>
+
+<div class="layer data"><div class="lbl" style="background:#14213d">Data Layer</div>
+<div class="row c5">
+ <div class="box"><b>PostgreSQL</b><span>Transactional data, schema per module, row-level security</span></div>
+ <div class="box"><b>pgvector</b><span>Embeddings of evidence &amp; policies for retrieval</span></div>
+ <div class="box"><b>Evidence Vault (S3)</b><span>Versioned, object-lock (WORM), SHA-256 per file</span></div>
+ <div class="box"><b>Event Store</b><span>Immutable change history; replayable</span></div>
+ <div class="box"><b>Warehouse + BI</b><span>BigQuery / Metabase: KPIs, leakage, ATR ageing</span></div>
+</div></div>
+
+</div>
+
+<div class="side">
+ <div class="panel int"><h3>INTEGRATIONS</h3><ul>
+  <li><b>ERP</b><span>SAP / NetSuite / Tally / Zoho Books: vendors, POs, postings, payments</span></li>
+  <li><b>WMS / GRN</b><span>Goods receipts for 3-way match</span></li>
+  <li><b>GSTN / IRP via GSP</b><span>GSTIN status, IRN verification, GSTR-2B recon</span></li>
+  <li><b>KYC APIs</b><span>PAN, bank penny-drop, MSME (Udyam)</span></li>
+  <li><b>Banking</b><span>Payment files, UTR / status webhooks</span></li>
+  <li><b>Email inbox</b><span>invoices@ ingestion; auditee replies</span></li>
+  <li><b>HRMS / Directory</b><span>Users, managers, process owners</span></li>
+ </ul></div>
+ <div class="panel sec"><h3>SECURITY &amp; COMPLIANCE</h3><ul>
+  <li><b>Encryption</b><span>TLS 1.2+, AES-256 at rest, KMS keys</span></li>
+  <li><b>Data residency</b><span>India region; DPDP Act aligned</span></li>
+  <li><b>Segregation of duties</b><span>Enforced in RBAC + workflow</span></li>
+  <li><b>LLM data policy</b><span>Zero-retention API, no training on data</span></li>
+ </ul></div>
+ <div class="panel ops"><h3>ENGINEERING &amp; OPS</h3><ul>
+  <li><b>Stack</b><span>Next.js · Node/TS or Python services · AWS (ECS/EKS)</span></li>
+  <li><b>IaC + CI/CD</b><span>Terraform, GitHub Actions, dev / staging / prod</span></li>
+  <li><b>Observability</b><span>OpenTelemetry, Grafana, LLM evals &amp; cost tracking</span></li>
+ </ul></div>
+</div>
+</div>
+
+<div class="bottom">
+ <div class="pr"><b>AI drafts, auditors approve</b><span>Draft → Review → Approved states in workflow; only humans can move to Final.</span></div>
+ <div class="pr"><b>Source-grounded</b><span>RAG with mandatory citations to vault file IDs; guardrail rejects uncited claims.</span></div>
+ <div class="pr"><b>Complete audit trail</b><span>Every create, edit, approval and closure written to the hash-chained event log.</span></div>
+ <div class="road"><h4>BUILD ROADMAP</h4>
+  <div><b>PHASE 1 · 0–3 MO</b>ERP + GRN sync, PO visibility, invoice upload, validation &amp; exceptions, audit trail</div>
+  <div><b>PHASE 2 · 3–6 MO</b>Payment status &amp; advice, vendor KYC, audit universe, risk plan, RCM with AI drafting</div>
+  <div><b>PHASE 3 · 6–9 MO</b>Queries &amp; PBC, report drafting, CAPA/ATR tracking, continuous control monitoring</div>
+ </div>
+</div>
+<div class="foot"><span>DailyObjects · Internal · Controls &amp; Audit Platform</span><span>Reference architecture v1</span></div>
+</body></html>
