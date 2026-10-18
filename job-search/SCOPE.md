@@ -42,6 +42,28 @@ sends a daily digest, and tailors resumes/cover letters per job.
 The same job often arrives from several sources (e.g. a LinkedIn alert and Google Jobs);
 dedupe merges them and records every source + link.
 
+## Freshness (keeping old listings out)
+1. **Only recent emails are read.** The first run reads alert emails from the last 7 days
+   (Gmail query `newer_than:7d`, configurable). Each later run reads only mail that arrived
+   since the last sync. Processed message IDs are stored, so no email is parsed twice.
+   The older backlog in the inbox is never touched.
+2. **Every job gets a best-estimate posting date**, taken from the first of these available:
+   the "posted X days ago" text in the email or job page; SerpAPI's `posted_at`; the ATS
+   `created_at`/`updated_at`; otherwise the date the alert email arrived (a ceiling on age).
+3. **Age cut-off.** Jobs older than a max age (default 21 days, configurable) are hidden
+   from the Jobs page and the digest, and are not sent for AI scoring.
+4. **Liveness check before it matters.** Before a job goes into the digest or gets a tailored
+   resume, its link is checked once: 404, a redirect to search results, or text like
+   "no longer accepting applications" / "job expired" marks it **Closed**. If the portal
+   blocks the check, the job is marked **Unverified** rather than guessed.
+   - Watchlist (Greenhouse/Lever/Ashby) jobs: a job that drops out of the company's feed is
+     marked Closed automatically.
+5. **Last-seen tracking.** Each time a job reappears in a new alert or search, `last_seen` is
+   updated. Jobs not seen for 14 days and not saved/applied are auto-archived.
+6. **In the UI:** a freshness badge (New today · 3d · 2w · Closed · Unverified), a max-age
+   filter, and ranking that combines fit score with freshness. Saved/applied jobs are never
+   auto-archived.
+
 ## Features
 ### 1. Profile & preferences
 - Upload resume (PDF/DOCX → text), target titles, seniority, cities (+ remote OK?),
@@ -74,9 +96,11 @@ dedupe merges them and records every source + link.
 ## Data model (SQLite)
 - `profile` (single row: prefs JSON, resume text, resume_version)
 - `company_watch` (name, ats, slug, active)
-- `job` (normalised fields, hash, first_seen, status)
+- `job` (normalised fields, hash, posted_at, posted_at_source, first_seen, last_seen,
+  liveness: open|closed|unverified, liveness_checked_at, status)
 - `job_source` (job_id, source, external_id, url, seen_at) — one job, many portals
 - `raw_email` (gmail_id, portal, received_at, html, parsed_ok)
+- `sync_state` (source, last_synced_at / last Gmail history id)
 - `job_score` (job_id, resume_version, score, analysis JSON, created_at)
 - `application` (job_id, stage, applied_at, follow_up_at, notes)
 - `document` (job_id, type resume|cover, content, created_at)
