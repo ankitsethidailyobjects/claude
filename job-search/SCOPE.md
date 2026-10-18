@@ -109,7 +109,7 @@ dedupe merges them and records every source + link.
 ```
 job-search/
   app.py                 # Streamlit entry
-  pages/                 # Today, Jobs, Tracker, Profile, Companies
+  views/                 # Streamlit pages: Home, Profile, Companies (+ Jobs, Tracker, Today)
   jobsearch/
     db.py models.py config.py
     sources/ gmail_alerts.py serpapi_jobs.py adzuna.py greenhouse.py lever.py ashby.py manual.py
