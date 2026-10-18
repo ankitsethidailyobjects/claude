@@ -24,6 +24,8 @@ class Settings:
     archive_after_days: int
     anthropic_api_key: str
     serpapi_key: str
+    serpapi_queries_per_run: int
+    serpapi_monthly_limit: int
     adzuna_app_id: str
     adzuna_app_key: str
     gmail_credentials_file: Path
@@ -55,9 +57,31 @@ def load_settings() -> Settings:
         archive_after_days=_int("ARCHIVE_AFTER_DAYS", 14),
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY", ""),
         serpapi_key=os.getenv("SERPAPI_KEY", ""),
+        serpapi_queries_per_run=_int("SERPAPI_QUERIES_PER_RUN", 3),
+        serpapi_monthly_limit=_int("SERPAPI_MONTHLY_LIMIT", 100),
         adzuna_app_id=os.getenv("ADZUNA_APP_ID", ""),
         adzuna_app_key=os.getenv("ADZUNA_APP_KEY", ""),
         gmail_credentials_file=creds,
         smtp_user=os.getenv("SMTP_USER", ""),
         digest_to=os.getenv("DIGEST_TO", ""),
     )
+
+
+ENV_PATH = PROJECT_ROOT / ".env"
+
+
+def save_env(values: dict[str, str], path: Path = ENV_PATH) -> None:
+    """Update keys in .env (keeping other lines and comments) and in this process."""
+    lines = path.read_text().splitlines() if path.exists() else []
+    remaining = dict(values)
+    for i, line in enumerate(lines):
+        key = line.split("=", 1)[0].strip()
+        if not line.lstrip().startswith("#") and "=" in line and key in remaining:
+            lines[i] = f"{key}={remaining.pop(key)}"
+    lines += [f"{k}={v}" for k, v in remaining.items()]
+    path.write_text("\n".join(lines) + "\n")
+    try:
+        path.chmod(0o600)
+    except OSError:
+        pass
+    os.environ.update(values)

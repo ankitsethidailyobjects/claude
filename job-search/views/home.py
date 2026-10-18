@@ -26,9 +26,10 @@ with col1:
     if not is_complete(profile):
         st.page_link("views/profile.py", label="Complete your profile →", icon="👤")
 with col2:
-    st.markdown("**Integrations** (set in `.env`)")
+    st.markdown("**Integrations**")
     for name, ok in settings.missing_keys().items():
         st.markdown(f"{'✅' if ok else '⬜'} {name}")
+    st.page_link("views/settings.py", label="Add API keys →", icon="⚙️")
 
 st.subheader("Freshness rules")
 st.markdown(
@@ -37,4 +38,4 @@ st.markdown(
     f"- Jobs not seen for **{settings.archive_after_days} days** are archived "
     "(unless saved or applied)"
 )
-st.caption("Change these in `.env` (FIRST_SYNC_DAYS, MAX_JOB_AGE_DAYS, ARCHIVE_AFTER_DAYS).")
+st.caption("Change these on the Settings page.")
